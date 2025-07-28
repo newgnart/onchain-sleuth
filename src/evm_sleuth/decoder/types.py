@@ -7,6 +7,7 @@ from dataclasses import dataclass
 @dataclass
 class EventDefinition:
     """Event definition from ABI."""
+
     name: str
     signature: str
     topic0: str
@@ -18,6 +19,7 @@ class EventDefinition:
 @dataclass
 class DecodedEvent:
     """Decoded event data."""
+
     address: str
     event_name: str
     parameters: Dict[str, Any]
@@ -25,3 +27,7 @@ class DecodedEvent:
     is_unknown: bool = False
     raw_topics: Optional[List[str]] = None
     raw_data: Optional[str] = None
+    transaction_hash: Optional[str] = None
+    block_number: Optional[int] = None
+    txn_from: Optional[str] = None
+    txn_to: Optional[str] = None

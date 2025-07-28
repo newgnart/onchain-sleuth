@@ -361,13 +361,14 @@ class EtherscanDLTResource:
         self.chainid = chainid
         self.api_key = api_key
         self.base_url = "https://api.etherscan.io/v2/api"
+        self.calls_per_second = calls_per_second
 
     def _create_etherscan_source(self, params: dict):
         """
         Creates a dlt rest_api_source for a given set of Etherscan API parameters.
         It includes a rate-limited session for the client.
         """
-        session = RateLimitedSession(calls_per_second=5)
+        session = RateLimitedSession(calls_per_second=self.calls_per_second)
         return rest_api_source(
             {
                 "client": {
@@ -439,7 +440,7 @@ class EtherscanDLTResource:
             f"Fetching logs for address {address} from block {fromBlock} to {toBlock}"
         )
 
-        trasource = self._create_etherscan_source(params)
+        source = self._create_etherscan_source(params)
         for item in source:
             item["chainid"] = self.chainid
             yield item

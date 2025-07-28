@@ -2,15 +2,24 @@
 
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from Crypto.Hash import keccak
 from .types import DecodedEvent, EventDefinition
 from .utils import HexUtils, TypeUtils
+from .strategies import DecodingStrategy, StrategyFactory
 
 
 class EventDecoder:
-    def __init__(self, abi: List[Dict[str, Any]]):
+    """Event decoder using strategy pattern for different decoding approaches."""
+    
+    def __init__(
+        self, 
+        abi: List[Dict[str, Any]], 
+        strategy: DecodingStrategy = DecodingStrategy.BASIC
+    ):
         self._events_by_topic0 = self._build_event_definitions(abi)
+        self._strategy = StrategyFactory.create_strategy(strategy)
+        self._current_strategy_type = strategy
 
     def _build_event_definitions(
         self, abi: List[Dict[str, Any]]
@@ -79,7 +88,12 @@ class EventDecoder:
         address: str,
         topics: List[str],
         data: str,
+        transaction_hash: Optional[str] = None,
+        block_number: Optional[int] = None,
+        txn_from: Optional[str] = None,
+        txn_to: Optional[str] = None,
     ) -> DecodedEvent:
+        """Decode log entry using the configured strategy."""
         if not topics:
             return self._create_unknown_event(address, topics, data)
 
@@ -89,7 +103,8 @@ class EventDecoder:
         if not event_def:
             return self._create_unknown_event(address, topics, data, topic0)
 
-        decoded_params = self._decode_log_data(event_def, topics, data)
+        # Use the current strategy to decode
+        decoded_params = self._strategy.decode(event_def, topics, data)
         event_name = decoded_params.pop("event", "unknown")
 
         decoded_event = DecodedEvent(
@@ -98,183 +113,57 @@ class EventDecoder:
             parameters=decoded_params,
             topic0=topic0,
             is_unknown=False,
+            transaction_hash=transaction_hash,
+            block_number=block_number,
+            txn_from=txn_from,
+            txn_to=txn_to,
         )
         return decoded_event
 
-    def decode_log_entry_with_tuples(
+    def decode_with_fallback(
         self,
         address: str,
         topics: List[str],
         data: str,
+        transaction_hash: Optional[str] = None,
+        block_number: Optional[int] = None,
+        txn_from: Optional[str] = None,
+        txn_to: Optional[str] = None,
     ) -> DecodedEvent:
-        if not topics:
-            return self._create_unknown_event(address, topics, data)
-
-        topic0 = topics[0]
-        event_def = self._events_by_topic0.get(topic0)
-
-        if not event_def:
-            return self._create_unknown_event(address, topics, data, topic0)
-
-        decoded_params = self._decode_log_data_with_tuples(event_def, topics, data)
-        event_name = decoded_params.pop("event", "unknown")
-
-        decoded_event = DecodedEvent(
-            address=address,
-            event_name=event_name,
-            parameters=decoded_params,
-            topic0=topic0,
-            is_unknown=False,
+        """Decode log entry with fallback to tuple-aware strategy if basic fails."""
+        # Try with current strategy first
+        decoded_event = self.decode_log_entry(
+            address, topics, data, transaction_hash, block_number, txn_from, txn_to
         )
+        
+        # If unknown and we're using basic strategy, try tuple-aware
+        if (decoded_event.event_name == "unknown" and 
+            self._current_strategy_type == DecodingStrategy.BASIC):
+            
+            # Temporarily switch to tuple-aware strategy
+            original_strategy = self._strategy
+            self._strategy = StrategyFactory.create_strategy(DecodingStrategy.TUPLE_AWARE)
+            
+            try:
+                decoded_event = self.decode_log_entry(
+                    address, topics, data, transaction_hash, block_number, txn_from, txn_to
+                )
+            finally:
+                # Restore original strategy
+                self._strategy = original_strategy
+        
         return decoded_event
 
-    def _decode_log_data(
-        self, event_def: EventDefinition, topics: List[str], data: str
-    ) -> Dict[str, Any]:
-        decoded = {"event": event_def.name}
-        topic_index = 1
 
-        for param in event_def.inputs:
-            if param.get("indexed", False):
-                if topic_index < len(topics):
-                    decoded[param["name"]] = self._decode_parameter(
-                        param["type"], topics[topic_index]
-                    )
-                    topic_index += 1
-
-        if not HexUtils.is_empty_hex(data):
-            data_params = [p for p in event_def.inputs if not p.get("indexed", False)]
-            if data_params:
-                decoded_data = self._decode_data_parameters(data_params, data)
-                decoded.update(decoded_data)
-
-        return decoded
-
-    def _decode_log_data_with_tuples(
-        self, event_def: EventDefinition, topics: List[str], data: str
-    ) -> Dict[str, Any]:
-        decoded = {"event": event_def.name}
-        topic_index = 1
-
-        for param in event_def.inputs:
-            if param.get("indexed", False):
-                if topic_index < len(topics):
-                    decoded[param["name"]] = self._decode_parameter(
-                        param["type"], topics[topic_index]
-                    )
-                    topic_index += 1
-
-        if not HexUtils.is_empty_hex(data):
-            data_params = [p for p in event_def.inputs if not p.get("indexed", False)]
-            if data_params:
-                decoded_data = self._decode_data_parameters_with_tuples(
-                    data_params, data
-                )
-                decoded.update(decoded_data)
-
-        return decoded
-
-    def _decode_data_parameters(
-        self, params: List[Dict[str, Any]], data: str
-    ) -> Dict[str, Any]:
-        if HexUtils.is_empty_hex(data):
-            return {}
-
-        hex_data = HexUtils.normalize_hex(data)
-        decoded = {}
-        data_offset = 0
-
-        for param in params:
-            param_type = param["type"]
-            if param_type == "string" or param_type.startswith("bytes"):
-                # Dynamic types (string, bytes) are handled differently
-                # This basic decoder assumes fixed-size types for simplicity
-                # A more robust implementation would handle dynamic types correctly
-                continue
-
-            start = data_offset
-            end = start + 64  # Assumes 32-byte slots
-            if end <= len(hex_data):
-                param_hex = hex_data[start:end]
-                decoded[param["name"]] = self._decode_parameter(
-                    param_type, "0x" + param_hex
-                )
-                data_offset = end
-
-        return decoded
-
-    def _decode_data_parameters_with_tuples(
-        self, params: List[Dict[str, Any]], data: str
-    ) -> Dict[str, Any]:
-        if HexUtils.is_empty_hex(data):
-            return {}
-        hex_data = HexUtils.normalize_hex(data)
-        decoded_params, _ = self._decode_complex_data(params, hex_data, 0)
-        return decoded_params
-
-    def _decode_complex_data(
-        self, params: List[Dict[str, Any]], hex_data: str, data_offset: int
-    ) -> (Dict[str, Any], int):
-        decoded = {}
-        current_offset = data_offset
-
-        for param in params:
-            param_type = param["type"]
-            param_name = param["name"]
-
-            if param_type.endswith("[]"):
-                # For now, we skip array types as their handling is complex
-                current_offset += 64
-                continue
-
-            if param_type == "tuple":
-                decoded_value, consumed_len = self._decode_complex_data(
-                    param["components"], hex_data, current_offset
-                )
-                decoded[param_name] = decoded_value
-                current_offset += consumed_len
-            elif param_type == "string" or param_type.startswith("bytes"):
-                # Dynamic types are not fully supported, this is a placeholder
-                current_offset += 64
-                continue
-            else:
-                # Static types
-                start = current_offset
-                end = start + 64
-                if end <= len(hex_data):
-                    param_hex = hex_data[start:end]
-                    decoded[param_name] = self._decode_parameter(
-                        param_type, "0x" + param_hex
-                    )
-                    current_offset = end
-                else:
-                    break
-        return decoded, (current_offset - data_offset)
-
-    @staticmethod
-    def _decode_parameter(param_type: str, value: str) -> Any:
-        if HexUtils.is_empty_hex(value):
-            return None
-
-        hex_value = HexUtils.normalize_hex(value)
-
-        if TypeUtils.is_address_type(param_type):
-            return HexUtils.extract_address(hex_value)
-        elif param_type.startswith("uint"):
-            return int(hex_value, 16)
-        elif TypeUtils.is_signed_type(param_type):
-            bit_size = TypeUtils.get_bit_size(param_type)
-            val = int(hex_value, 16)
-            if val >= (1 << (bit_size - 1)):
-                val -= 1 << bit_size
-            return val
-        elif TypeUtils.is_bool_type(param_type):
-            return int(hex_value, 16) != 0
-        elif TypeUtils.is_bytes_type(param_type):
-            return "0x" + hex_value
-        else:
-            return "0x" + hex_value
-
+    def set_strategy(self, strategy: DecodingStrategy):
+        """Change the decoding strategy."""
+        self._strategy = StrategyFactory.create_strategy(strategy)
+        self._current_strategy_type = strategy
+    
+    def get_current_strategy(self) -> DecodingStrategy:
+        """Get the current decoding strategy."""
+        return self._current_strategy_type
+    
     def _create_unknown_event(
         self, address: str, topics: List[str], data: str, topic0: str = ""
     ) -> DecodedEvent:
