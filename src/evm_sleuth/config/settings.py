@@ -64,6 +64,25 @@ class DatabaseSettings:
 
 
 @dataclass
+class DuckDBSettings:
+    """DuckDB configuration."""
+    database_path: str
+    
+    @classmethod
+    def from_env(cls) -> 'DuckDBSettings':
+        """Create from environment variables."""
+        return cls(
+            database_path=os.getenv("DUCKDB_PATH", "data/evm_sleuth.duckdb")
+        )
+    
+    def get_connection_params(self) -> Dict[str, Any]:
+        """Return connection parameters for DuckDB."""
+        return {
+            "database": self.database_path,
+        }
+
+
+@dataclass
 class ColumnSchemas:
     """Standardized column schemas for DLT pipelines."""
     
@@ -114,6 +133,7 @@ class Settings:
     def __init__(self):
         self.api = APISettings()
         self.local_db = DatabaseSettings.from_env()
+        self.duckdb = DuckDBSettings.from_env()
         self.columns = ColumnSchemas()
         self.api_urls = APIUrls()
         

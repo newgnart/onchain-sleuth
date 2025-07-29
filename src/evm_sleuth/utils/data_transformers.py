@@ -29,6 +29,28 @@ class DataTransformer:
                 item[new_key] = item.pop(old_key)
     
     @staticmethod
+    def safe_convert_large_integers(item: Dict[str, Any], fields: List[str] = None) -> None:
+        """Convert large integers to strings to avoid 64-bit overflow in place."""
+        def convert_nested(obj):
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    obj[k] = convert_nested(v)
+            elif isinstance(obj, list):
+                for i, v in enumerate(obj):
+                    obj[i] = convert_nested(v)
+            elif isinstance(obj, int) and (obj > 2**63 - 1 or obj < -2**63):
+                return str(obj)
+            return obj
+        
+        if fields is None:
+            # If no specific fields provided, check all values recursively
+            convert_nested(item)
+        else:
+            for field in fields:
+                if field in item:
+                    item[field] = convert_nested(item[field])
+    
+    @staticmethod
     def process_timestamps(item: Dict[str, Any], timestamp_fields: List[str] = None) -> None:
         """Convert timestamp fields to datetime objects in place."""
         timestamp_fields = timestamp_fields or ["timestamp"]
@@ -81,5 +103,12 @@ class DataTransformer:
         # Convert timestamps
         if "timestamp_fields" in transformations:
             self.process_timestamps(item, transformations["timestamp_fields"])
+        
+        # Handle large integers
+        if "large_integer_fields" in transformations:
+            self.safe_convert_large_integers(item, transformations["large_integer_fields"])
+        else:
+            # By default, check all fields for large integers
+            self.safe_convert_large_integers(item)
         
         return item
