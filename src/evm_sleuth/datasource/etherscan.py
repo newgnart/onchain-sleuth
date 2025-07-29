@@ -6,7 +6,7 @@ import dlt
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Iterator
 
-from evm_sleuth.core.base import BaseAPIClient, BaseDLTResource, APIConfig
+from evm_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
 from evm_sleuth.core.exceptions import APIError
 from evm_sleuth.config.settings import settings
 
@@ -221,11 +221,15 @@ class EtherscanClient(BaseAPIClient):
         self.logger.info(f"Receipt saved to {receipt_path}")
 
 
-class EtherscanDLTResource(BaseDLTResource):
-    """DLT resource for Etherscan data."""
+class EtherscanSource(BaseSource):
+    """Creating DLT source for Etherscan data."""
 
-    def get_resource_name(self) -> str:
-        return "etherscan"
+    def __init__(self, client: EtherscanClient):
+        super().__init__(client)
+
+    def get_available_sources(self) -> List[str]:
+        """Return list of available source names."""
+        return ["logs", "transactions"]
 
     def create_dlt_source(self, **kwargs):
         """Create DLT source for Etherscan API."""
@@ -248,61 +252,78 @@ class EtherscanDLTResource(BaseDLTResource):
             }
         )
 
-    @dlt.resource()
     def logs(
         self,
         address: str,
         from_block: int = 0,
         to_block: str = "latest",
         offset: int = 1000,
-    ) -> Iterator[Dict[str, Any]]:
+    ):
         """Get event logs for a given address."""
-        params = {
-            "module": "logs",
-            "action": "getLogs",
-            "address": address,
-            "fromBlock": from_block,
-            "toBlock": to_block,
-            "offset": offset,
-            "chainid": self.client.chainid,
-            "apikey": self.client.config.api_key,
-        }
 
-        self.logger.info(
-            f"Fetching logs for address {address} from block {from_block} to {to_block}"
+        def _fetch():
+            params = {
+                "module": "logs",
+                "action": "getLogs",
+                "address": address,
+                "fromBlock": from_block,
+                "toBlock": to_block,
+                "offset": offset,
+                "chainid": self.client.chainid,
+                "apikey": self.client.config.api_key,
+            }
+
+            self.logger.info(
+                f"Fetching logs for address {address} from block {from_block} to {to_block}"
+            )
+
+            source = self.create_dlt_source(**params)
+            for item in source:
+                item["chainid"] = self.client.chainid
+                yield item
+
+        return dlt.resource(
+            _fetch,
+            columns={
+                "topics": {"data_type": "json"},
+                "block_number": {"data_type": "bigint"},
+                "time_stamp": {"data_type": "bigint"},
+                "gas_price": {"data_type": "bigint"},
+                "gas_used": {"data_type": "bigint"},
+                "log_index": {"data_type": "bigint"},
+                "transaction_index": {"data_type": "bigint"},
+            },
         )
 
-        source = self.create_dlt_source(**params)
-        for item in source:
-            item["chainid"] = self.client.chainid
-            yield item
-
-    @dlt.resource()
     def transactions(
         self,
         address: str,
-        startblock: int = 0,
-        endblock: str = "latest",
+        from_block: int = 0,
+        to_block: str = "latest",
         offset: int = 1000,
         sort: str = "asc",
-    ) -> Iterator[Dict[str, Any]]:
+    ):
         """Get transactions for a given address."""
-        params = {
-            "module": "account",
-            "action": "txlist",
-            "address": address,
-            "startblock": startblock,
-            "endblock": endblock,
-            "offset": offset,
-            "sort": sort,
-            "chainid": self.client.chainid,
-            "apikey": self.client.config.api_key,
-        }
 
-        self.logger.info(
-            f"Fetching transactions for address {address} from block {startblock}"
-        )
+        def _fetch():
+            params = {
+                "module": "account",
+                "action": "txlist",
+                "address": address,
+                "startblock": from_block,
+                "endblock": to_block,
+                "offset": offset,
+                "sort": sort,
+                "chainid": self.client.chainid,
+                "apikey": self.client.config.api_key,
+            }
 
-        source = self.create_dlt_source(**params)
-        for item in source:
-            yield item
+            self.logger.info(
+                f"Fetching transactions for address {address} from block {from_block} to {to_block}"
+            )
+
+            source = self.create_dlt_source(**params)
+            for item in source:
+                yield item
+
+        return dlt.resource(_fetch)

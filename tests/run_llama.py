@@ -18,7 +18,7 @@ from evm_sleuth import (
 def main():
     client = DeFiLlamaClient()
     source = DeFiLlamaSource(client=client)
-    pipeline = PipelineManager()
+    pipeline_manager = PipelineManager()
     postgres_connection_url = settings.postgres.get_connection_url()
 
     # Define stablecoin IDs to fetch
@@ -73,7 +73,7 @@ def main():
             # primary_key=["protocol", "timestamp", "chain", "sub_protocol"],
         ),
     }
-    pipeline.run(
+    pipeline_manager.run(
         sources=tables,
         pipeline_name="llama",
         dataset_name="llama",  # schema in postgres

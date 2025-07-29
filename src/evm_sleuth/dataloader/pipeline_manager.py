@@ -1,4 +1,4 @@
-"""Simplified pipeline management for DLT operations."""
+"""Pipeline management for DLT operations."""
 
 import logging
 from typing import Any, Dict, List, Optional, Union
@@ -18,7 +18,7 @@ class TableConfig:
 
 
 class PipelineManager:
-    """Simplified pipeline management for DLT operations."""
+    """Manages DLT pipeline creation and execution."""
 
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -32,24 +32,32 @@ class PipelineManager:
         write_disposition: str = "append",
         primary_key: Optional[List[str]] = None,
     ) -> Union[Any, Dict[str, Any]]:
-        """Run pipeline with single source or dict of named sources.
+        """Create and run pipeline with sources.
 
         Args:
             sources: Single source, dict mapping table names to sources, or dict mapping table names to TableConfig
             pipeline_name: Name of the pipeline
             dataset_name: Name of the dataset
-            destination: DLT destination (e.g., dlt.destinations.duckdb(), dlt.destinations.postgres())
-            write_disposition: Default write disposition for single source or tables without TableConfig ("replace", "append", "merge")
-            primary_key: Default primary key for single source or tables without TableConfig
+            destination: DLT destination
+            write_disposition: Default write disposition
+            primary_key: Default primary key
 
         Returns:
             Single result for single source, dict of results for named sources
         """
         try:
             # Create pipeline
-            pipeline = self._create_pipeline(pipeline_name, dataset_name, destination)
+            pipeline = dlt.pipeline(
+                pipeline_name=pipeline_name,
+                destination=destination,
+                dataset_name=dataset_name,
+            )
 
-            # Handle different source input types
+            self.logger.info(
+                f"Created pipeline '{pipeline_name}' for dataset_name '{dataset_name}'"
+            )
+
+            # Execute pipeline
             if isinstance(sources, dict):
                 return self._run_named_sources(
                     pipeline, sources, write_disposition, primary_key
@@ -63,21 +71,6 @@ class PipelineManager:
             error_msg = f"Pipeline '{pipeline_name}' failed: {e}"
             self.logger.error(error_msg)
             raise PipelineError(error_msg) from e
-
-    def _create_pipeline(
-        self, pipeline_name: str, dataset_name: str, destination: Any
-    ) -> dlt.Pipeline:
-        """Create DLT pipeline with configuration."""
-        pipeline = dlt.pipeline(
-            pipeline_name=pipeline_name,
-            destination=destination,
-            dataset_name=dataset_name,
-        )
-
-        self.logger.info(
-            f"Created pipeline '{pipeline_name}' for dataset '{dataset_name}'"
-        )
-        return pipeline
 
     def _run_single_source(
         self,

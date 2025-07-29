@@ -2,4 +2,8 @@
 
 from .pipeline_manager import PipelineManager, TableConfig
 
-__all__ = ["PipelineManager", "TableConfig"]
+
+__all__ = [
+    "PipelineManager",
+    "TableConfig",
+]
