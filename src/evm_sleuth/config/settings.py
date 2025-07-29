@@ -12,14 +12,15 @@ load_dotenv()
 @dataclass
 class APISettings:
     """API-specific settings."""
+
     etherscan_api_key: Optional[str] = None
     coingecko_api_key: Optional[str] = None
-    
+
     # Rate limits (requests per second)
     etherscan_rate_limit: float = 5.0
     coingecko_rate_limit: float = 5.0
     defillama_rate_limit: float = 10.0
-    
+
     def __post_init__(self):
         # Load from environment if not provided
         if self.etherscan_api_key is None:
@@ -29,25 +30,26 @@ class APISettings:
 
 
 @dataclass
-class DatabaseSettings:
+class PostgresSettings:
     """Database configuration."""
+
     host: str
     port: int
     database: str
     user: str
     password: str
-    
+
     @classmethod
-    def from_env(cls) -> 'DatabaseSettings':
+    def from_env(cls) -> "PostgresSettings":
         """Create from environment variables with prefix."""
         return cls(
             host=os.getenv(f"POSTGRES_HOST"),
             port=int(os.getenv(f"POSTGRES_PORT", "5432")),
             database=os.getenv(f"POSTGRES_DB"),
             user=os.getenv(f"POSTGRES_USER"),
-            password=os.getenv(f"POSTGRES_PASSWORD")
+            password=os.getenv(f"POSTGRES_PASSWORD"),
         )
-    
+
     def get_connection_params(self) -> Dict[str, Any]:
         """Return connection parameters for database clients."""
         return {
@@ -57,35 +59,16 @@ class DatabaseSettings:
             "user": self.user,
             "password": self.password,
         }
-    
+
     def get_connection_url(self) -> str:
         """Return connection URL for database clients."""
         return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
 
 
 @dataclass
-class DuckDBSettings:
-    """DuckDB configuration."""
-    database_path: str
-    
-    @classmethod
-    def from_env(cls) -> 'DuckDBSettings':
-        """Create from environment variables."""
-        return cls(
-            database_path=os.getenv("DUCKDB_PATH", "data/evm_sleuth.duckdb")
-        )
-    
-    def get_connection_params(self) -> Dict[str, Any]:
-        """Return connection parameters for DuckDB."""
-        return {
-            "database": self.database_path,
-        }
-
-
-@dataclass
 class ColumnSchemas:
     """Standardized column schemas for DLT pipelines."""
-    
+
     # Blockchain-related columns
     LOG_COLUMNS = {
         "topics": {"data_type": "json"},
@@ -96,18 +79,18 @@ class ColumnSchemas:
         "log_index": {"data_type": "bigint"},
         "transaction_index": {"data_type": "bigint"},
     }
-    
+
     TRANSACTION_COLUMNS = {
         "block_number": {"data_type": "bigint"},
         "time_stamp": {"data_type": "timestamp"},
     }
-    
+
     # Price data columns
     PRICE_COLUMNS = {
         "timestamp": {"data_type": "timestamp", "timezone": False, "precision": 3},
         "price": {"data_type": "decimal"},
     }
-    
+
     OHLC_COLUMNS = {
         "timestamp": {"data_type": "timestamp", "timezone": False, "precision": 3},
         "open": {"data_type": "decimal"},
@@ -119,6 +102,7 @@ class ColumnSchemas:
 
 class APIUrls:
     """API endpoint URLs."""
+
     ETHERSCAN = "https://api.etherscan.io/v2/api"
     COINGECKO = "https://api.coingecko.com/api/v3"
     DEFILLAMA_STABLECOINS = "https://stablecoins.llama.fi"
@@ -129,14 +113,13 @@ class APIUrls:
 
 class Settings:
     """Main settings class."""
-    
+
     def __init__(self):
         self.api = APISettings()
-        self.local_db = DatabaseSettings.from_env()
-        self.duckdb = DuckDBSettings.from_env()
+        self.postgres = PostgresSettings.from_env()
         self.columns = ColumnSchemas()
         self.api_urls = APIUrls()
-        
+
 
 # Global settings instance
 settings = Settings()

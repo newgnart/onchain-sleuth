@@ -5,7 +5,7 @@ import pandas as pd
 from contextlib import contextmanager
 from sqlalchemy import create_engine
 
-from evm_sleuth.config.settings import DatabaseSettings
+from evm_sleuth.config.settings import PostgresSettings
 
 import logging
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @contextmanager
-def get_postgres_connection(db_config: DatabaseSettings):
+def get_postgres_connection(db_config: PostgresSettings):
     """
     Context manager for PostgreSQL database connections.
 
@@ -38,7 +38,7 @@ def get_postgres_connection(db_config: DatabaseSettings):
             conn.close()
 
 
-def get_sqlalchemy_engine(db_config: DatabaseSettings):
+def get_sqlalchemy_engine(db_config: PostgresSettings):
     """
     Create a SQLAlchemy engine for pandas operations.
 
@@ -54,7 +54,7 @@ def get_sqlalchemy_engine(db_config: DatabaseSettings):
 
 
 def _fetch_one(
-    db_config: DatabaseSettings,
+    db_config: PostgresSettings,
     query: str,
     params: Optional[tuple] = None,
 ) -> Any:
@@ -78,7 +78,7 @@ def _fetch_one(
 
 
 def get_rows_count(
-    pg_config: DatabaseSettings,
+    pg_config: PostgresSettings,
     table_schema: str,
     table_name: str,
 ) -> int:
@@ -117,7 +117,7 @@ def get_rows_count(
 
 
 def get_loaded_block(
-    pg_config: DatabaseSettings,
+    pg_config: PostgresSettings,
     table_schema: str,
     table_name: str,
     chainid: int,
@@ -160,11 +160,12 @@ def get_loaded_block(
         if result and result[0] is not None:
             return result[0]
         else:
+            return 0
             # No data found, start from contract creation block
-            from evm_sleuth.datasource.etherscan import EtherscanClient
-            client = EtherscanClient(chainid)
-            creation_info = client.get_contract_creation_info([address])
-            return int(creation_info["blockNumber"])
+            # from evm_sleuth.datasource.etherscan import EtherscanClient
+            # client = EtherscanClient(chainid)
+            # creation_info = client.get_contract_creation_info([address])
+            # return int(creation_info["blockNumber"])
 
     except Exception as e:
         logger.warning(
@@ -172,6 +173,7 @@ def get_loaded_block(
         )
         # Fall back to contract creation block on any error
         from evm_sleuth.datasource.etherscan import EtherscanClient
+
         client = EtherscanClient(chainid)
         creation_info = client.get_contract_creation_info([address])
         return int(creation_info["blockNumber"])

@@ -1,11 +1,10 @@
 """Configuration management for evm_sleuth package."""
 
-from .settings import Settings, settings, APISettings, DatabaseSettings, ColumnSchemas
+from .settings import Settings, settings, APISettings, ColumnSchemas
 
 __all__ = [
     "Settings",
-    "settings", 
+    "settings",
     "APISettings",
-    "DatabaseSettings",
     "ColumnSchemas",
 ]

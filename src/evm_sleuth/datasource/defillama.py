@@ -1,16 +1,11 @@
 """DeFiLlama API client implementation."""
 
 import dlt
-import json
-import datetime
-from typing import Any, Dict, List, Optional, Literal
+from typing import Any, Dict, List
 
 from evm_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
 from evm_sleuth.config.settings import settings
 from evm_sleuth.utils.data_transformers import DataTransformer
-
-from dlt.sources.rest_api import rest_api_source
-from dlt.sources.helpers.rest_client import paginators
 
 
 class DeFiLlamaClient(BaseAPIClient):

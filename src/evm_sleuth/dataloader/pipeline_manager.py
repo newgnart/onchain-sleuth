@@ -1,244 +1,138 @@
-"""Unified pipeline management for DLT operations."""
+"""Simplified pipeline management for DLT operations."""
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any, Dict, List, Optional, Union
+from dataclasses import dataclass
 import dlt
 
-from evm_sleuth.config.settings import DatabaseSettings
 from evm_sleuth.core.exceptions import PipelineError
 
 
 @dataclass
-class PipelineConfig:
-    """Unified pipeline configuration."""
+class TableConfig:
+    """Configuration for a single table in a pipeline."""
 
-    pipeline_name: str
-    dataset_name: str
-    destination_type: str = "postgres"
-
-    def __post_init__(self):
-        """Validate configuration after initialization."""
-        if not self.pipeline_name:
-            raise ValueError("Pipeline name cannot be empty")
-        if not self.dataset_name:
-            raise ValueError("Dataset name cannot be empty")
-
-
-@dataclass
-class SourceConfig:
-    """Source-specific configuration."""
-
-    source_func: Callable
-    source_args: tuple = field(default_factory=tuple)
-    source_kwargs: Dict[str, Any] = field(default_factory=dict)
-    table_name: str = ""
-    write_disposition: str = "replace"
+    source: Any
+    write_disposition: str = "append"
     primary_key: Optional[List[str]] = None
-
-    def __post_init__(self):
-        """Validate configuration after initialization."""
-        if not self.table_name:
-            raise ValueError("Table name cannot be empty")
-        if not callable(self.source_func):
-            raise ValueError("Source function must be callable")
 
 
 class PipelineManager:
-    """Centralized pipeline management for DLT operations."""
+    """Simplified pipeline management for DLT operations."""
 
-    def __init__(self, database_config: DatabaseSettings):
-        self.database_config = database_config
+    def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def create_pipeline(self, config: PipelineConfig) -> dlt.Pipeline:
-        """Create a DLT pipeline with standardized configuration."""
+    def run(
+        self,
+        sources: Union[Any, Dict[str, Union[Any, TableConfig]]],
+        pipeline_name: str,
+        dataset_name: str,
+        destination: Any,
+        write_disposition: str = "append",
+        primary_key: Optional[List[str]] = None,
+    ) -> Union[Any, Dict[str, Any]]:
+        """Run pipeline with single source or dict of named sources.
+
+        Args:
+            sources: Single source, dict mapping table names to sources, or dict mapping table names to TableConfig
+            pipeline_name: Name of the pipeline
+            dataset_name: Name of the dataset
+            destination: DLT destination (e.g., dlt.destinations.duckdb(), dlt.destinations.postgres())
+            write_disposition: Default write disposition for single source or tables without TableConfig ("replace", "append", "merge")
+            primary_key: Default primary key for single source or tables without TableConfig
+
+        Returns:
+            Single result for single source, dict of results for named sources
+        """
         try:
-            if config.destination_type == "postgres":
-                destination = dlt.destinations.postgres(
-                    self.database_config.get_connection_url()
+            # Create pipeline
+            pipeline = self._create_pipeline(pipeline_name, dataset_name, destination)
+
+            # Handle different source input types
+            if isinstance(sources, dict):
+                return self._run_named_sources(
+                    pipeline, sources, write_disposition, primary_key
                 )
             else:
-                raise ValueError(
-                    f"Unsupported destination type: {config.destination_type}"
+                return self._run_single_source(
+                    pipeline, sources, write_disposition, primary_key
                 )
 
-            pipeline = dlt.pipeline(
-                pipeline_name=config.pipeline_name,
-                destination=destination,
-                dataset_name=config.dataset_name,
-            )
-
-            self.logger.info(
-                f"Created pipeline '{config.pipeline_name}' for dataset '{config.dataset_name}'"
-            )
-            return pipeline
-
         except Exception as e:
-            raise PipelineError(
-                f"Failed to create pipeline '{config.pipeline_name}': {e}"
-            ) from e
-
-    def run_pipeline(
-        self, pipeline_config: PipelineConfig, source_config: SourceConfig
-    ) -> Any:
-        """Run a pipeline with given configuration."""
-        try:
-            pipeline = self.create_pipeline(pipeline_config)
-
-            # Create source with provided arguments
-            source = source_config.source_func(
-                *source_config.source_args, **source_config.source_kwargs
-            )
-
-            # Prepare run arguments
-            run_kwargs = {
-                "table_name": source_config.table_name,
-                "write_disposition": source_config.write_disposition,
-            }
-
-            if source_config.primary_key:
-                run_kwargs["primary_key"] = source_config.primary_key
-
-            # Execute pipeline
-            self.logger.info(
-                f"Running pipeline '{pipeline_config.pipeline_name}' "
-                f"for table '{source_config.table_name}'"
-            )
-
-            result = pipeline.run(source, **run_kwargs)
-
-            self.logger.info(
-                f"Successfully completed pipeline run for table '{source_config.table_name}'"
-            )
-
-            return result
-
-        except Exception as e:
-            error_msg = (
-                f"Pipeline run failed for table '{source_config.table_name}' "
-                f"in pipeline '{pipeline_config.pipeline_name}': {e}"
-            )
+            error_msg = f"Pipeline '{pipeline_name}' failed: {e}"
             self.logger.error(error_msg)
             raise PipelineError(error_msg) from e
 
-    def run_multiple_sources(
-        self, pipeline_config: PipelineConfig, source_configs: List[SourceConfig]
+    def _create_pipeline(
+        self, pipeline_name: str, dataset_name: str, destination: Any
+    ) -> dlt.Pipeline:
+        """Create DLT pipeline with configuration."""
+        pipeline = dlt.pipeline(
+            pipeline_name=pipeline_name,
+            destination=destination,
+            dataset_name=dataset_name,
+        )
+
+        self.logger.info(
+            f"Created pipeline '{pipeline_name}' for dataset '{dataset_name}'"
+        )
+        return pipeline
+
+    def _run_single_source(
+        self,
+        pipeline: dlt.Pipeline,
+        source: Any,
+        write_disposition: str,
+        primary_key: Optional[List[str]],
+    ) -> Any:
+        """Run pipeline with single source."""
+        run_kwargs = {"write_disposition": write_disposition}
+        if primary_key:
+            run_kwargs["primary_key"] = primary_key
+
+        self.logger.info(f"Running single source")
+        result = pipeline.run(source, **run_kwargs)
+        self.logger.info(f"Successfully completed single source run")
+        return result
+
+    def _run_named_sources(
+        self,
+        pipeline: dlt.Pipeline,
+        sources: Dict[str, Union[Any, TableConfig]],
+        write_disposition: str,
+        primary_key: Optional[List[str]],
     ) -> Dict[str, Any]:
-        """Run multiple sources in the same pipeline."""
-        if not source_configs:
-            raise ValueError("At least one source configuration is required")
-
+        """Run pipeline with named sources."""
         results = {}
-        pipeline = self.create_pipeline(pipeline_config)
 
-        for source_config in source_configs:
+        for table_name, source_config in sources.items():
             try:
-                # Create source
-                source = source_config.source_func(
-                    *source_config.source_args, **source_config.source_kwargs
-                )
+                # Handle both TableConfig and raw source objects
+                if isinstance(source_config, TableConfig):
+                    source = source_config.source
+                    table_write_disposition = source_config.write_disposition
+                    table_primary_key = source_config.primary_key
+                else:
+                    source = source_config
+                    table_write_disposition = write_disposition
+                    table_primary_key = primary_key
 
-                # Prepare run arguments
                 run_kwargs = {
-                    "table_name": source_config.table_name,
-                    "write_disposition": source_config.write_disposition,
+                    "table_name": table_name,
+                    "write_disposition": table_write_disposition,
                 }
+                if table_primary_key:
+                    run_kwargs["primary_key"] = table_primary_key
 
-                if source_config.primary_key:
-                    run_kwargs["primary_key"] = source_config.primary_key
-
-                # Execute pipeline for this source
                 self.logger.info(
-                    f"Running source for table '{source_config.table_name}'"
+                    f"Running source for table '{table_name}' with disposition '{table_write_disposition}'"
                 )
                 result = pipeline.run(source, **run_kwargs)
-                results[source_config.table_name] = result
+                results[table_name] = result
 
             except Exception as e:
-                error_msg = (
-                    f"Failed to run source for table '{source_config.table_name}': {e}"
-                )
-                self.logger.error(error_msg)
-                results[source_config.table_name] = {"error": str(e)}
+                self.logger.error(f"Failed to run source for table '{table_name}': {e}")
+                results[table_name] = {"error": str(e)}
 
         return results
-
-
-class DataLoaderTemplate:
-    """Template class for creating standardized data loaders."""
-
-    def __init__(self, pipeline_manager: PipelineManager):
-        self.pipeline_manager = pipeline_manager
-        self.logger = logging.getLogger(self.__class__.__name__)
-
-    def load_data(
-        self,
-        source_func: Callable,
-        pipeline_name: str,
-        dataset_name: str,
-        table_name: str,
-        source_args: tuple = (),
-        source_kwargs: Optional[Dict[str, Any]] = None,
-        write_disposition: str = "replace",
-        primary_key: Optional[List[str]] = None,
-    ) -> Any:
-        """Template method for loading data with standardized configuration."""
-
-        pipeline_config = PipelineConfig(
-            pipeline_name=pipeline_name, dataset_name=dataset_name
-        )
-
-        source_config = SourceConfig(
-            source_func=source_func,
-            source_args=source_args,
-            source_kwargs=source_kwargs or {},
-            table_name=table_name,
-            write_disposition=write_disposition,
-            primary_key=primary_key,
-        )
-
-        self.logger.info(f"Loading data to table '{table_name}' using template")
-        return self.pipeline_manager.run_pipeline(pipeline_config, source_config)
-
-    def load_incremental_data(
-        self,
-        source_func: Callable,
-        pipeline_name: str,
-        dataset_name: str,
-        table_name: str,
-        primary_key: List[str],
-        source_args: tuple = (),
-        source_kwargs: Optional[Dict[str, Any]] = None,
-    ) -> Any:
-        """Load data with incremental merge strategy."""
-        return self.load_data(
-            source_func=source_func,
-            pipeline_name=pipeline_name,
-            dataset_name=dataset_name,
-            table_name=table_name,
-            source_args=source_args,
-            source_kwargs=source_kwargs,
-            write_disposition="merge",
-            primary_key=primary_key,
-        )
-
-    def load_append_data(
-        self,
-        source_func: Callable,
-        pipeline_name: str,
-        dataset_name: str,
-        table_name: str,
-        source_args: tuple = (),
-        source_kwargs: Optional[Dict[str, Any]] = None,
-    ) -> Any:
-        """Load data with append strategy."""
-        return self.load_data(
-            source_func=source_func,
-            pipeline_name=pipeline_name,
-            dataset_name=dataset_name,
-            table_name=table_name,
-            source_args=source_args,
-            source_kwargs=source_kwargs,
-            write_disposition="append",
-        )
