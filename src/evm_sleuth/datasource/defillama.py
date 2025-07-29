@@ -31,16 +31,17 @@ class DeFiLlamaClient(BaseAPIClient):
         response.raise_for_status()
         return response.json()
 
-    def stablecoins_metadata(self) -> Dict[str, Any]:
+    def get_stablecoins_metadata(self) -> Dict[str, Any]:
         """Fetch stablecoins metadata from DeFiLlama API."""
-        return self.make_request(
-            f"{settings.api_urls.DEFILLAMA_STABLECOINS}/stablecoins"
-        )
+        original_base_url = self.config.base_url
+        self.config.base_url = settings.api_urls.DEFILLAMA_STABLECOINS
 
-    def get_protocol_data(self, protocol: str) -> Dict[str, Any]:
-        """Get protocol data from DeFiLlama."""
-        endpoint = f"protocol/{protocol}"
-        return self.make_request(endpoint)
+        try:
+            endpoint = "stablecoins"
+            result = self.make_request(endpoint)
+            return result
+        finally:
+            self.config.base_url = original_base_url
 
     def get_stablecoin_data(self, coin_id: int) -> Dict[str, Any]:
         """Get stablecoin data by ID."""
@@ -68,7 +69,7 @@ class DeFiLlamaClient(BaseAPIClient):
         finally:
             self.config.base_url = original_base_url
 
-    def get_yield_pools(self) -> Dict[str, Any]:
+    def get_all_yield_pools(self) -> Dict[str, Any]:
         """Get all yield pools data."""
         original_base_url = self.config.base_url
         self.config.base_url = settings.api_urls.DEFILLAMA_YIELDS
@@ -80,7 +81,7 @@ class DeFiLlamaClient(BaseAPIClient):
         finally:
             self.config.base_url = original_base_url
 
-    def get_yield_pool_chart(self, pool_id: str) -> Dict[str, Any]:
+    def get_yield_pool(self, pool_id: str) -> Dict[str, Any]:
         """Get historical data for a yield pool."""
         original_base_url = self.config.base_url
         self.config.base_url = settings.api_urls.DEFILLAMA_YIELDS
@@ -127,7 +128,7 @@ class DeFiLlamaSource(BaseSource):
             return None
 
         def _fetch():
-            data = self.client.stablecoins_metadata()
+            data = self.client.get_stablecoins_metadata()
 
             # Process each stablecoin
             if "peggedAssets" in data:
@@ -139,7 +140,7 @@ class DeFiLlamaSource(BaseSource):
                     # Convert nested circulating data to flat values
                     circulating_keys = [
                         "circulating",
-                        "circulatingPrevDay", 
+                        "circulatingPrevDay",
                         "circulatingPrevWeek",
                         "circulatingPrevMonth",
                     ]
@@ -155,7 +156,7 @@ class DeFiLlamaSource(BaseSource):
                             "remove_fields": ["chainCirculating"],
                             "field_mappings": {
                                 "pegType": "peg_type",
-                                "pegMechanism": "peg_mechanism", 
+                                "pegMechanism": "peg_mechanism",
                                 "priceSource": "price_source",
                             },
                         },
@@ -163,7 +164,7 @@ class DeFiLlamaSource(BaseSource):
 
                     yield item
 
-        return dlt.resource(_fetch, name="stablecoins_metadata")
+        return dlt.resource(_fetch)
 
     def protocol_data(self, protocol: str):
         """DLT resource for fetching protocol data."""
@@ -184,9 +185,9 @@ class DeFiLlamaSource(BaseSource):
             )
             yield data
 
-        return dlt.resource(_fetch, name="protocol_data")
+        return dlt.resource(_fetch)
 
-    def stablecoin_data(
+    def stablecoin_circulating(
         self,
         coin_id: int,
         get_response: Literal[
@@ -264,7 +265,7 @@ class DeFiLlamaSource(BaseSource):
                     )
                     yield item
 
-        return dlt.resource(_fetch, name="stablecoin_data")
+        return dlt.resource(_fetch)
 
     def token_price(
         self, network: str, contract_address: str, params: Optional[Dict] = None
@@ -307,13 +308,13 @@ class DeFiLlamaSource(BaseSource):
                 )
                 yield item
 
-        return dlt.resource(_fetch, name="token_price")
+        return dlt.resource(_fetch)
 
-    def yield_pools(self):
+    def all_yield_pools(self):
         """DLT resource for fetching all yield pools data."""
 
         def _fetch():
-            data = self.client.get_yield_pools()
+            data = self.client.get_all_yield_pools()
 
             for pool in data.get("data", []):
                 # Extract token arrays before removing them
@@ -331,13 +332,13 @@ class DeFiLlamaSource(BaseSource):
 
                 yield pool
 
-        return dlt.resource(_fetch, name="yield_pools")
+        return dlt.resource(_fetch)
 
-    def yield_pool_chart(self, pool_id: str, pool_name: str):
+    def yield_pool(self, pool_id: str, pool_name: str):
         """DLT resource for fetching historical yield pool data."""
 
         def _fetch():
-            data = self.client.get_yield_pool_chart(pool_id)
+            data = self.client.get_yield_pool(pool_id)
 
             for item in data.get("data", []):
                 # Add pool identification
@@ -349,7 +350,7 @@ class DeFiLlamaSource(BaseSource):
                 )
                 yield item
 
-        return dlt.resource(_fetch, name="yield_pool_chart")
+        return dlt.resource(_fetch)
 
     def protocol_revenue(
         self,
@@ -426,4 +427,4 @@ class DeFiLlamaSource(BaseSource):
                                 )
                                 yield revenue_item
 
-        return dlt.resource(_fetch, name="protocol_revenue")
+        return dlt.resource(_fetch)
