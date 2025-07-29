@@ -105,8 +105,8 @@ class DeFiLlamaSource(BaseSource):
         super().__init__(client)
         self.data_transformer = DataTransformer()
 
-    def get_available_resources(self) -> List[str]:
-        """Return list of available resource names."""
+    def get_available_sources(self) -> List[str]:
+        """Return list of available source names."""
         return [
             "stablecoins_metadata",
             "protocol_data",
@@ -114,7 +114,7 @@ class DeFiLlamaSource(BaseSource):
             "token_price",
             "yield_pools",
             "yield_pool_chart",
-            "protocol_revenue"
+            "protocol_revenue",
         ]
 
     def stablecoins_metadata(self):
@@ -134,10 +134,10 @@ class DeFiLlamaSource(BaseSource):
 
     def protocol_data(self, protocol: str):
         """DLT resource for fetching protocol data."""
-        
+
         def _fetch():
             data = self.client.get_protocol_data(protocol)
-            
+
             # Apply transformations if needed
             self.data_transformer.standardize_item(
                 data,
@@ -145,25 +145,27 @@ class DeFiLlamaSource(BaseSource):
                     "json_fields": ["chains", "audit_links", "audits"],
                     "field_mappings": {
                         "defillamaId": "defillama_id",
-                        "parentProtocol": "parent_protocol"
-                    }
-                }
+                        "parentProtocol": "parent_protocol",
+                    },
+                },
             )
             yield data
-            
+
         return dlt.resource(_fetch, name="protocol_data")
 
     def stablecoin_data(
-        self, 
-        coin_id: int, 
-        get_response: Literal["chainBalances", "currentChainBalances"] = "currentChainBalances",
-        include_metadata: bool = False
+        self,
+        coin_id: int,
+        get_response: Literal[
+            "chainBalances", "currentChainBalances"
+        ] = "currentChainBalances",
+        include_metadata: bool = False,
     ):
         """DLT resource for fetching individual stablecoin data."""
-        
+
         def _fetch():
             response = self.client.get_stablecoin_data(coin_id)
-            
+
             # Extract metadata if requested
             metadata = {}
             if include_metadata:
@@ -175,7 +177,7 @@ class DeFiLlamaSource(BaseSource):
                 self.data_transformer.convert_fields_to_json(
                     metadata, ["auditLinks", "tokens"]
                 )
-            
+
             # Process chain balances based on requested type
             if get_response == "chainBalances":
                 # Historical data
@@ -184,16 +186,20 @@ class DeFiLlamaSource(BaseSource):
                         circulating_data = entry.get("circulating", {})
                         if not circulating_data:
                             continue
-                            
+
                         circulating_value = list(circulating_data.values())[0]
                         timestamp = entry.get("date")
-                        
+
                         item = {
                             "id": coin_id,
                             "chain": chain_name,
-                            "circulating": int(circulating_value) if circulating_value is not None else None,
+                            "circulating": (
+                                int(circulating_value)
+                                if circulating_value is not None
+                                else None
+                            ),
                             "timestamp": timestamp,
-                            **metadata
+                            **metadata,
                         }
                         self.data_transformer.standardize_item(
                             item, {"timestamp_fields": ["timestamp"]}
@@ -201,121 +207,130 @@ class DeFiLlamaSource(BaseSource):
                         yield item
             else:
                 # Current balances
-                for chain_name, chain_data in response.get("currentChainBalances", {}).items():
+                for chain_name, chain_data in response.get(
+                    "currentChainBalances", {}
+                ).items():
                     if not isinstance(chain_data, dict) or not chain_data:
                         continue
-                        
+
                     circulating = list(chain_data.values())[0]
-                    
+
                     item = {
                         "id": coin_id,
                         "chain": chain_name,
-                        "circulating": int(circulating) if circulating is not None else None,
-                        "timestamp": int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp()),
-                        **metadata
+                        "circulating": (
+                            int(circulating) if circulating is not None else None
+                        ),
+                        "timestamp": int(
+                            datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
+                        ),
+                        **metadata,
                     }
                     self.data_transformer.standardize_item(
                         item, {"timestamp_fields": ["timestamp"]}
                     )
                     yield item
-                    
+
         return dlt.resource(_fetch, name="stablecoin_data")
 
-    def token_price(self, network: str, contract_address: str, params: Optional[Dict] = None):
+    def token_price(
+        self, network: str, contract_address: str, params: Optional[Dict] = None
+    ):
         """DLT resource for fetching token price data."""
-        
+
         def _fetch():
             default_params = {"span": 1000, "period": "1d"}
             request_params = params or default_params
-            
-            data = self.client.get_token_price(network, contract_address, **request_params)
+
+            data = self.client.get_token_price(
+                network, contract_address, **request_params
+            )
             token_key = f"{network}:{contract_address}"
-            
+
             coins_data = data.get("coins", {})
             token_info = coins_data.get(token_key, {})
-            
+
             if not token_info.get("prices"):
                 return
-                
+
             # Extract token metadata
             base_metadata = {
                 "network": network,
                 "contract_address": contract_address,
                 "symbol": token_info.get("symbol"),
                 "decimals": token_info.get("decimals"),
-                "confidence": token_info.get("confidence")
+                "confidence": token_info.get("confidence"),
             }
-            
+
             # Yield price data for each timestamp
             for price_entry in token_info["prices"]:
                 item = {
                     **base_metadata,
-                    **price_entry  # Contains 'timestamp' and 'price'
+                    **price_entry,  # Contains 'timestamp' and 'price'
                 }
-                
+
                 self.data_transformer.standardize_item(
                     item, {"timestamp_fields": ["timestamp"]}
                 )
                 yield item
-                
+
         return dlt.resource(_fetch, name="token_price")
 
     def yield_pools(self):
         """DLT resource for fetching all yield pools data."""
-        
+
         def _fetch():
             data = self.client.get_yield_pools()
-            
+
             for pool in data.get("data", []):
                 # Extract token arrays before removing them
                 reward_tokens = pool.get("rewardTokens", []) or []
                 underlying_tokens = pool.get("underlyingTokens", []) or []
-                
+
                 # Apply transformations
                 self.data_transformer.standardize_item(
-                    pool,
-                    {
-                        "remove_fields": ["rewardTokens", "underlyingTokens"]
-                    }
+                    pool, {"remove_fields": ["rewardTokens", "underlyingTokens"]}
                 )
-                
+
                 # Add processed token arrays as JSON strings
                 pool["reward_tokens"] = json.dumps(reward_tokens)
                 pool["underlying_tokens"] = json.dumps(underlying_tokens)
-                
+
                 yield pool
-                
+
         return dlt.resource(_fetch, name="yield_pools")
 
     def yield_pool_chart(self, pool_id: str, pool_name: str):
         """DLT resource for fetching historical yield pool data."""
-        
+
         def _fetch():
             data = self.client.get_yield_pool_chart(pool_id)
-            
+
             for item in data.get("data", []):
                 # Add pool identification
                 item["pool_id"] = pool_id
                 item["pool_name"] = pool_name
-                
+
                 self.data_transformer.standardize_item(
                     item, {"timestamp_fields": ["timestamp"]}
                 )
                 yield item
-                
+
         return dlt.resource(_fetch, name="yield_pool_chart")
 
     def protocol_revenue(
-        self, 
+        self,
         protocol: str,
-        data_selector: Literal["totalDataChart", "totalDataChartBreakdown"] = "totalDataChartBreakdown",
-        include_metadata: bool = False
+        data_selector: Literal[
+            "totalDataChart", "totalDataChartBreakdown"
+        ] = "totalDataChartBreakdown",
+        include_metadata: bool = False,
     ):
         """DLT resource for fetching protocol revenue data."""
-        
+
         def _fetch():
             response = self.client.get_protocol_revenue(protocol)
-            
+
             # Extract metadata if requested
             metadata = {}
             if include_metadata:
@@ -323,32 +338,35 @@ class DeFiLlamaSource(BaseSource):
                 metadata = {
                     k: v for k, v in response.items() if k not in excluded_fields
                 }
-                
+
                 # Convert nested objects to JSON strings
                 json_fields = [
-                    "chains", "audit_links", "audits", 
-                    "childProtocols", "linkedProtocols"
+                    "chains",
+                    "audit_links",
+                    "audits",
+                    "childProtocols",
+                    "linkedProtocols",
                 ]
                 self.data_transformer.convert_fields_to_json(metadata, json_fields)
-            
+
             # Process time-series data
             time_series_data = response.get(data_selector, [])
             if not time_series_data:
                 return
-                
+
             for item in time_series_data:
                 if not isinstance(item, list) or len(item) != 2:
                     continue
-                    
+
                 timestamp, data = item[0], item[1]
-                
+
                 if data_selector == "totalDataChart":
                     # Simple format: [timestamp, revenue]
                     revenue_item = {
                         "timestamp": timestamp,
                         "revenue": data,
                         "protocol": protocol,
-                        **metadata
+                        **metadata,
                     }
                     self.data_transformer.standardize_item(
                         revenue_item, {"timestamp_fields": ["timestamp"]}
@@ -358,7 +376,7 @@ class DeFiLlamaSource(BaseSource):
                     # Nested format: [timestamp, {chain: {sub_protocol: revenue}}]
                     if not isinstance(data, dict):
                         continue
-                        
+
                     for chain, chain_data in data.items():
                         if isinstance(chain_data, dict):
                             for sub_protocol, revenue_value in chain_data.items():
@@ -368,11 +386,11 @@ class DeFiLlamaSource(BaseSource):
                                     "protocol": protocol,
                                     "sub_protocol": sub_protocol,
                                     "revenue": revenue_value,
-                                    **metadata
+                                    **metadata,
                                 }
                                 self.data_transformer.standardize_item(
                                     revenue_item, {"timestamp_fields": ["timestamp"]}
                                 )
                                 yield revenue_item
-                                
+
         return dlt.resource(_fetch, name="protocol_revenue")

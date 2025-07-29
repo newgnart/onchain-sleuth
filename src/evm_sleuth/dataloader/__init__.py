@@ -1,7 +1,5 @@
 """Data loading utilities and pipeline management."""
 
-from .pipeline_manager import PipelineManager
+from .pipeline_manager import PipelineManager, TableConfig
 
-__all__ = [
-    "PipelineManager",
-]
+__all__ = ["PipelineManager", "TableConfig"]

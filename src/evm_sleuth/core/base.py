@@ -220,8 +220,8 @@ class BaseSource(ABC):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     @abstractmethod
-    def get_available_resources(self) -> List[str]:
-        """Return list of available resource names."""
+    def get_available_sources(self) -> List[str]:
+        """Return list of available source names."""
         pass
 
 
