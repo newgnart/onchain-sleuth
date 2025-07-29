@@ -118,17 +118,50 @@ class DeFiLlamaSource(BaseSource):
         ]
 
     def stablecoins_metadata(self):
-        """DLT resource for fetching stablecoins metadata, excluding chainCirculating field."""
+        """DLT resource for fetching stablecoins metadata with flattened circulating data."""
+
+        def _get_circulating_value(data: Dict | None, peg_type: str) -> float | None:
+            """Safely extract circulating value from a dictionary for a given peg type."""
+            if isinstance(data, dict):
+                return data.get(peg_type)
+            return None
 
         def _fetch():
             data = self.client.stablecoins_metadata()
 
-            # Process each stablecoin and exclude chainCirculating field
+            # Process each stablecoin
             if "peggedAssets" in data:
-                for asset in data["peggedAssets"]:
-                    # Use DataTransformer to remove unwanted fields
-                    self.data_transformer.remove_fields(asset, ["chainCirculating"])
-                    yield asset
+                for item in data["peggedAssets"]:
+                    peg_type = item.get("pegType")
+                    if not peg_type:
+                        continue
+
+                    # Convert nested circulating data to flat values
+                    circulating_keys = [
+                        "circulating",
+                        "circulatingPrevDay", 
+                        "circulatingPrevWeek",
+                        "circulatingPrevMonth",
+                    ]
+                    for key in circulating_keys:
+                        if key in item:
+                            item[key] = _get_circulating_value(item[key], peg_type)
+
+                    # Apply standardized transformations
+                    self.data_transformer.standardize_item(
+                        item,
+                        {
+                            "json_fields": ["chains"],
+                            "remove_fields": ["chainCirculating"],
+                            "field_mappings": {
+                                "pegType": "peg_type",
+                                "pegMechanism": "peg_mechanism", 
+                                "priceSource": "price_source",
+                            },
+                        },
+                    )
+
+                    yield item
 
         return dlt.resource(_fetch, name="stablecoins_metadata")
 
