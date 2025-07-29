@@ -1,11 +1,14 @@
-"""Data source clients for external APIs."""
+"""API client implementations."""
 
-from .clients.etherscan import EtherscanClient
-from .clients.coingecko import CoinGeckoClient  
-from .clients.defillama import DeFiLlamaClient
+from .etherscan import EtherscanClient, EtherscanDLTResource
+from .coingecko import CoinGeckoClient, CoinGeckoDLTResource
+from .defillama import DeFiLlamaClient, DeFiLlamaDLTResource
 
 __all__ = [
     "EtherscanClient",
-    "CoinGeckoClient", 
+    "EtherscanDLTResource",
+    "CoinGeckoClient",
+    "CoinGeckoDLTResource",
     "DeFiLlamaClient",
+    "DeFiLlamaDLTResource",
 ]

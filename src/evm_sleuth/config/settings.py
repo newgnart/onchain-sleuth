@@ -38,14 +38,14 @@ class DatabaseSettings:
     password: str
     
     @classmethod
-    def from_env(cls, prefix: str) -> 'DatabaseSettings':
+    def from_env(cls) -> 'DatabaseSettings':
         """Create from environment variables with prefix."""
         return cls(
-            host=os.getenv(f"{prefix}_POSTGRES_HOST"),
-            port=int(os.getenv(f"{prefix}_POSTGRES_PORT", "5432")),
-            database=os.getenv(f"{prefix}_POSTGRES_DB"),
-            user=os.getenv(f"{prefix}_POSTGRES_USER"),
-            password=os.getenv(f"{prefix}_POSTGRES_PASSWORD")
+            host=os.getenv(f"POSTGRES_HOST"),
+            port=int(os.getenv(f"POSTGRES_PORT", "5432")),
+            database=os.getenv(f"POSTGRES_DB"),
+            user=os.getenv(f"POSTGRES_USER"),
+            password=os.getenv(f"POSTGRES_PASSWORD")
         )
     
     def get_connection_params(self) -> Dict[str, Any]:
@@ -113,28 +113,10 @@ class Settings:
     
     def __init__(self):
         self.api = APISettings()
-        self.local_db = DatabaseSettings.from_env("LOCAL")
-        self.remote_db = DatabaseSettings.from_env("REMOTE")
+        self.local_db = DatabaseSettings.from_env()
         self.columns = ColumnSchemas()
         self.api_urls = APIUrls()
         
-        # Load token configuration if available
-        self._load_token_config()
-    
-    def _load_token_config(self):
-        """Load token configuration from file."""
-        try:
-            token_config_path = os.path.join(
-                os.path.dirname(__file__), "..", "address", "ybs_tokens.json"
-            )
-            if os.path.exists(token_config_path):
-                with open(token_config_path, "r") as f:
-                    self.ybs_tokens = json.load(f)
-            else:
-                self.ybs_tokens = {}
-        except Exception:
-            self.ybs_tokens = {}
-
 
 # Global settings instance
 settings = Settings()

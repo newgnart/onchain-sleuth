@@ -5,8 +5,7 @@ import pandas as pd
 from contextlib import contextmanager
 from sqlalchemy import create_engine
 
-from stables.data.source.etherscan import get_contract_creation_txn
-from stables.config import PostgresConfig
+from evm_sleuth.config.settings import DatabaseSettings
 
 import logging
 
@@ -14,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 @contextmanager
-def get_postgres_connection(db_config: PostgresConfig):
+def get_postgres_connection(db_config: DatabaseSettings):
     """
     Context manager for PostgreSQL database connections.
 
     Args:
-        db_config: PostgresConfig instance.
+        db_config: DatabaseSettings instance.
 
     Yields:
         psycopg2.connection: Database connection
@@ -39,12 +38,12 @@ def get_postgres_connection(db_config: PostgresConfig):
             conn.close()
 
 
-def get_sqlalchemy_engine(db_config: PostgresConfig):
+def get_sqlalchemy_engine(db_config: DatabaseSettings):
     """
     Create a SQLAlchemy engine for pandas operations.
 
     Args:
-        db_config: PostgresConfig instance
+        db_config: DatabaseSettings instance
 
     Returns:
         sqlalchemy.engine.Engine: SQLAlchemy engine
@@ -55,7 +54,7 @@ def get_sqlalchemy_engine(db_config: PostgresConfig):
 
 
 def _fetch_one(
-    db_config: PostgresConfig,
+    db_config: DatabaseSettings,
     query: str,
     params: Optional[tuple] = None,
 ) -> Any:
@@ -63,7 +62,7 @@ def _fetch_one(
     Execute a query and return the result.
 
     Args:
-        db_config: PostgresConfig instance
+        db_config: DatabaseSettings instance
         query: SQL query string
         params: Query parameters (optional)
 
@@ -79,7 +78,7 @@ def _fetch_one(
 
 
 def get_rows_count(
-    pg_config: PostgresConfig,
+    pg_config: DatabaseSettings,
     table_schema: str,
     table_name: str,
 ) -> int:
@@ -87,7 +86,7 @@ def get_rows_count(
     Get the row count for a specific table.
 
     Args:
-        db_config: PostgresConfig instance
+        db_config: DatabaseSettings instance
         table_schema: Schema name
         table_name: Table name
 
@@ -118,7 +117,7 @@ def get_rows_count(
 
 
 def get_loaded_block(
-    pg_config: PostgresConfig,
+    pg_config: DatabaseSettings,
     table_schema: str,
     table_name: str,
     chainid: int,
@@ -134,7 +133,7 @@ def get_loaded_block(
     creation block number to ensure complete data coverage.
 
     Args:
-        db_config: PostgresConfig instance with database connection parameters
+        db_config: DatabaseSettings instance with database connection parameters
         table_schema: Schema name containing the target table
         table_name: Name of the table to query for loaded block numbers
         chainid: Blockchain chain ID (e.g., 1 for Ethereum mainnet)
@@ -162,13 +161,17 @@ def get_loaded_block(
             return result[0]
         else:
             # No data found, start from contract creation block
-            creation_txn = get_contract_creation_txn(chainid, address)
-            return int(creation_txn["blockNumber"])
+            from evm_sleuth.datasource.etherscan import EtherscanClient
+            client = EtherscanClient(chainid)
+            creation_info = client.get_contract_creation_info([address])
+            return int(creation_info["blockNumber"])
 
     except Exception as e:
         logger.warning(
             f"No result found querying loaded blocks: {e}. Starting from contract creation block."
         )
         # Fall back to contract creation block on any error
-        creation_txn = get_contract_creation_txn(chainid, address)
-        return int(creation_txn["blockNumber"])
+        from evm_sleuth.datasource.etherscan import EtherscanClient
+        client = EtherscanClient(chainid)
+        creation_info = client.get_contract_creation_info([address])
+        return int(creation_info["blockNumber"])
