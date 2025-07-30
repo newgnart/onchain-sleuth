@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: decoded_logs
+    description: "Staging model for raw blockchain logs with basic transformations"
+    columns:
+      - name: chainid
+        tests:
+          - not_null
+      - name: address
+        tests:
+          - not_null
+      - name: topic0
+        description: "First topic (event signature)"
+      - name: topic1
+        description: "Second indexed parameter"
+      - name: topic2
+        description: "Third indexed parameter"
+      - name: topic3
+        description: "Fourth indexed parameter"
+      - name: data
+        description: "Non-indexed event data"
+      - name: block_number
+        tests:
+          - not_null
+      - name: datetime
+        description: "Block timestamp converted to datetime"
+        tests:
+          - not_null
+      - name: transaction_hash
+        tests:
+          - not_null
+      - name: log_index
