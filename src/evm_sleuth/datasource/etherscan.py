@@ -324,6 +324,7 @@ class EtherscanSource(BaseSource):
 
             source = self.create_dlt_source(**params)
             for item in source:
+                item["chainid"] = self.client.chainid
                 yield item
 
         return dlt.resource(_fetch)
