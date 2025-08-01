@@ -1,0 +1,81 @@
+{
+  "core_contracts": {
+    "stablecoin": "0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E",
+    "controller_factory": "0xC9332fdCB1C491Dcc683bAe86Fe3cb70360738BC",
+    "controller_implementation": "0x6340678b2bab22a37d781Cd8da958a3cD1d97cdD",
+    "amm_implementation": "0x3da7fF6C15C0c97D9C2dF4AF82a9910384b372FD",
+    "price_aggregator": "0xe5Afcf332a5457E8FafCD668BcE3dF953762Dfe7",
+    "price_aggregator_v2": "0x18672b1b0c623a30089A280Ed9256379fb0E4E62",
+    "flash_lender": "0xa7a4bb50af91f90b6feb3388e7f8286af45b299b"
+  },
+  "peg_keepers": {
+    "pegkeeperv1_usdc": "0xaA346781dDD7009caa644A4980f044C50cD2ae22",
+    "pegkeeperv1_usdt": "0xE7cd2b4EB1d98CD6a4A48B6071D46401Ac7DC5C8",
+    "pegkeeperv1_usdp": "0x6B765d07cf966c745B340AdCa67749fE75B5c345",
+    "pegkeeperv1_tusd": "0x1ef89Ed0eDd93D1EC09E4c07373f69C49f4dcCae",
+    "pegkeeper_regulator": "0x36a04CAffc681fa179558B2Aaba30395CDdd855f",
+    "pegkeeperv2_usdc": "0x9201da0D97CaAAff53f01B2fB56767C7072dE340",
+    "pegkeeperv2_usdt": "0xFb726F57d251aB5C731E5C64eD4F5F94351eF9F3",
+    "pegkeeperv2_pyusd": "0x3fA20eAa107DE08B38a8734063D605d5842fe09C",
+    "pegkeeperv2_tusd": "0x0a05FF644878B908eF8EB29542aa88C07D9797D3"
+  },
+  "cross_chain": {
+    "ethereum": "0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E",
+    "arbitrum": "0x498Bf2B1e120FeD3ad3D42EA2165E9b73f99C1e5",
+    "optimism": "0xc52d7f23a2e460248db6ee192cb23dd12bddcbf6",
+    "base": "0x417Ac0e078398C154EdFadD9Ef675d30Be60Af93",
+    "gnosis": "0xaBEf652195F98A91E490f047A5006B71c85f058d",
+    "polygon": "0xc4Ce1D6F5D98D65eE25Cf85e9F2E9DcFEe6Cb5d6",
+    "x_layer": "0xda8f4eb4503acf5dec5420523637bb5b33a846f6"
+  },
+  "markets": {
+    "sfrxeth": {
+      "amm": "0x136e783846ef68c8bd00a3369f787df8d683a696",
+      "controller": "0x8472a9a7632b173c8cf3a86d3afec50c35548e76",
+      "monetary_policy": "0xd8f49c747aed8d394f6f1841546e2b83e09a357d",
+      "collateral_token": "0xac3e018457b222d93114458476f3e3416abbe38f",
+      "price_oracle": "0x19F5B81e5325F882C9853B5585f74f751DE3896d",
+      "leverage_zap": "0xb556FA4C4752321B3154f08DfBDFCF34847f2eac"
+    },
+    "wsteth": {
+      "amm": "0x37417b2238aa52d0dd2d6252d989e728e8f706e4",
+      "controller": "0x100daa78fc509db39ef7d04de0c1abd299f4c6ce",
+      "monetary_policy": "0xD8F49c747AED8D394F6f1841546E2B83E09A357D",
+      "collateral_token": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+      "price_oracle": "0xc1793A29609ffFF81f10139fa0A7A444c9e106Ad",
+      "leverage_zap": "0x293436d4e4a15FBc6cCC400c14a01735E5FC74fd"
+    },
+    "wbtc": {
+      "amm": "0xe0438eb3703bf871e31ce639bd351109c88666ea",
+      "controller": "0x4e59541306910ad6dc1dac0ac9dfb29bd9f15c67",
+      "monetary_policy": "0x8c5a7f011f733fbb0a6c969c058716d5ce9bc933",
+      "collateral_token": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+      "price_oracle": "0xBe83fD842DB4937C0C3d15B2aBA6AF7E854f8dcb",
+      "leverage_zap": "0xA2518b71ee64E910741f5Cf480b19E8e402de4d7"
+    },
+    "eth": {
+      "amm": "0x1681195c176239ac5e72d9aebacf5b2492e0c4ee",
+      "controller": "0xa920de414ea4ab66b97da1bfe9e6eca7d4219635",
+      "monetary_policy": "0x8c5a7f011f733fbb0a6c969c058716d5ce9bc933",
+      "collateral_token": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "price_oracle": "0x966cBDeceFB60A289b0460F7638f4A75F432cA06",
+      "leverage_zap": "0xd3e576B5DcDe3580420A5Ef78F3639BA9cd1B967"
+    },
+    "sfrxeth_v2": {
+      "amm": "0xfa96ad0a9e64261db86950e2da362f5572c5c6fd",
+      "controller": "0xec0820efafc41d8943ee8de495fc9ba8495b15cf",
+      "monetary_policy": "0xd8f49c747aed8d394f6f1841546e2b83e09a357d",
+      "collateral_token": "0xac3e018457b222d93114458476f3e3416abbe38f",
+      "price_oracle": "0x28d7880B5b67fB4a0B1c6Ed6c33c33f365113C29",
+      "leverage_zap": "0x43eCFfe6c6C1b9F24AeB5C180E659c2a6FCe11Bc"
+    },
+    "tbtc": {
+      "amm": "0xf9bd9da2427a50908c4c6d1599d8e62837c2bcb0",
+      "controller": "0x1c91da0223c763d2e0173243eadaa0a2ea47e704",
+      "monetary_policy": "0x8c5a7f011f733fbb0a6c969c058716d5ce9bc933",
+      "collateral_token": "0x18084fba666a33d37592fa2633fd49a74dd93a88",
+      "price_oracle": "0xbeF434E2aCF0FBaD1f0579d2376fED0d1CfC4217",
+      "leverage_zap": "0xD79964C70Cb06224FdA4c48387B53E9819bcB71c"
+    }
+  }
+}
