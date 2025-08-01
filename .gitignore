@@ -16,3 +16,4 @@ wheels/
 CLAUDE.md
 
 /temp
+*.log

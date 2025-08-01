@@ -94,7 +94,7 @@ def load_chunks(
                 postgres_connection_url = settings.postgres.get_connection_url()
                 pipeline_manager.run(
                     sources={table_name: source},
-                    pipeline_name="etherscan_raw",
+                    pipeline_name="crvusd",
                     dataset_name=dataset_name,  # schema
                     destination=dlt.destinations.postgres(postgres_connection_url),
                     write_disposition="append",
