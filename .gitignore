@@ -17,3 +17,6 @@ CLAUDE.md
 
 /temp
 *.log
+
+/dbt_subprojects/*/target/
+/dbt_subprojects/*/.user.yml

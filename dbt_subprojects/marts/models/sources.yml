@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: staging
+    description: "Staged and cleaned data from raw sources"
+    schema: staging
+    tables:
+      - name: decoded_logs
+        description: "Decoded log data with parsed topics and timestamps"
+        columns:
+          - name: chainid
+            description: "Chain ID"
+          - name: address
+            description: "Contract address"
+          - name: topic0
+            description: "First topic (event signature)"
+          - name: topic1
+            description: "Second topic (first indexed parameter)"
+          - name: topic2
+            description: "Third topic (second indexed parameter)"
+          - name: topic3
+            description: "Fourth topic (third indexed parameter)"
+          - name: data
+            description: "Non-indexed event data"
+          - name: block_number
+            description: "Block number"
+          - name: datetime
+            description: "Timestamp"
+          - name: transaction_hash
+            description: "Transaction hash"
+          - name: log_index
+            description: "Log index"
