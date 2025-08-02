@@ -30,7 +30,7 @@ def main():
         address
         for contract_name, address in address_map.items()
         if "collateral_token"
-        not in contract_name  # exclude the collateral_token contracts
+        not in contract_name  # exclude all the collateral_token contracts
     ]
     chainid = get_chainid(chain)
 
@@ -79,3 +79,20 @@ def adhoc():
 if __name__ == "__main__":
     # adhoc()\
     main()
+
+
+""" architecture
+-- curve.
+-- staging.decoded_logs
+-- staging.evt_erc20_transfers
+-- staging.evt_erc20_approve
+-- staging.evt_erc20_approve
+
+-- staging.decoded_transactions
+-- staging.txn_erc20_transfers
+
+
+-- crvusd.erc20_transfers
+-- crvusd.erc20_mint
+
+"""
