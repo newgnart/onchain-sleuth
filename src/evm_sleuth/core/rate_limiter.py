@@ -34,10 +34,7 @@ class RateLimitedSession(requests.Session):
         """Make a rate-limited request."""
         self._apply_rate_limiting()
         self.request_count += 1
-        self.logger.debug(f"API Call #{self.request_count}: {method} {url}")
-        
         response = super().request(method, url, **kwargs)
-        self.logger.debug(f"Response #{self.request_count}: {response.status_code}")
         return response
         
     def _apply_rate_limiting(self):
@@ -48,14 +45,14 @@ class RateLimitedSession(requests.Session):
         if self.strategy == RateLimitStrategy.FIXED_INTERVAL:
             if time_since_last < self.min_interval:
                 sleep_time = self.min_interval - time_since_last
-                self.logger.debug(f"Rate limiting: sleeping for {sleep_time:.3f}s")
+                pass  # Rate limiting applied
                 time.sleep(sleep_time)
         elif self.strategy == RateLimitStrategy.EXPONENTIAL_BACKOFF:
             # For exponential backoff, we'd need to track consecutive failures
             # This is a simplified implementation
             if time_since_last < self.min_interval:
                 backoff_time = min(self.min_interval * (2 ** (self.request_count % 5)), 60)
-                self.logger.debug(f"Exponential backoff: sleeping for {backoff_time:.3f}s")
+                pass  # Exponential backoff applied
                 time.sleep(backoff_time)
             
         self.last_request_time = time.time()

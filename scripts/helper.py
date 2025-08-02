@@ -55,13 +55,13 @@ def load_chunks(
         to_block = etherscan_client.get_latest_block()
 
     logger.info(
-        f"Loading from block {from_block} to {to_block}, with block_chunk_size {block_chunk_size}"
+        f"🚧🚧🚧 {contract_address}, chain {chainid}, from block {from_block} to {to_block} 🚧🚧🚧"
     )
     # Process in chunks
     end_block = to_block  # Save the original end block
     for chunk_start in range(from_block, end_block, block_chunk_size):
         chunk_end = min(chunk_start + block_chunk_size - 1, end_block)
-        logger.info(f"Loading from block {chunk_start} to {chunk_end}")
+        pass  # Loading chunk
 
         max_retries = 2
         retries = max_retries
@@ -93,11 +93,13 @@ def load_chunks(
                 # Log results and check for potential API limits
                 if n_loaded >= 1000:
                     logger.warning(
-                        f"Loaded {n_loaded} from {chunk_start} to {chunk_end}, "
-                        "smaller block_chunk_size may be needed."
+                        f"Load {n_loaded} {source_factory.__name__} (>1000) from {chunk_start} to {chunk_end}"
                     )
                 else:
-                    logger.info(f"Loaded {n_loaded} from {chunk_start} to {chunk_end}")
+                    logger.info(
+                        f"Loaded {n_loaded} {source_factory.__name__} from {chunk_start} to {chunk_end}"
+                    )
+                    pass  # Chunk loaded successfully
 
                 break  # Success, move to next chunk
 
@@ -113,7 +115,9 @@ def load_chunks(
                         f"Failed to load for block range {chunk_start}-{chunk_end} "
                         f"after {max_retries} retries."
                     )
-    logger.info(f"Completed loading for {contract_address}")
+    logger.info(
+        f"✅✅✅ {contract_address}, chain {chainid}, from block {from_block} to {to_block} ✅✅✅"
+    )
 
 
 def _to_snake(name):
@@ -170,9 +174,7 @@ def rewrite_json_snakecase(input_file: str, output_file: str = None):
     with open(output_file, "w") as f:
         json.dump(snakecase_data, f, indent=2)
 
-    logger.info(
-        f"Successfully converted {input_file} to snakecase and saved to {output_file}"
-    )
+    pass  # Successfully converted to snakecase
 
 
 def get_all_addresses(data: dict) -> dict[str, str]:
@@ -213,10 +215,9 @@ def get_chainid(chain: str, chainid_data: Optional[dict] = None) -> int:
     if chainid_data is None:
         with open("resource/chainid.json", "r") as f:
             chainid_data = json.load(f)
-            logger.info(f"Loaded chainid.json with {len(chainid_data)} chains")
+            pass  # Loaded chainid.json
     try:
         chainid = chainid_data[chain]
-        logger.info(f"Chain {chain} found in chainid.json with chainid {chainid}")
         return chainid
     except KeyError:
         raise ValueError(f"Chain {chain} not found in chainid.json")

@@ -26,9 +26,12 @@ def main():
         crvusd_data = json.load(f)
 
     address_map = get_all_addresses(crvusd_data[chain])  # {path: address}
-    all_addresses = list(address_map.values())
-
-    # get chainid
+    all_addresses = [
+        address
+        for contract_name, address in address_map.items()
+        if "collateral_token"
+        not in contract_name  # exclude the collateral_token contracts
+    ]
     chainid = get_chainid(chain)
 
     # load data for all addresses
@@ -37,9 +40,7 @@ def main():
     postgres_client = PostgresClient(settings.postgres)
     for address in all_addresses:
         if address == "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e":
-            block_chunk_size = 10_000
-        else:
-            block_chunk_size = 100_000
+            continue
         load_chunks(
             dataset_name="etherscan_raw",
             table_name="logs",
@@ -47,11 +48,34 @@ def main():
             etherscan_client=etherscan_client,
             postgres_client=postgres_client,
             source_factory=source.logs,
-            block_chunk_size=block_chunk_size,
+            block_chunk_size=100_000,
             write_disposition="append",
             # primary_key=["block_number", "transaction_index", "log_index"],
         )
 
 
+def adhoc():
+    # get all addresses
+    address = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
+    # get chainid
+    chainid = get_chainid("ethereum")
+
+    etherscan_client = EtherscanClient(chainid=chainid)
+    source = EtherscanSource(client=etherscan_client)
+    postgres_client = PostgresClient(settings.postgres)
+    load_chunks(
+        dataset_name="etherscan_raw",
+        table_name="logs",
+        contract_address=address,
+        etherscan_client=etherscan_client,
+        postgres_client=postgres_client,
+        source_factory=source.logs,
+        block_chunk_size=5_000,
+        # write_disposition="append",
+        # primary_key=["block_number", "transaction_index", "log_index"],
+    )
+
+
 if __name__ == "__main__":
+    # adhoc()\
     main()

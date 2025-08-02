@@ -53,7 +53,7 @@ class EtherscanClient(BaseAPIClient):
         if timestamp is None:
             timestamp = int(datetime.now().timestamp())
 
-        self.logger.info(f"Getting latest block for chain {self.chainid}")
+        pass  # Getting latest block
 
         params = {
             "module": "block",
@@ -64,14 +64,14 @@ class EtherscanClient(BaseAPIClient):
         result = self.make_request("", params)
 
         latest_block = int(result)
-        self.logger.info(f"Latest block: {latest_block}")
+        pass  # Latest block retrieved
         return latest_block
 
     def get_contract_abi(
         self, address: str, save: bool = True, save_dir: str = "data/abi"
     ) -> Dict[str, Any]:
         """Get contract ABI and optionally save to file."""
-        self.logger.info(f"Getting ABI for contract {address} on chain {self.chainid}")
+        pass  # Getting ABI for contract
 
         # Get contract metadata to check for proxy
         try:
@@ -94,9 +94,7 @@ class EtherscanClient(BaseAPIClient):
         if contract_metadata.get("Proxy"):
             implementation_address = contract_metadata.get("Implementation")
             if implementation_address:
-                self.logger.info(
-                    f"Contract {address} is a proxy. Fetching implementation ABI for {implementation_address}"
-                )
+                pass  # Contract is a proxy, fetching implementation ABI
                 try:
                     impl_params = {
                         "module": "contract",
@@ -117,9 +115,7 @@ class EtherscanClient(BaseAPIClient):
 
     def get_contract_metadata(self, address: str) -> Dict[str, Any]:
         """Get contract metadata including proxy status."""
-        self.logger.info(
-            f"Fetching metadata for contract {address} on chain {self.chainid}"
-        )
+        pass  # Fetching metadata for contract
 
         params = {
             "module": "contract",
@@ -138,6 +134,10 @@ class EtherscanClient(BaseAPIClient):
             "Implementation": source_data.get("Implementation"),
         }
 
+    def get_contract_creation_block_number(self, address: str) -> int:
+        """Get contract creation block number for given address."""
+        return int(self.get_contract_creation_info(address)["blockNumber"])
+
     def get_transaction_receipt(
         self, txhash: str, save: bool = True, save_dir: str = "data/receipts"
     ) -> Dict[str, Any]:
@@ -146,9 +146,7 @@ class EtherscanClient(BaseAPIClient):
         if not txhash.startswith("0x"):
             txhash = "0x" + txhash
 
-        self.logger.info(
-            f"Getting transaction receipt for {txhash} on chain {self.chainid}"
-        )
+        pass  # Getting transaction receipt
 
         params = {
             "module": "proxy",
@@ -173,9 +171,7 @@ class EtherscanClient(BaseAPIClient):
         if isinstance(contract_addresses, str):
             contract_addresses = [contract_addresses]
 
-        self.logger.info(
-            f"Getting creation info for {len(contract_addresses)} contracts on chain {self.chainid}"
-        )
+        pass  # Getting creation info for contracts
 
         params = {
             "module": "contract",
@@ -202,14 +198,14 @@ class EtherscanClient(BaseAPIClient):
         main_path = os.path.join(save_dir, f"{address}.json")
         with open(main_path, "w") as f:
             json.dump(abi_json, f, indent=2)
-        self.logger.info(f"ABI saved to {main_path}")
+        pass  # ABI saved
 
         # Save implementation ABI if available
         if implementation_abi:
             impl_path = os.path.join(save_dir, f"{address}-implementation.json")
             with open(impl_path, "w") as f:
                 json.dump(implementation_abi, f, indent=2)
-            self.logger.info(f"Implementation ABI saved to {impl_path}")
+            pass  # Implementation ABI saved
 
     def _save_receipt(self, txhash: str, receipt: Dict[str, Any], save_dir: str):
         """Save transaction receipt to file."""
@@ -218,7 +214,7 @@ class EtherscanClient(BaseAPIClient):
         receipt_path = os.path.join(save_dir, f"{txhash}.json")
         with open(receipt_path, "w") as f:
             json.dump(receipt, f, indent=2)
-        self.logger.info(f"Receipt saved to {receipt_path}")
+        pass  # Receipt saved
 
 
 class EtherscanSource(BaseSource):
@@ -273,9 +269,7 @@ class EtherscanSource(BaseSource):
                 "apikey": self.client.config.api_key,
             }
 
-            self.logger.info(
-                f"Fetching logs for address {address} from block {from_block} to {to_block}"
-            )
+            pass  # Fetching logs for address
 
             source = self.create_dlt_source(**params)
             for item in source:
@@ -318,9 +312,7 @@ class EtherscanSource(BaseSource):
                 "apikey": self.client.config.api_key,
             }
 
-            self.logger.info(
-                f"Fetching transactions for address {address} from block {from_block} to {to_block}"
-            )
+            pass  # Fetching transactions for address
 
             source = self.create_dlt_source(**params)
             for item in source:

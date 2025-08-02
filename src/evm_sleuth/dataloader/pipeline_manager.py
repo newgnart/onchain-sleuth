@@ -53,10 +53,6 @@ class PipelineManager:
                 dataset_name=dataset_name,
             )
 
-            self.logger.info(
-                f"Created pipeline '{pipeline_name}' for dataset_name '{dataset_name}'"
-            )
-
             # Execute pipeline
             if isinstance(sources, dict):
                 return self._run_named_sources(
@@ -84,9 +80,7 @@ class PipelineManager:
         if primary_key:
             run_kwargs["primary_key"] = primary_key
 
-        self.logger.info(f"Running single source")
         result = pipeline.run(source, **run_kwargs)
-        self.logger.info(f"Successfully completed single source run")
         return result
 
     def _run_named_sources(
@@ -118,9 +112,6 @@ class PipelineManager:
                 if table_primary_key:
                     run_kwargs["primary_key"] = table_primary_key
 
-                self.logger.info(
-                    f"Running source for table '{table_name}' with disposition '{table_write_disposition}'"
-                )
                 result = pipeline.run(source, **run_kwargs)
                 results[table_name] = result
 
