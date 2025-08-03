@@ -3,14 +3,18 @@ CLI script for Etherscan log loading with PostgreSQL integration using modern EV
 """
 
 import json
+import sys
+import os
 
 from evm_sleuth import settings, EtherscanClient, EtherscanSource
 from evm_sleuth.utils.postgres import PostgresClient
 from evm_sleuth.utils.logging import setup_logging
-from helper import rewrite_json_snakecase, load_chunks, get_all_addresses, get_chainid
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+from helpers import load_chunks, get_all_addresses, get_chainid, rewrite_json_snakecase
 
 # Configure logging
-setup_logging("logs/crvusd_pipeline.log")
+setup_logging("logs/load_crvusd.log")
 
 
 def snakify():
@@ -21,7 +25,7 @@ def snakify():
 def main():
     # get all addresses
     chain = "ethereum"
-    with open("resource/crvusd.json", "r") as f:
+    with open("resource/address/crvusd.json", "r") as f:
         crvusd_data = json.load(f)
 
     address_map = get_all_addresses(crvusd_data[chain])  # {path: address}
@@ -78,10 +82,10 @@ def adhoc():
         etherscan_client=etherscan_client,
         postgres_client=postgres_client,
         source_factory=source.logs,
-        block_chunk_size=200_000,
-        write_disposition="append",
-        from_block=18000000,
-        to_block=19000000,
+        block_chunk_size=10_000,
+        # write_disposition="append",
+        # from_block=18000000,
+        # to_block=19000000,
         # primary_key=["address", "chainid", "transaction_hash", "log_index"],
     )
 
@@ -104,18 +108,18 @@ if __name__ == "__main__":
     # main()
 
 
-""" architecture
--- curve.
--- staging.decoded_logs
--- staging.evt_erc20_transfers
--- staging.evt_erc20_approve
--- staging.evt_erc20_approve
+# """ architecture
+# -- curve.
+# -- staging.decoded_logs
+# -- staging.evt_erc20_transfers
+# -- staging.evt_erc20_approve
+# -- staging.evt_erc20_approve
 
--- staging.decoded_transactions
--- staging.txn_erc20_transfers
+# -- staging.decoded_transactions
+# -- staging.txn_erc20_transfers
 
 
--- crvusd.erc20_transfers
--- crvusd.erc20_mint
+# -- crvusd.erc20_transfers
+# -- crvusd.erc20_mint
 
-"""
+# """

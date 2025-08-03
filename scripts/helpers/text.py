@@ -76,40 +76,36 @@ def load_chunks(
     for chunk_start in range(from_block, end_block, block_chunk_size):
         chunk_end = min(chunk_start + block_chunk_size - 1, end_block)
         try:
-            logger.info(f"Loading {chunk_start} to {chunk_end}")
+            # logger.info(f"Loading {chunk_start} to {chunk_end}")
             # Get row count before loading
-            n_before = postgres_client.get_table_row_count(dataset_name, table_name)
-            logger.info(f"Before loading: {n_before}")
+            query = f"SELECT COUNT(*) FROM {dataset_name}.{table_name} WHERE chainid = {chainid} AND {address_column_name} = '{contract_address}'"
+            n_before = postgres_client.fetch_one(query)
+            # logger.info(f"Before loading: {n_before}")
 
-            # # Create source with current block range
-            # source = source_factory(
-            #     address=contract_address, from_block=chunk_start, to_block=chunk_end
-            # )
+            # Create source with current block range
+            source = source_factory(
+                address=contract_address, from_block=chunk_start, to_block=chunk_end
+            )
 
-            # # Run pipeline with resource
-            # postgres_connection_url = settings.postgres.get_connection_url()
-            # pipeline_manager.run(
-            #     sources={table_name: source},
-            #     pipeline_name=f"{dataset_name}-{table_name}-{chainid}-{contract_address}",
-            #     dataset_name=dataset_name,  # schema
-            #     destination=dlt.destinations.postgres(postgres_connection_url),
-            #     write_disposition=write_disposition,
-            #     primary_key=primary_key,
-            # )
+            # Run pipeline with resource
+            postgres_connection_url = settings.postgres.get_connection_url()
+            pipeline_manager.run(
+                sources={table_name: source},
+                pipeline_name=f"{dataset_name}-{table_name}-{chainid}-{contract_address}",
+                dataset_name=dataset_name,  # schema
+                destination=dlt.destinations.postgres(postgres_connection_url),
+                write_disposition=write_disposition,
+                primary_key=primary_key,
+            )
 
-            # # Get row count after loading
-            # n_after = postgres_client.get_table_row_count(dataset_name, table_name)
-            # n_loaded = n_after - n_before
+            # Get row count after loading
+            query = f"SELECT COUNT(*) FROM {dataset_name}.{table_name} WHERE chainid = {chainid} AND {address_column_name} = '{contract_address}'"
+            n_after = postgres_client.fetch_one(query)
+            n_loaded = n_after - n_before
 
-            # # Log results and check for potential API limits
-            # if n_loaded > 1000:
-            #     logger.warning(
-            #         f"Loaded {n_loaded} {source_factory.__name__} (>1000), {chunk_start} to {chunk_end}"
-            #     )
-            # else:
-            #     logger.info(
-            #         f"Loaded {n_loaded} {source_factory.__name__}, {chunk_start} to {chunk_end}"
-            #     )
+            logger.info(
+                f"Loaded {n_loaded} {source_factory.__name__}, {chunk_start} to {chunk_end}"
+            )
 
         except Exception as e:
 
@@ -222,10 +218,3 @@ def get_chainid(chain: str, chainid_data: Optional[dict] = None) -> int:
         return chainid
     except KeyError:
         raise ValueError(f"Chain {chain} not found in chainid.json")
-
-
-def get_contract_creation_info(
-    contract_address: str, etherscan_client: EtherscanClient
-) -> dict:
-    """Get the contract creation info for a given contract address."""
-    return etherscan_client.get_contract_creation_info(contract_address)
