@@ -2,32 +2,29 @@ version: 2
 
 models:
   - name: decoded_logs
-    description: "Staging model for raw blockchain logs with basic transformations"
+    description: "Decoded log data with parsed event information"
     columns:
       - name: chainid
+        description: "Chain ID (1 for Ethereum mainnet)"
         tests:
           - not_null
       - name: address
+        description: "Contract address that emitted the log"
         tests:
           - not_null
-      - name: topic0
-        description: "First topic (event signature)"
-      - name: topic1
-        description: "Second indexed parameter"
-      - name: topic2
-        description: "Third indexed parameter"
-      - name: topic3
-        description: "Fourth indexed parameter"
-      - name: data
-        description: "Non-indexed event data"
       - name: block_number
-        tests:
-          - not_null
-      - name: datetime
-        description: "Block timestamp converted to datetime"
+        description: "Block number where event occurred"
         tests:
           - not_null
       - name: transaction_hash
+        description: "Hash of the transaction"
         tests:
           - not_null
       - name: log_index
+        description: "Index of log within the transaction"
+      - name: event_name
+        description: "Name of the decoded event"
+      - name: event_signature
+        description: "Event signature (topic0)"
+      - name: decoded_data
+        description: "Decoded event parameters as JSON"

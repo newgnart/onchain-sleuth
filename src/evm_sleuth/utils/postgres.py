@@ -159,23 +159,23 @@ class PostgresClient:
         table_name: str,
         chainid: int,
         address: str,
-        column_name: str = "block_number",
+        address_column_name: str = "address",
+        block_column_name: str = "block_number",
     ) -> int:
-        """ """
         try:
             query = f"""
-            SELECT MAX({column_name}) 
+            SELECT MAX({block_column_name}) 
             FROM {table_schema}.{table_name} 
-            WHERE address = %s
+            WHERE {address_column_name} = %s
+            AND chainid = %s
             """
-            result = self.fetch_one(query, (address,))
+            result = self.fetch_one(query, (address, chainid))
 
             if result and result[0] is not None:
-                return result[0]
+                return int(result[0])
             else:
                 return 0
 
         except Exception as e:
             logger.warning(f"No result found querying loaded blocks: {e}")
-
             return 0

@@ -36,6 +36,17 @@ def load_chunks(
     pipeline_manager = PipelineManager()
     contract_address = contract_address.lower()
     chainid = etherscan_client.chainid
+    block_column_name = "block_number"
+    if source_factory.__name__ == "logs":
+        address_column_name = "address"
+    elif source_factory.__name__ == "transactions":
+        address_column_name = '"to"'
+    else:
+        raise ValueError(f"Unknown source factory: {source_factory}")
+
+    # Get end block from Etherscan client
+    if to_block is None:
+        to_block = etherscan_client.get_latest_block()
     # Determine start block using PostgresClient
     if from_block is None:
         max_loaded_block = postgres_client.get_max_loaded_block(
@@ -43,80 +54,70 @@ def load_chunks(
             table_name=table_name,
             chainid=chainid,
             address=contract_address,
-            column_name="block_number",
+            address_column_name=address_column_name,
+            block_column_name=block_column_name,
         )
-        contract_creation_block = int(
-            etherscan_client.get_contract_creation_info(contract_address)["blockNumber"]
+        contract_creation_block = etherscan_client.get_contract_creation_block_number(
+            contract_address
         )
-        from_block = max(max_loaded_block, contract_creation_block)
+        if max_loaded_block > contract_creation_block:
+            from_block = max_loaded_block
+            logger.info(
+                f"🚧🚧🚧 {contract_address}, {source_factory.__name__}, chain {chainid}, continue from {from_block} to {to_block}"
+            )
+        else:
+            from_block = contract_creation_block
+            logger.info(
+                f"🚧🚧🚧 {contract_address}, {source_factory.__name__}, chain {chainid}, start from creation block {contract_creation_block} to {to_block}"
+            )
 
-    # Get end block from Etherscan client
-    if to_block is None:
-        to_block = etherscan_client.get_latest_block()
-
-    logger.info(
-        f"🚧🚧🚧 {contract_address}, chain {chainid}, from block {from_block} to {to_block} 🚧🚧🚧"
-    )
     # Process in chunks
     end_block = to_block  # Save the original end block
     for chunk_start in range(from_block, end_block, block_chunk_size):
         chunk_end = min(chunk_start + block_chunk_size - 1, end_block)
-        pass  # Loading chunk
+        try:
+            logger.info(f"Loading {chunk_start} to {chunk_end}")
+            # Get row count before loading
+            n_before = postgres_client.get_table_row_count(dataset_name, table_name)
+            logger.info(f"Before loading: {n_before}")
 
-        max_retries = 2
-        retries = max_retries
-        while retries > 0:
-            try:
-                # Get row count before loading
-                n_before = postgres_client.get_table_row_count(dataset_name, table_name)
+            # # Create source with current block range
+            # source = source_factory(
+            #     address=contract_address, from_block=chunk_start, to_block=chunk_end
+            # )
 
-                # Create source with current block range
-                source = source_factory(
-                    address=contract_address, from_block=chunk_start, to_block=chunk_end
-                )
+            # # Run pipeline with resource
+            # postgres_connection_url = settings.postgres.get_connection_url()
+            # pipeline_manager.run(
+            #     sources={table_name: source},
+            #     pipeline_name=f"{dataset_name}-{table_name}-{chainid}-{contract_address}",
+            #     dataset_name=dataset_name,  # schema
+            #     destination=dlt.destinations.postgres(postgres_connection_url),
+            #     write_disposition=write_disposition,
+            #     primary_key=primary_key,
+            # )
 
-                # Run pipeline with resource
-                postgres_connection_url = settings.postgres.get_connection_url()
-                pipeline_manager.run(
-                    sources={table_name: source},
-                    pipeline_name=f"{dataset_name}-{table_name}-{chainid}-{contract_address}",
-                    dataset_name=dataset_name,  # schema
-                    destination=dlt.destinations.postgres(postgres_connection_url),
-                    write_disposition=write_disposition,
-                    primary_key=primary_key,
-                )
+            # # Get row count after loading
+            # n_after = postgres_client.get_table_row_count(dataset_name, table_name)
+            # n_loaded = n_after - n_before
 
-                # Get row count after loading
-                n_after = postgres_client.get_table_row_count(dataset_name, table_name)
-                n_loaded = n_after - n_before
+            # # Log results and check for potential API limits
+            # if n_loaded > 1000:
+            #     logger.warning(
+            #         f"Loaded {n_loaded} {source_factory.__name__} (>1000), {chunk_start} to {chunk_end}"
+            #     )
+            # else:
+            #     logger.info(
+            #         f"Loaded {n_loaded} {source_factory.__name__}, {chunk_start} to {chunk_end}"
+            #     )
 
-                # Log results and check for potential API limits
-                if n_loaded >= 1000:
-                    logger.warning(
-                        f"Load {n_loaded} {source_factory.__name__} (>1000) from {chunk_start} to {chunk_end}"
-                    )
-                else:
-                    logger.info(
-                        f"Loaded {n_loaded} {source_factory.__name__} from {chunk_start} to {chunk_end}"
-                    )
-                    pass  # Chunk loaded successfully
+        except Exception as e:
 
-                break  # Success, move to next chunk
-
-            except Exception as e:
-                retries -= 1
-                logger.error(
-                    f"Error loading: {e}. Retrying... ({retries} retries left)"
-                )
-                if retries > 0:
-                    time.sleep(3)  # Wait before retry
-                else:
-                    logger.error(
-                        f"Failed to load for block range {chunk_start}-{chunk_end} "
-                        f"after {max_retries} retries."
-                    )
+            logger.error(
+                f"Failed to load for block range {chunk_start}-{chunk_end} with error {e}"
+            )
     logger.info(
-        f"✅✅✅ {contract_address}, chain {chainid}, from block {from_block} to {to_block} ✅✅✅"
+        f"✅✅✅ {contract_address}, {source_factory.__name__}, chain {chainid}, {from_block} to {to_block}"
     )
 
 

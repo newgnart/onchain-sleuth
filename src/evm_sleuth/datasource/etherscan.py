@@ -278,15 +278,7 @@ class EtherscanSource(BaseSource):
 
         return dlt.resource(
             _fetch,
-            columns={
-                "topics": {"data_type": "json"},
-                "block_number": {"data_type": "bigint"},
-                "time_stamp": {"data_type": "bigint"},
-                "gas_price": {"data_type": "bigint"},
-                "gas_used": {"data_type": "bigint"},
-                "log_index": {"data_type": "bigint"},
-                "transaction_index": {"data_type": "bigint"},
-            },
+            columns={"topics": {"data_type": "json"}},
         )
 
     def transactions(
