@@ -70,12 +70,16 @@ class PostgresClient:
         Returns:
             Query result (fetchone())
         """
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, params)
-            result = cursor.fetchone()
-            cursor.close()
-            return result
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                result = cursor.fetchone()
+                cursor.close()
+                return result
+        except Exception as e:
+            logger.warning(f"Failed to query {query} with error {e}, returning None")
+            return None
 
     def fetch_all(self, query: str, params: Optional[tuple] = None) -> list:
         """

@@ -43,7 +43,7 @@ def main():
     postgres_client = PostgresClient(settings.postgres)
     for address in all_addresses:
         if address == "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e":
-            block_chunk_size = 5_000
+            block_chunk_size = 10_000
         else:
             block_chunk_size = 100_000
         load_chunks(
@@ -53,28 +53,33 @@ def main():
             etherscan_client=etherscan_client,
             postgres_client=postgres_client,
             source_factory=source.logs,
+            from_block=17907952,
+            to_block=17917951,
             block_chunk_size=block_chunk_size,
         )
-        load_chunks(
-            dataset_name="etherscan_raw",
-            table_name="transactions",
-            contract_address=address,
-            etherscan_client=etherscan_client,
-            postgres_client=postgres_client,
-            source_factory=source.transactions,
-            block_chunk_size=block_chunk_size,
-        )
+        # load_chunks(
+        #     dataset_name="etherscan_raw",
+        #     table_name="transactions",
+        #     contract_address=address,
+        #     etherscan_client=etherscan_client,
+        #     postgres_client=postgres_client,
+        #     source_factory=source.transactions,
+        #     block_chunk_size=block_chunk_size,
+        # )
 
 
 def adhoc():
-    # get all addresses
-    address = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
-    # get chainid
-    chainid = get_chainid("ethereum")
 
+    # get all addresses
+    chain = "ethereum"
+    chainid = get_chainid(chain)
+
+    # load data for all addresses
     etherscan_client = EtherscanClient(chainid=chainid)
     source = EtherscanSource(client=etherscan_client)
     postgres_client = PostgresClient(settings.postgres)
+    address = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
+
     load_chunks(
         dataset_name="etherscan_raw",
         table_name="logs",
@@ -82,25 +87,10 @@ def adhoc():
         etherscan_client=etherscan_client,
         postgres_client=postgres_client,
         source_factory=source.logs,
-        block_chunk_size=10_000,
-        # write_disposition="append",
-        # from_block=18000000,
-        # to_block=19000000,
-        # primary_key=["address", "chainid", "transaction_hash", "log_index"],
+        from_block=22207515,
+        to_block=22237514,
+        block_chunk_size=1000,
     )
-
-    # load_chunks(
-    #     dataset_name="etherscan_raw",
-    #     table_name="transactions",
-    #     contract_address=address,
-    #     etherscan_client=etherscan_client,
-    #     postgres_client=postgres_client,
-    #     source_factory=source.transactions,
-    #     block_chunk_size=2_000,
-    #     from_block=18000000,
-    #     to_block=19000000,
-    #     primary_key=["address", "chainid", "transaction_hash"],
-    # )
 
 
 if __name__ == "__main__":

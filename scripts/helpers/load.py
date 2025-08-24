@@ -9,6 +9,8 @@ import sys
 import time
 from functools import partial
 import re
+import random
+import os
 
 from typing import Optional, Any, List
 
@@ -73,14 +75,10 @@ def load_chunks(
 
     # Process in chunks
     end_block = to_block  # Save the original end block
+    error_block_ranges = []
     for chunk_start in range(from_block, end_block, block_chunk_size):
         chunk_end = min(chunk_start + block_chunk_size - 1, end_block)
         try:
-            # Get row count before loading
-            query = f"SELECT COUNT(*) FROM {dataset_name}.{table_name} WHERE chainid = {chainid} AND {address_column_name} = '{contract_address}'"
-            result = postgres_client.fetch_one(query)
-            n_before = result[0] if result else 0
-
             # Create source with current block range
             source = source_factory(
                 address=contract_address, from_block=chunk_start, to_block=chunk_end
@@ -100,18 +98,34 @@ def load_chunks(
             # Get row count after loading
             query = f"SELECT COUNT(*) FROM {dataset_name}.{table_name} WHERE chainid = {chainid} AND {address_column_name} = '{contract_address}'"
             result = postgres_client.fetch_one(query)
-            n_after = result[0] if result else 0
-            n_loaded = n_after - n_before
+            n_loaded = result[0] or 0
 
-            logger.info(
-                f"Loaded {n_loaded} {source_factory.__name__}, {chunk_start} to {chunk_end}"
-            )
+            # Only log progress 5% of the time to avoid excessive logging
+            # This provides periodic status updates while keeping the log file manageable
+            if random.random() < 0.05:
+                logger.info(
+                    f"Loaded {n_loaded} {source_factory.__name__}, up to {chunk_end}"
+                )
 
         except Exception as e:
-
             logger.error(
-                f"Failed to load for block range {chunk_start}-{chunk_end} with error {e}"
+                f"Failed to load {source_factory.__name__} {chunk_start} to {chunk_end} with error {e}"
             )
+            error_block_ranges.append([chunk_start, chunk_end])
+
+    if error_block_ranges:
+        error_file = f"logs/load_{source_factory.__name__}_error.json"
+        if not os.path.exists(error_file):
+            with open(error_file, "w") as f:
+                json.dump({}, f, indent=4)
+        with open(error_file, "a") as f:
+            json.dump(
+                {f"{contract_address}-{chainid}": error_block_ranges},
+                f,
+                indent=4,
+                ensure_ascii=False,
+            )
+
     logger.info(
         f"✅✅✅ {contract_address}, {source_factory.__name__}, chain {chainid}, {from_block} to {to_block}"
     )
