@@ -30,28 +30,28 @@ The project follows a modular, layered architecture designed for scalability and
 ┌─────────────────────────────────────────────────────────────┐
 │                    Application Layer                        │
 ├─────────────────────────────────────────────────────────────┤
-│  Scripts & CLI Tools                                       │
-│  • decoder.py - decoding utilities                   │
-│  • load_crvusd.py - data loading script               │
-│  • run_dbt.sh - dbt pipeline execution                     │
+│  Scripts & CLI Tools                                        │
+│  • decoder.py - decoding utilities                          │
+│  • load_crvusd.py - data loading script                     │
+│  • run_dbt.sh - dbt pipeline execution                      │
 ├─────────────────────────────────────────────────────────────┤
 │                    Core Components                          │
 ├─────────────────────────────────────────────────────────────┤
-│  • Decoder - Smart contract event/transaction parsing             │
-│  • PipelineManager - DLT pipeline orchestration            │
-│  • Rate Limiter - API call management                      │
+│  • Decoder - Smart contract event/transaction parsing       │
+│  • PipelineManager - DLT pipeline orchestration             │
+│  • Rate Limiter - API call management                       │
 ├─────────────────────────────────────────────────────────────┤
-│                   Data Sources                             │
+│                   Data Sources                              │
 ├─────────────────────────────────────────────────────────────┤
-│  • EtherscanClient - Blockchain data extraction            │
-│  • DeFiLlamaClient - DeFi protocol data                   │
-│  • BaseAPIClient - Extensible API framework               │
+│  • EtherscanClient - Blockchain data extraction             │
+│  • DeFiLlamaClient - DeFi protocol data                     │
+│  • BaseAPIClient - Extensible API framework                 │
 ├─────────────────────────────────────────────────────────────┤
 │                  Infrastructure                             │
 ├─────────────────────────────────────────────────────────────┤
-│  • PostgreSQL - Data warehouse                             │
-│  • dlt - Data loading & transformation                     │
-│  • dbt - Data modeling & testing                           │
+│  • PostgreSQL - Data warehouse                              │
+│  • dlt - Data loading & transformation                      │
+│  • dbt - Data modeling & testing                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
