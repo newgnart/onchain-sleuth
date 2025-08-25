@@ -17,8 +17,8 @@ __all__ = [
     "settings",
     "Settings",
     # Decoder
-    "EventDecoder",
-    "DecodingStrategy",
+    # "EventDecoder",
+    # "DecodingStrategy",
     # Data source clients
     "DeFiLlamaClient",
     "DeFiLlamaSource",

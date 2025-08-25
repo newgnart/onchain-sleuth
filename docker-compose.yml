@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:15
-    container_name: evm_sleuth
+    container_name: postgres_container
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
