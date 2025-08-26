@@ -5,7 +5,7 @@ import logging.handlers
 logger = logging.getLogger(__name__)
 
 
-def setup_logging(log_file: str = None, level: str = "INFO"):
+def setup_logging(log_filename: str = None, level: str = "INFO"):
     """Sets up logging with console streaming and optional file logging."""
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -20,13 +20,11 @@ def setup_logging(log_file: str = None, level: str = "INFO"):
     root_logger.addHandler(console_handler)
 
     # File handler (optional)
-    if log_file:
-        # Create logs directory if it doesn't exist
-        if not os.path.exists("logs"):
-            os.makedirs("logs")
-
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+    if log_filename:
         file_handler = logging.handlers.RotatingFileHandler(
-            log_file, maxBytes=5 * 1024 * 1024, backupCount=5
+            f"logs/{log_filename}", maxBytes=5 * 1024 * 1024, backupCount=5
         )
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)

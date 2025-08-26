@@ -1,7 +1,8 @@
 """EVM Sleuth - Ethereum blockchain data engineering toolkit."""
 
 from .config import settings, Settings
-from .decoder import EventDecoder, DecodingStrategy
+
+# from .decoder import EventDecoder, DecodingStrategy
 from .datasource import (
     DeFiLlamaClient,
     DeFiLlamaSource,
@@ -9,6 +10,7 @@ from .datasource import (
     EtherscanSource,
 )
 from .dataloader import PipelineManager, TableConfig
+from .utils.postgres import PostgresClient
 
 __version__ = "0.0.1"
 
@@ -27,4 +29,6 @@ __all__ = [
     # Data loading
     "PipelineManager",
     "TableConfig",
+    # Database
+    "PostgresClient",
 ]

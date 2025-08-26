@@ -5,7 +5,7 @@ import json
 import dlt
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Iterator
-
+import pandas as pd
 from evm_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
 from evm_sleuth.core.exceptions import APIError
 from evm_sleuth.config.settings import settings
@@ -71,8 +71,6 @@ class EtherscanClient(BaseAPIClient):
         self, address: str, save: bool = True, save_dir: str = "data/abi"
     ) -> Dict[str, Any]:
         """Get contract ABI and optionally save to file."""
-        pass  # Getting ABI for contract
-
         # Get contract metadata to check for proxy
         try:
             contract_metadata = self.get_contract_metadata(address)
@@ -87,10 +85,11 @@ class EtherscanClient(BaseAPIClient):
             "address": address,
         }
         result = self.make_request("", params)
-        abi_json = json.loads(result)
+        abi = json.loads(result)
 
         # Check if it's a proxy and fetch implementation ABI
         implementation_abi = None
+        implementation_address = None
         if contract_metadata.get("Proxy"):
             implementation_address = contract_metadata.get("Implementation")
             if implementation_address:
@@ -109,9 +108,11 @@ class EtherscanClient(BaseAPIClient):
                     )
 
         if save:
-            self._save_abi(address, abi_json, implementation_abi, save_dir)
+            self._save_abi(
+                address, abi, implementation_address, implementation_abi, save_dir
+            )
 
-        return abi_json, implementation_abi
+        return abi, implementation_abi
 
     def get_contract_metadata(self, address: str) -> Dict[str, Any]:
         """Get contract metadata including proxy status."""
@@ -187,22 +188,37 @@ class EtherscanClient(BaseAPIClient):
     def _save_abi(
         self,
         address: str,
-        abi_json: Dict[str, Any],
+        abi: Dict[str, Any],
+        implementation_address: Optional[str],
         implementation_abi: Optional[Dict[str, Any]],
         save_dir: str,
     ):
         """Save ABI(s) to file."""
         os.makedirs(save_dir, exist_ok=True)
+        # create a csv file with the following columns: address, implementation_address
+        csv_path = os.path.join(save_dir, "implementation.csv")
+
+        # Check if file exists to determine whether to write headers
+        if not os.path.exists(csv_path):
+            # Create new file with headers
+            with open(csv_path, "w") as f:
+                f.write("address,implementation_address\n")
+
+        with open(csv_path, "a") as f:
+            f.write(f"{address},{implementation_address}\n")
+        df = pd.read_csv(csv_path)
+        df = df.drop_duplicates()
+        df.to_csv(csv_path, index=False)
 
         # Save main ABI
         main_path = os.path.join(save_dir, f"{address}.json")
         with open(main_path, "w") as f:
-            json.dump(abi_json, f, indent=2)
+            json.dump(abi, f, indent=2)
         pass  # ABI saved
 
         # Save implementation ABI if available
         if implementation_abi:
-            impl_path = os.path.join(save_dir, f"{address}-implementation.json")
+            impl_path = os.path.join(save_dir, f"{implementation_address}.json")
             with open(impl_path, "w") as f:
                 json.dump(implementation_abi, f, indent=2)
             pass  # Implementation ABI saved
@@ -278,7 +294,15 @@ class EtherscanSource(BaseSource):
 
         return dlt.resource(
             _fetch,
-            columns={"topics": {"data_type": "json"}},
+            columns={
+                "topics": {"data_type": "json"},
+                "time_stamp": {"data_type": "bigint"},
+                "block_number": {"data_type": "bigint"},
+                "log_index": {"data_type": "bigint"},
+                "transaction_index": {"data_type": "bigint"},
+                "gas_price": {"data_type": "bigint"},
+                "gas_used": {"data_type": "bigint"},
+            },
         )
 
     def transactions(
@@ -311,4 +335,9 @@ class EtherscanSource(BaseSource):
                 item["chainid"] = self.client.chainid
                 yield item
 
-        return dlt.resource(_fetch)
+        return dlt.resource(
+            _fetch,
+            columns={
+                "time_stamp": {"data_type": "bigint"},
+            },
+        )

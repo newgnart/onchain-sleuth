@@ -129,3 +129,106 @@ def load_chunks(
     logger.info(
         f"✅✅✅ {contract_address}, {source_factory.__name__}, chain {chainid}, {from_block} to {to_block}"
     )
+
+
+def _to_snake(name):
+    """Convert camelCase to snake_case and handle spaces."""
+    # First convert camelCase to snake_case
+    name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+    name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
+
+    # Convert to lowercase
+    name = name.lower()
+
+    # Replace spaces with underscores and clean up multiple underscores
+    name = re.sub(r"\s+", "_", name)
+    name = re.sub(r"_+", "_", name)
+
+    # Remove leading/trailing underscores
+    name = name.strip("_")
+
+    return name
+
+
+def _recursive_snakify(obj):
+    """Recursively convert all string values and keys in a nested structure to lowercase and camelCase to snake_case."""
+    if isinstance(obj, dict):
+        return {_to_snake(key): _recursive_snakify(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [_recursive_snakify(item) for item in obj]
+    elif isinstance(obj, str):
+        return obj.lower()
+    else:
+        return obj
+
+
+def rewrite_json_snakecase(input_file: str, output_file: str = None):
+    """
+    Read a JSON file, convert all string values to lowercase recursively,
+    and write the result back to a file.
+
+    Args:
+        input_file: Path to the input JSON file
+        output_file: Path to the output JSON file. If None, overwrites the input file
+    """
+    with open(input_file, "r") as f:
+        data = json.load(f)
+
+    # Convert all string values to lowercase recursively
+    snakecase_data = _recursive_snakify(data)
+
+    # Determine output file path
+    if output_file is None:
+        output_file = input_file
+
+    # Write the lowercase data back to file
+    with open(output_file, "w") as f:
+        json.dump(snakecase_data, f, indent=2)
+
+    pass  # Successfully converted to snakecase
+
+
+def get_all_addresses(data: dict) -> dict[str, str]:
+    """Extract all address strings from the JSON data recursively with flattened keys."""
+    address_map = {}
+
+    def _check_address(obj):  # TODO: verify this is correct
+        if isinstance(obj, str):
+            if (
+                obj.startswith("0x")
+                and len(obj) == 42
+                and all(c in "0123456789abcdefABCDEF" for c in obj[2:])
+            ):
+                return True
+        return False
+
+    def _extract_addresses(obj, path=""):
+        """Recursively extract all string values that look like addresses with their paths."""
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                current_path = f"{path}.{key}" if path else key
+                _extract_addresses(value, current_path)
+        elif isinstance(obj, list):
+            for i, item in enumerate(obj):
+                current_path = f"{path}[{i}]" if path else f"[{i}]"
+                _extract_addresses(item, current_path)
+        elif isinstance(obj, str):
+            # Check if string looks like an Ethereum address (0x followed by 40 hex chars)
+            if _check_address(obj):
+                address_map[path] = obj.lower()
+
+    _extract_addresses(data)
+    return address_map
+
+
+def get_chainid(chain: str, chainid_data: Optional[dict] = None) -> int:
+    """Get the chainid for a given chain name."""
+    if chainid_data is None:
+        with open("resource/chainid.json", "r") as f:
+            chainid_data = json.load(f)
+            pass  # Loaded chainid.json
+    try:
+        chainid = chainid_data[chain]
+        return chainid
+    except KeyError:
+        raise ValueError(f"Chain {chain} not found in chainid.json")
