@@ -69,6 +69,7 @@ def events_list(address, save_dir="data/events", abi_dir="data/abi"):
                 "topic": event.topic,
                 "signature": event.signature,
                 "address": address,  # put all in address, not implementation address
+                "abi": event.abi,
             }
         )
     df = pd.DataFrame(event_data)
