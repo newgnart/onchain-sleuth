@@ -166,6 +166,7 @@ class PostgresClient:
         address_column_name: str = "address",
         block_column_name: str = "block_number",
     ) -> int:
+        address = address.lower()
         try:
             query = f"""
             SELECT MAX({block_column_name}) 
