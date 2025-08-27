@@ -46,9 +46,7 @@ def events_list(address, save_dir="data/events", abi_dir="data/abi"):
                     f"Combined proxy ABI ({len(main_abi)} entries) with implementation ABI ({len(implementation_abi)} entries)"
                 )
             else:
-                logger.info(
-                    f"Implementation ABI file not found: {implementation_abi_path}"
-                )
+                logger.info(f"Implementation ABI file not found for {address}")
         else:
             logger.info(f"No implementation address found for this {address}")
     except FileNotFoundError:

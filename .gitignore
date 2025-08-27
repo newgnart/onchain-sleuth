@@ -18,6 +18,7 @@ CLAUDE.md
 /temp
 *.log
 logs/
+eda.ipynb
 
 /dbt_subprojects/*/target/
 /dbt_subprojects/*/.user.yml

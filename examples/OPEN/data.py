@@ -1,5 +1,5 @@
 import logging
-
+import json
 
 from evm_sleuth.utils.logging import setup_logging
 from evm_sleuth.utils import events_list
@@ -47,8 +47,9 @@ def load_and_save_abi(address, chain="ethereum"):
 
 
 if __name__ == "__main__":
-    address = "0x323c03c48660fE31186fa82c289b0766d331Ce21"
-    chain = "ethereum"
-
-    # load_and_save_abi(address=address, chain=chain)
-    events_list(address=address)
+    with open("examples/OPEN/contract_addresses.json", "r") as f:
+        contract_addresses = json.load(f)
+    for address in contract_addresses.values():
+        # load_raw_data_from_etherscan_to_postgres(address=address, chain="ethereum")
+        # load_and_save_abi(address=address, chain="ethereum")
+        events_list(address=address)
