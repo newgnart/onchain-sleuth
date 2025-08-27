@@ -50,5 +50,5 @@ if __name__ == "__main__":
     address = "0x323c03c48660fE31186fa82c289b0766d331Ce21"
     chain = "ethereum"
 
-    load_and_save_abi(address=address, chain=chain)
+    # load_and_save_abi(address=address, chain=chain)
     events_list(address=address)

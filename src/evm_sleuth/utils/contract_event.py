@@ -6,21 +6,24 @@ from web3 import Web3
 logger = logging.getLogger(__name__)
 
 
-def events_list(address, save_dir="data/abi"):
+def events_list(address, save_dir="data/events", abi_dir="data/abi"):
     """
     Get all events and its signature for a contract using web3 library, totally off-chain decoding process.
     """
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir, exist_ok=True)
+
     w3 = Web3()
 
     # Load the main contract ABI
-    with open(f"{save_dir}/{address}.json", "r") as f:
+    with open(f"{abi_dir}/{address}.json", "r") as f:
         main_abi = json.load(f)
 
     # Check if this contract has an implementation (proxy pattern)
     combined_abi = main_abi.copy()  # Start with main ABI
 
     try:
-        implementation_df = pd.read_csv(f"{save_dir}/implementation.csv")
+        implementation_df = pd.read_csv(f"{abi_dir}/implementation.csv")
         mask = implementation_df["address"] == address
 
         if mask.any():
@@ -32,7 +35,7 @@ def events_list(address, save_dir="data/abi"):
             implementation_address = None
 
         if implementation_address:
-            implementation_abi_path = f"{save_dir}/{implementation_address}.json"
+            implementation_abi_path = f"{abi_dir}/{implementation_address}.json"
             if os.path.exists(implementation_abi_path):
                 with open(implementation_abi_path, "r") as f:
                     implementation_abi = json.load(f)
@@ -69,4 +72,6 @@ def events_list(address, save_dir="data/abi"):
             }
         )
     df = pd.DataFrame(event_data)
-    df.to_csv(f"{save_dir}/events.csv", index=False)
+    df.to_csv(
+        f"{save_dir}/{address}.csv", index=False
+    )  # put all in address, not implementation address
