@@ -5,6 +5,7 @@ title: "All Posts"
 
 ### Stablecoins
 
-
+#### Open Stablecoin Index
+- [$OPEN Dashboard](/notebooks/open.html)
 
 
