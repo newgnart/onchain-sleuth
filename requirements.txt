@@ -44,7 +44,6 @@ eth-keys==0.7.0
 eth-rlp==2.2.0
 eth-typing==5.2.1
 eth-utils==5.3.0
--e file:///home/gnart/dev/dae/evm-sleuth
 executing==2.2.0
 fastjsonschema==2.21.1
 fqdn==1.5.1
