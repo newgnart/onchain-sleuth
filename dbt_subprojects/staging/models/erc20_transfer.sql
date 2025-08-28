@@ -17,6 +17,7 @@ select
     {{ uint256_to_address('topic1') }} as from_address,
     {{ uint256_to_address('topic2') }} as to_address,
     {{ uint256_to_numeric('data') }} as amount,
+--    {{ 'data'}} as amount_hex,
     block_number,
     datetime,
     transaction_hash,
