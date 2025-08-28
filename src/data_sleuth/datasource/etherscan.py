@@ -6,9 +6,9 @@ import dlt
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Iterator
 import pandas as pd
-from evm_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
-from evm_sleuth.core.exceptions import APIError
-from evm_sleuth.config.settings import settings
+from data_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
+from data_sleuth.core.exceptions import APIError
+from data_sleuth.config.settings import settings
 
 from dlt.sources.rest_api import rest_api_source
 from dlt.sources.helpers.rest_client import paginators

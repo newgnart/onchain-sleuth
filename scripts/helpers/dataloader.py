@@ -15,8 +15,8 @@ import os
 from typing import Optional, Any, List
 
 import dlt
-from evm_sleuth import settings, EtherscanClient, PipelineManager, EtherscanSource
-from evm_sleuth.utils.postgres import PostgresClient
+from data_sleuth import settings, EtherscanClient, PipelineManager, EtherscanSource
+from data_sleuth.utils.postgres import PostgresClient
 
 # Configure logging
 logger = logging.getLogger(__name__)

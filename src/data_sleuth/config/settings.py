@@ -1,4 +1,4 @@
-"""Centralized configuration management for evm_sleuth."""
+"""Centralized configuration management for data_sleuth."""
 
 import os
 import json

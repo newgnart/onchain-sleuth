@@ -1,9 +1,9 @@
 import logging
 import json
 
-from evm_sleuth.utils.logging import setup_logging
-from evm_sleuth.utils import events_list
-from evm_sleuth import (
+from data_sleuth.utils.logging import setup_logging
+from data_sleuth.utils import events_list
+from data_sleuth import (
     EtherscanClient,
     EtherscanSource,
     PostgresClient,

@@ -1,4 +1,4 @@
-"""Core infrastructure for evm_sleuth package."""
+"""Core infrastructure for data_sleuth package."""
 
 from .base import BaseAPIClient, BaseDLTSource, BaseDecoder, APIConfig
 from .rate_limiter import RateLimitedSession, RateLimitStrategy

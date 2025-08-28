@@ -1,4 +1,4 @@
-"""Abstract base classes for evm_sleuth package."""
+"""Abstract base classes for data_sleuth package."""
 
 import time
 import logging

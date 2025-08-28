@@ -8,6 +8,7 @@ project:
 website:
   # title: "<a href='https://youtu.be/fn1R-5p_j5c?si=f0ZoaDm-FcT3uIwH'>not a machine</a>"
   title: Taming the blockchain data
+  # favicon: note
   site-url: https://newgnart.github.io
   repo-url: https://github.com/newgnart
   repo-actions: [edit, issue]

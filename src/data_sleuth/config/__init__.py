@@ -1,4 +1,4 @@
-"""Configuration management for evm_sleuth package."""
+"""Configuration management for data_sleuth package."""
 
 from .settings import Settings, settings, APISettings, ColumnSchemas
 
