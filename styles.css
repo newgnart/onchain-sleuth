@@ -1,0 +1,149 @@
+/* css styles */
+
+/* Base styles */
+:root {
+  --bs-primary: #447099;
+  --bs-primary-rgb: 68, 112, 153;
+}
+
+/* Navbar styles */
+@media (min-width: 1020px) {
+  .navbar-brand-container {
+    margin-right: 1em;
+  }
+}
+
+@media (max-width: 1060px) and (min-width: 991.98px) {
+  #navbarCollapse ul:last-of-type a.nav-link {
+    padding-left: .25em;
+    padding-right: .25em;
+  }
+
+  .navbar #quarto-search {
+    margin-left: .1em;
+  }
+
+  .navbar .bi-twitter,
+  .navbar .bi-github,
+  .navbar .bi-rss {
+    font-size: .8em;
+  }
+}
+
+@media (min-width: 991.98px) {
+  #quarto-header {
+    border-bottom: 1px solid #dee2e6;
+  }
+}
+
+.navbar-brand > img {
+  max-height: 36px;
+}
+
+/* Card styles */
+.link-cards {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.link-cards .card {
+  width: 190px;
+  border: none;
+  padding: 0;
+  transition: transform 0.2s ease-in-out;
+}
+
+.link-cards .card:hover {
+  transform: translateY(-5px);
+}
+
+.link-cards .card-title h4 {
+  margin-top: 0;
+  color: var(--bs-primary);
+}
+
+.link-cards .card-title p {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+.link-cards .card-subtitle {
+  margin-bottom: 0.7rem;
+  color: #6c757d;
+}
+
+.link-cards .card-body {
+  padding: 0.5rem;
+  padding-left: 0.1rem;
+}
+
+.link-cards .card-body ul {
+  margin-bottom: 0;
+  padding-left: 0;
+  list-style-type: none;
+}
+
+.link-cards .card-body ul a {
+  text-decoration: none;
+  color: #495057;
+}
+
+.link-cards .card-body ul li {
+  padding-bottom: 0.2rem;
+}
+
+/* Button styles */
+.btn-action-primary {
+  color: white;
+  background-color: var(--bs-primary) !important;
+  border-radius: 30px;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-action-primary:hover {
+  color: white;
+  background-color: #365a7a !important;
+}
+
+/* Code block styles */
+pre {
+  background-color: #f8f9fa;
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
+
+code {
+  color: var(--bs-primary);
+}
+
+/* Footer styles */
+#quarto-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 1rem 0;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] {
+  --bs-primary: #6c9ac3;
+  --bs-primary-rgb: 108, 154, 195;
+}
+
+[data-theme="dark"] .link-cards .card-body ul a {
+  color: #e9ecef;
+}
+
+[data-theme="dark"] pre {
+  background-color: #2b3035;
+}
+
+/* Responsive adjustments */
+@media (max-width: 575px) {
+  .link-cards .card {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+}
