@@ -1,11 +1,22 @@
 ---
-title: "All Posts"
+# title: "Taming the blockchain data"
+listing:
+  contents: notebooks
+  feed: true
+  sort-ui: true
+  sort: 
+    - "date desc"
+    - "title desc"
+  type: default
+  image-height: 150px
+#   image-placeholder: "images/boss.png"
+  fields: [image, title, description, date, reading-time]
+  categories: true
+  date-format: "YYYY-MM-DD"
+  page-size: 9
+toc: false
+toc-location: body
+page-layout: full
+title-block-banner: false
 ---
-
-
-### Stablecoins
-
-#### Open Stablecoin Index
-- [$OPEN Dashboard](/notebooks/open.html)
-
-
+Like my blog? Contact me on [Telegram](https://t.me/newgnart) or [X](https://x.com/newgnart)

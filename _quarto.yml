@@ -6,7 +6,8 @@ project:
     - "notebooks/"
 
 website:
-  title: "<a href='https://youtu.be/fn1R-5p_j5c?si=f0ZoaDm-FcT3uIwH'>not a machine</a>"
+  # title: "<a href='https://youtu.be/fn1R-5p_j5c?si=f0ZoaDm-FcT3uIwH'>not a machine</a>"
+  title: Taming the blockchain data
   site-url: https://newgnart.github.io
   repo-url: https://github.com/newgnart
   repo-actions: [edit, issue]
@@ -15,27 +16,24 @@ website:
   page-footer:
     left: |
       Built with [Quarto](https://quarto.org)
-    center:
-      - text: "About"
-        href: https://newgnart.github.io/about.html
-      - text: "Blog"
-        href: https://newgnart.github.io/blog/
     right:
       - icon: github
         href: https://github.com/newgnart
         aria-label: GitHub
+      - icon: telegram
+        href: https://t.me/newgnart
+        aria-label: Telegram
   navbar:
     background: light
     search: true
     collapse-below: lg
 
-    right:
-      - text: "Home"
-        href: https://newgnart.github.io/blog/
-      - text: "Stablecoins"
-        href: https://newgnart.github.io/blog/stablecoins.html
-      - text: "About Me"
-        href: https://newgnart.github.io/about.html
+    # right:
+      # - text: "Home"
+      #   href: https://newgnart.github.io/blog/
+      # - text: "Stablecoins"
+      #   href: /#category=stablecoins
+
 
 
 format:
