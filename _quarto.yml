@@ -3,7 +3,7 @@ project:
   output-dir: _site
   render:
     - "*.qmd"
-    - "examples/"
+    - "notebooks/"
 
 website:
   title: "<a href='https://youtu.be/fn1R-5p_j5c?si=f0ZoaDm-FcT3uIwH'>not a machine</a>"
