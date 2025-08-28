@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://newgnart.github.io/examples/open.html</loc>
-    <lastmod>2025-08-28T08:50:38.425Z</lastmod>
-  </url>
-  <url>
-    <loc>https://newgnart.github.io/examples/helpers/README_plotting.html</loc>
-    <lastmod>2025-08-28T08:50:38.425Z</lastmod>
+    <loc>https://newgnart.github.io/notebooks/open.html</loc>
+    <lastmod>2025-08-28T09:06:52.043Z</lastmod>
   </url>
 </urlset>

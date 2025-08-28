@@ -1,86 +1,16 @@
 [
   {
-    "objectID": "examples/open.html#dex",
-    "href": "examples/open.html#dex",
+    "objectID": "notebooks/open.html#dex",
+    "href": "notebooks/open.html#dex",
     "title": "$OPEN",
     "section": "DEX",
     "text": "DEX"
   },
   {
-    "objectID": "examples/helpers/README_plotting.html",
-    "href": "examples/helpers/README_plotting.html",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "All Posts",
     "section": "",
-    "text": "This module provides comprehensive plotting functions using Plotly to visualize daily mint and burn data for ERC-20 tokens.\n\n\n\nDaily Mint/Burn Analysis: Multi-panel visualization showing volume, transaction counts, and net supply changes\nCumulative Supply Tracking: Line charts showing cumulative minted, burned, and net supply over time\nActivity Heatmap: Visual representation of mint/burn activity by day of week and hour\nComprehensive Dashboard: All visualizations combined in a single interactive dashboard\nInteractive HTML Output: All plots are saved as interactive HTML files that can be shared and viewed in any browser\n\n\n\n\npip install plotly pandas numpy\n\n\n\nfrom helpers.plotting import plot_daily_mint_burn, create_dashboard\nimport pandas as pd\n\n# Your data from the SQL query\ndata = pd.DataFrame({\n    'date': ['2025-01-01', '2025-01-02', ...],\n    'daily_mint_amount': [1000000000000000000, 0, ...],\n    'daily_burn_amount': [0, 500000000000000000, ...],\n    'mint_count': [1, 0, ...],\n    'burn_count': [0, 1, ...]\n})\n\n# Create a daily mint/burn plot\nfig = plot_daily_mint_burn(\n    data=data,\n    token_symbol=\"YOUR_TOKEN\",\n    token_address=\"0x323c03c48660fe31186fa82c289b0766d331ce21\",\n    save_path=\"token_analysis.html\"\n)\n\n# Or create a comprehensive dashboard\ndashboard = create_dashboard(\n    data=data,\n    token_symbol=\"YOUR_TOKEN\",\n    token_address=\"0x323c03c48660fe31186fa82c289b0766d331ce21\",\n    save_path=\"token_dashboard.html\"\n)\n\n\n\n\n\nCreates a comprehensive multi-panel visualization of daily mint and burn data.\nParameters: - data: DataFrame with columns: date, daily_mint_amount, daily_burn_amount, mint_count, burn_count - token_symbol: Optional token symbol for display - token_address: Optional token address for display - fig_height: Height of the figure in pixels (default: 600) - show_volume: Whether to show volume bars (default: True) - show_counts: Whether to show transaction count lines (default: True) - color_scheme: Optional custom colors for mint/burn - title: Custom title for the plot - save_path: Optional path to save the plot as HTML\nReturns: Plotly figure object\nFeatures: - Daily volume bars (mint in green, burn in red) - Transaction count lines - Net supply change area chart - Interactive hover tooltips - Responsive layout\n\n\n\nCreates a line chart showing cumulative supply changes over time.\nParameters: - data: DataFrame with columns: date, daily_mint_amount, daily_burn_amount - token_symbol: Optional token symbol for display - token_address: Optional token address for display - fig_height: Height of the figure in pixels (default: 500) - color_scheme: Optional custom colors - title: Custom title for the plot - save_path: Optional path to save the plot as HTML\nReturns: Plotly figure object\nFeatures: - Cumulative minted amount (green line) - Cumulative burned amount (red line) - Net supply (blue line) - Filled areas for better visualization\n\n\n\nCreates a heatmap showing mint/burn activity by day of week and hour.\nParameters: - data: DataFrame with columns: date, daily_mint_amount, daily_burn_amount - token_symbol: Optional token symbol for display - token_address: Optional token address for display - fig_height: Height of the figure in pixels (default: 400) - color_scheme: Optional color scheme for the heatmap - title: Custom title for the plot - save_path: Optional path to save the plot as HTML\nReturns: Plotly figure object\nFeatures: - Activity intensity by day and hour - Color-coded activity levels - Interactive hover information\n\n\n\nCreates a comprehensive dashboard with all visualizations combined.\nParameters: - data: DataFrame with mint/burn data - token_symbol: Optional token symbol for display - token_address: Optional token address for display - fig_height: Height of the figure in pixels (default: 800) - save_path: Optional path to save the plot as HTML\nReturns: Plotly figure object\nFeatures: - 6-panel layout with all visualizations - Summary statistics table - Consistent styling and layout - Interactive elements\n\n\n\n\nYour DataFrame should have the following columns:\ndata = pd.DataFrame({\n    'date': ['2025-01-01', '2025-01-02', ...],  # Date strings or datetime objects\n    'daily_mint_amount': [1000000000000000000, 0, ...],  # Raw amounts (wei)\n    'daily_burn_amount': [0, 500000000000000000, ...],   # Raw amounts (wei)\n    'mint_count': [1, 0, ...],                          # Integer counts\n    'burn_count': [0, 1, ...]                           # Integer counts\n})\nNote: The functions automatically convert amounts from wei (18 decimals) to human-readable format by dividing by 1e18.\n\n\n\n\n\nYou can customize colors by passing a color_scheme dictionary:\ncustom_colors = {\n    'mint': '#00FF00',      # Bright green\n    'burn': '#FF0000',      # Bright red\n    'mint_light': '#90EE90', # Light green\n    'burn_light': '#FFB6C1'  # Light red\n}\n\nfig = plot_daily_mint_burn(\n    data=data,\n    color_scheme=custom_colors,\n    save_path=\"custom_colors.html\"\n)\n\n\n\nAll functions support custom titles and will automatically generate descriptive titles if none provided:\nfig = plot_daily_mint_burn(\n    data=data,\n    token_symbol=\"USDC\",\n    token_address=\"0xa0b86a33e6441b8c4c8b0b8c4c8b0b8c4c8b0b8c\",\n    title=\"Custom Analysis Title\",\n    save_path=\"custom_title.html\"\n)\n\n\n\n\nAll functions save plots as interactive HTML files that can be: - Opened in any web browser - Shared via email or web - Embedded in web applications - Viewed offline\n\n\n\n# Run your SQL query\nquery = \"\"\"\nSELECT \n    DATE(datetime) as date,\n    SUM(CASE WHEN from_address = '0x0000000000000000000000000000000000000000' \n        THEN amount ELSE 0 END) as daily_mint_amount,\n    SUM(CASE WHEN to_address = '0x0000000000000000000000000000000000000000' \n        THEN amount ELSE 0 END) as daily_burn_amount,\n    COUNT(CASE WHEN from_address = '0x0000000000000000000000000000000000000000' \n        THEN 1 END) as mint_count,\n    COUNT(CASE WHEN to_address = '0x0000000000000000000000000000000000000000' \n        THEN 1 END) as burn_count\nFROM staging.erc20_transfer\nWHERE token_address = '0x323c03c48660fe31186fa82c289b0766d331ce21'\nGROUP BY DATE(datetime)\nORDER BY date DESC;\n\"\"\"\n\n# Execute query and get results\n# results = execute_query(query)\n\n# Convert to DataFrame\n# data = pd.DataFrame(results)\n\n# Create visualizations\nfig = plot_daily_mint_burn(\n    data=data,\n    token_symbol=\"YOUR_TOKEN\",\n    token_address=\"0x323c03c48660fe31186fa82c289b0766d331ce21\",\n    save_path=\"token_analysis.html\"\n)\n\n\n\nTo see all functions in action, run the example script:\ncd examples/helpers\npython example_usage.py\nThis will generate sample visualizations and save them as HTML files.\n\n\n\n\nData Quality: Ensure your dates are properly formatted and amounts are numeric\nTime Range: For better visualizations, include at least 30 days of data\nToken Information: Include token symbols for better readability\nFile Naming: Use descriptive names for saved HTML files\nBrowser Compatibility: HTML files work best in modern browsers (Chrome, Firefox, Safari, Edge)"
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#features",
-    "href": "examples/helpers/README_plotting.html#features",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "Daily Mint/Burn Analysis: Multi-panel visualization showing volume, transaction counts, and net supply changes\nCumulative Supply Tracking: Line charts showing cumulative minted, burned, and net supply over time\nActivity Heatmap: Visual representation of mint/burn activity by day of week and hour\nComprehensive Dashboard: All visualizations combined in a single interactive dashboard\nInteractive HTML Output: All plots are saved as interactive HTML files that can be shared and viewed in any browser"
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#installation-requirements",
-    "href": "examples/helpers/README_plotting.html#installation-requirements",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "pip install plotly pandas numpy"
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#quick-start",
-    "href": "examples/helpers/README_plotting.html#quick-start",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "from helpers.plotting import plot_daily_mint_burn, create_dashboard\nimport pandas as pd\n\n# Your data from the SQL query\ndata = pd.DataFrame({\n    'date': ['2025-01-01', '2025-01-02', ...],\n    'daily_mint_amount': [1000000000000000000, 0, ...],\n    'daily_burn_amount': [0, 500000000000000000, ...],\n    'mint_count': [1, 0, ...],\n    'burn_count': [0, 1, ...]\n})\n\n# Create a daily mint/burn plot\nfig = plot_daily_mint_burn(\n    data=data,\n    token_symbol=\"YOUR_TOKEN\",\n    token_address=\"0x323c03c48660fe31186fa82c289b0766d331ce21\",\n    save_path=\"token_analysis.html\"\n)\n\n# Or create a comprehensive dashboard\ndashboard = create_dashboard(\n    data=data,\n    token_symbol=\"YOUR_TOKEN\",\n    token_address=\"0x323c03c48660fe31186fa82c289b0766d331ce21\",\n    save_path=\"token_dashboard.html\"\n)"
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#available-functions",
-    "href": "examples/helpers/README_plotting.html#available-functions",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "Creates a comprehensive multi-panel visualization of daily mint and burn data.\nParameters: - data: DataFrame with columns: date, daily_mint_amount, daily_burn_amount, mint_count, burn_count - token_symbol: Optional token symbol for display - token_address: Optional token address for display - fig_height: Height of the figure in pixels (default: 600) - show_volume: Whether to show volume bars (default: True) - show_counts: Whether to show transaction count lines (default: True) - color_scheme: Optional custom colors for mint/burn - title: Custom title for the plot - save_path: Optional path to save the plot as HTML\nReturns: Plotly figure object\nFeatures: - Daily volume bars (mint in green, burn in red) - Transaction count lines - Net supply change area chart - Interactive hover tooltips - Responsive layout\n\n\n\nCreates a line chart showing cumulative supply changes over time.\nParameters: - data: DataFrame with columns: date, daily_mint_amount, daily_burn_amount - token_symbol: Optional token symbol for display - token_address: Optional token address for display - fig_height: Height of the figure in pixels (default: 500) - color_scheme: Optional custom colors - title: Custom title for the plot - save_path: Optional path to save the plot as HTML\nReturns: Plotly figure object\nFeatures: - Cumulative minted amount (green line) - Cumulative burned amount (red line) - Net supply (blue line) - Filled areas for better visualization\n\n\n\nCreates a heatmap showing mint/burn activity by day of week and hour.\nParameters: - data: DataFrame with columns: date, daily_mint_amount, daily_burn_amount - token_symbol: Optional token symbol for display - token_address: Optional token address for display - fig_height: Height of the figure in pixels (default: 400) - color_scheme: Optional color scheme for the heatmap - title: Custom title for the plot - save_path: Optional path to save the plot as HTML\nReturns: Plotly figure object\nFeatures: - Activity intensity by day and hour - Color-coded activity levels - Interactive hover information\n\n\n\nCreates a comprehensive dashboard with all visualizations combined.\nParameters: - data: DataFrame with mint/burn data - token_symbol: Optional token symbol for display - token_address: Optional token address for display - fig_height: Height of the figure in pixels (default: 800) - save_path: Optional path to save the plot as HTML\nReturns: Plotly figure object\nFeatures: - 6-panel layout with all visualizations - Summary statistics table - Consistent styling and layout - Interactive elements"
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#data-format",
-    "href": "examples/helpers/README_plotting.html#data-format",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "Your DataFrame should have the following columns:\ndata = pd.DataFrame({\n    'date': ['2025-01-01', '2025-01-02', ...],  # Date strings or datetime objects\n    'daily_mint_amount': [1000000000000000000, 0, ...],  # Raw amounts (wei)\n    'daily_burn_amount': [0, 500000000000000000, ...],   # Raw amounts (wei)\n    'mint_count': [1, 0, ...],                          # Integer counts\n    'burn_count': [0, 1, ...]                           # Integer counts\n})\nNote: The functions automatically convert amounts from wei (18 decimals) to human-readable format by dividing by 1e18."
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#customization",
-    "href": "examples/helpers/README_plotting.html#customization",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "You can customize colors by passing a color_scheme dictionary:\ncustom_colors = {\n    'mint': '#00FF00',      # Bright green\n    'burn': '#FF0000',      # Bright red\n    'mint_light': '#90EE90', # Light green\n    'burn_light': '#FFB6C1'  # Light red\n}\n\nfig = plot_daily_mint_burn(\n    data=data,\n    color_scheme=custom_colors,\n    save_path=\"custom_colors.html\"\n)\n\n\n\nAll functions support custom titles and will automatically generate descriptive titles if none provided:\nfig = plot_daily_mint_burn(\n    data=data,\n    token_symbol=\"USDC\",\n    token_address=\"0xa0b86a33e6441b8c4c8b0b8c4c8b0b8c4c8b0b8c\",\n    title=\"Custom Analysis Title\",\n    save_path=\"custom_title.html\"\n)"
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#output",
-    "href": "examples/helpers/README_plotting.html#output",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "All functions save plots as interactive HTML files that can be: - Opened in any web browser - Shared via email or web - Embedded in web applications - Viewed offline"
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#example-usage-with-real-data",
-    "href": "examples/helpers/README_plotting.html#example-usage-with-real-data",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "# Run your SQL query\nquery = \"\"\"\nSELECT \n    DATE(datetime) as date,\n    SUM(CASE WHEN from_address = '0x0000000000000000000000000000000000000000' \n        THEN amount ELSE 0 END) as daily_mint_amount,\n    SUM(CASE WHEN to_address = '0x0000000000000000000000000000000000000000' \n        THEN amount ELSE 0 END) as daily_burn_amount,\n    COUNT(CASE WHEN from_address = '0x0000000000000000000000000000000000000000' \n        THEN 1 END) as mint_count,\n    COUNT(CASE WHEN to_address = '0x0000000000000000000000000000000000000000' \n        THEN 1 END) as burn_count\nFROM staging.erc20_transfer\nWHERE token_address = '0x323c03c48660fe31186fa82c289b0766d331ce21'\nGROUP BY DATE(datetime)\nORDER BY date DESC;\n\"\"\"\n\n# Execute query and get results\n# results = execute_query(query)\n\n# Convert to DataFrame\n# data = pd.DataFrame(results)\n\n# Create visualizations\nfig = plot_daily_mint_burn(\n    data=data,\n    token_symbol=\"YOUR_TOKEN\",\n    token_address=\"0x323c03c48660fe31186fa82c289b0766d331ce21\",\n    save_path=\"token_analysis.html\"\n)"
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#running-examples",
-    "href": "examples/helpers/README_plotting.html#running-examples",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "To see all functions in action, run the example script:\ncd examples/helpers\npython example_usage.py\nThis will generate sample visualizations and save them as HTML files."
-  },
-  {
-    "objectID": "examples/helpers/README_plotting.html#tips-for-best-results",
-    "href": "examples/helpers/README_plotting.html#tips-for-best-results",
-    "title": "Plotting Functions for Token Mint/Burn Analysis",
-    "section": "",
-    "text": "Data Quality: Ensure your dates are properly formatted and amounts are numeric\nTime Range: For better visualizations, include at least 30 days of data\nToken Information: Include token symbols for better readability\nFile Naming: Use descriptive names for saved HTML files\nBrowser Compatibility: HTML files work best in modern browsers (Chrome, Firefox, Safari, Edge)"
+    "text": "Stablecoins"
   }
 ]
