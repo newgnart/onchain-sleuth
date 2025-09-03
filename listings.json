@@ -2,7 +2,9 @@
   {
     "listing": "/index.html",
     "items": [
-      "/notebooks/open.html"
+      "/notebooks/open.html",
+      "/notebooks/ethena.html",
+      "/notebooks/crvusd_health.html"
     ]
   }
 ]

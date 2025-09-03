@@ -1,78 +1,334 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
-      xmlns:media="http://search.yahoo.com/mrss/" 
-      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
-      xmlns:dc="http://purl.org/dc/elements/1.1/" 
-      version="2.0">
-<channel>
-<title>Taming the data</title>
-<link>https://newgnart.github.io/</link>
-<atom:link href="https://newgnart.github.io/index.xml" rel="self" type="application/rss+xml"/>
-<description></description>
-<generator>quarto-1.8.23</generator>
-<lastBuildDate>Mon, 25 Aug 2025 00:00:00 GMT</lastBuildDate>
-<item>
-  <title>$OPEN</title>
-  <link>https://newgnart.github.io/notebooks/open.html</link>
-  <description><![CDATA[ 
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.23">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-08-03">
+<meta name="description" content="A dashboard for Ethena protocol">
+
+<title>Ethena – Taming the data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-04c7ee197ec4d7edf3c29ccb71f7023e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6e03bc272f1cdef1d8296ac38e217ebd.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-04c7ee197ec4d7edf3c29ccb71f7023e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-560f13b44e2651115056ac0a45d394c8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-bc0864b678276c956c737b4ddb2ad097.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-560f13b44e2651115056ac0a45d394c8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script type="text/javascript">
+window.PlotlyConfig = {MathJaxConfig: 'local'};
+if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
+</script>
+<script type="module">import "https://cdn.plot.ly/plotly-3.0.1.min"</script>
 
 
 
+<link rel="stylesheet" href="../styles.css">
+</head>
 
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
 
-<section id="primary-market" class="level2">
-
-<div id="09fbc56a" class="cell" data-execution_count="2">
-<div class="cell-output cell-output-display">
-<div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script type="text/javascript">if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" integrity="sha256-Ei4740bWZhaUTQuD6q9yQlgVCMPBz6CZWhevDYPv93A=" crossorigin="anonymous"></script>                <div id="b72f5fe5-8ae5-4982-a954-e5ea6e192193" class="plotly-graph-div" style="height:700px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("b72f5fe5-8ae5-4982-a954-e5ea6e192193")) {                    Plotly.newPlot(                        "b72f5fe5-8ae5-4982-a954-e5ea6e192193",                        [{"hovertemplate":"\u003cb\u003e%{x}\u003c\u002fb\u003e\u003cbr\u003eMint: %{y:,.2f}\u003cbr\u003e\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#00C851"},"name":"Mint","opacity":0.7,"x":["2025-04-14","2025-04-17","2025-04-18","2025-04-20","2025-04-21","2025-04-22","2025-04-23","2025-04-24","2025-04-25","2025-04-26","2025-04-27","2025-04-28","2025-04-29","2025-04-30","2025-05-01","2025-05-02","2025-05-03","2025-05-04","2025-05-05","2025-05-06","2025-05-07","2025-05-08","2025-05-09","2025-05-10","2025-05-11","2025-05-13","2025-05-14","2025-05-15","2025-05-16","2025-05-18","2025-05-20","2025-05-22","2025-05-23","2025-05-24","2025-05-26","2025-05-28","2025-05-29","2025-05-30","2025-05-31","2025-06-01","2025-06-02","2025-06-03","2025-06-04","2025-06-05","2025-06-06","2025-06-07","2025-06-08","2025-06-09","2025-06-10","2025-06-11","2025-06-12","2025-06-13","2025-06-14","2025-06-15","2025-06-16","2025-06-17","2025-06-18","2025-06-19","2025-06-20","2025-06-21","2025-06-22","2025-06-23","2025-06-24","2025-06-25","2025-06-26","2025-06-27","2025-06-28","2025-06-29","2025-06-30","2025-07-01","2025-07-02","2025-07-03","2025-07-04","2025-07-05","2025-07-06","2025-07-07","2025-07-08","2025-07-09","2025-07-10","2025-07-12","2025-07-13","2025-07-14","2025-07-15","2025-07-16","2025-07-17","2025-07-20","2025-07-21","2025-07-22","2025-07-23","2025-07-24","2025-07-25","2025-07-26","2025-07-27","2025-07-29","2025-07-30","2025-07-31","2025-08-01","2025-08-02","2025-08-03","2025-08-04","2025-08-05","2025-08-06","2025-08-07","2025-08-08","2025-08-09","2025-08-10","2025-08-12","2025-08-13","2025-08-14","2025-08-16","2025-08-17","2025-08-18","2025-08-19","2025-08-20","2025-08-21","2025-08-22","2025-08-23","2025-08-24","2025-08-25","2025-08-26"],"y":{"dtype":"f8","bdata":"AAAAAAAA8D9Ait4QdzEwQMUwzJdoI8BA+Wt7R1YmJEB6cb61Rz26QBxZczoOXclAx6Imyp1BvECWra09SdHYQEOMOfPcDeFAKVLqYee3zkC9MjodyWFBQAZF6kpQzQdA3jhGnigh1UAukugqVK+rQNf9NkscQsxAqibsAQkTWkDUTLv2YmDdQIUDB8jlw+hAAAAAAAAAAACIfcK2Gn0iQNh9KGYlnNJAAAAAAAAAAAAAAAAAAAAAABDvD4x0J6xAAAAAAAAAAADIJhSxrhfRQDhl2QxlGkRAAAAAAAAAAABob9om4Nd4QNP4fIWTC9VASlZn\u002fLTpZ0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACkaYQURrDXQMKjswuFrlZAAAAAAAAAAADIlhPjYfFXQAAAAAAAAAAAoCpWeHfRs0AAAAAAAAAAAAAAAAAAAAAAxX2VbwmgZkCc7anwmla\u002fQGBd89TZ59RAvd2Np2d+qkAAAAAAAAAAAJeG3zsP5ltAfLtjrdjNcEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC8dwzmNt\u002fWQAAAAAAAxKdAAAAAAAAAAAAZ11Wpuv45QLZ+SGbGa4dAzMzMzMw2vkAAAAAAAAAAAFKU+Vyi0VVAsaP+vspx3EC7OYwRVTfUQAAAAAAAAAAAmZmZmRn61kAAAAAAAAAAAGdmZmbmldpAzszMzAxe0kCbmZmZmaXTQDkKVUU6u8BAiXk3YtV91ED+\u002f\u002f\u002f\u002f\u002f+7EQAAAAAAAAAAAhXy7CTktfEAAAAAAAAAAABXLvPBfrLNAua945sPt30CBx7uM8WhTQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEPXXxQoXVBAAAAAAAAAAAAAAAAAAAAAAIIgSBKjJP5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADZzvdTQ9XxQAAAAAAAAAAA7bkcvyP+cUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9UpZhjDT0EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC11U93F6XiQNZWOIMYXdVA31glmUda8EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALdb7y6oKGBA2SgMfXNOY0DCFyZTBRLQQNA+XLk+WCVAAAAAAAAAAAAoRvTpDqiNQJNDXo59XdZA"},"type":"bar","xaxis":"x","yaxis":"y"},{"hovertemplate":"\u003cb\u003e%{x}\u003c\u002fb\u003e\u003cbr\u003eBurn: %{y:,.2f}\u003cbr\u003e\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#FF4444"},"name":"Burn","opacity":0.7,"x":["2025-04-14","2025-04-17","2025-04-18","2025-04-20","2025-04-21","2025-04-22","2025-04-23","2025-04-24","2025-04-25","2025-04-26","2025-04-27","2025-04-28","2025-04-29","2025-04-30","2025-05-01","2025-05-02","2025-05-03","2025-05-04","2025-05-05","2025-05-06","2025-05-07","2025-05-08","2025-05-09","2025-05-10","2025-05-11","2025-05-13","2025-05-14","2025-05-15","2025-05-16","2025-05-18","2025-05-20","2025-05-22","2025-05-23","2025-05-24","2025-05-26","2025-05-28","2025-05-29","2025-05-30","2025-05-31","2025-06-01","2025-06-02","2025-06-03","2025-06-04","2025-06-05","2025-06-06","2025-06-07","2025-06-08","2025-06-09","2025-06-10","2025-06-11","2025-06-12","2025-06-13","2025-06-14","2025-06-15","2025-06-16","2025-06-17","2025-06-18","2025-06-19","2025-06-20","2025-06-21","2025-06-22","2025-06-23","2025-06-24","2025-06-25","2025-06-26","2025-06-27","2025-06-28","2025-06-29","2025-06-30","2025-07-01","2025-07-02","2025-07-03","2025-07-04","2025-07-05","2025-07-06","2025-07-07","2025-07-08","2025-07-09","2025-07-10","2025-07-12","2025-07-13","2025-07-14","2025-07-15","2025-07-16","2025-07-17","2025-07-20","2025-07-21","2025-07-22","2025-07-23","2025-07-24","2025-07-25","2025-07-26","2025-07-27","2025-07-29","2025-07-30","2025-07-31","2025-08-01","2025-08-02","2025-08-03","2025-08-04","2025-08-05","2025-08-06","2025-08-07","2025-08-08","2025-08-09","2025-08-10","2025-08-12","2025-08-13","2025-08-14","2025-08-16","2025-08-17","2025-08-18","2025-08-19","2025-08-20","2025-08-21","2025-08-22","2025-08-23","2025-08-24","2025-08-25","2025-08-26"],"y":{"dtype":"f8","bdata":"AAAAAAAAAABAit4QdzEwQAAAAAAAAAAAAAAAAAAAAADLIPC0TuJKQAAAAAAAAAAABgQXrbIuY0CrD5Tvuy+OQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARQunIaO3sEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPyKIs4Cn8BAAAAAAAAAAAAAAAAAAAAAAFLcATJm\u002fLhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABq0TEdsgNkQKQpLGS\u002faTFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHzQHeYnV+9AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmfmzQAAAAAAAAAAAAAAAAAAAAACtAQrj63F6QAAAAAAAAAAAMzMzMzOLvUCamZmZmXXUQA9VByd409FAAAAAAABIs0AzMzMzs\u002fTwQJqZmZmZAa5AAAAAAAAAAAAAAAAAAAAAAFSTJNJrP95AAAAAAAAAAAAAAAAAACDNQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqZmZmZd7RAZmZmZmbCrkAAAAAAAAAAAM3MzMzMFK1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5Qd113lpVUAAAAAAAAAAAJ\u002fNtePpvftAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9pUEYjLqcEANzHqdYO4vQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADJ2YHG8y5LQAAAAAAAAAAAAAAAAAAAAACRUcAplnTQQGU0HdnnsNJAXj+p6w5U2UAAAAAAAAAAAM2vTasWPpxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"type":"bar","xaxis":"x","yaxis":"y"},{"hovertemplate":"\u003cb\u003e%{x}\u003c\u002fb\u003e\u003cbr\u003eNet Change: %{y:,.2f}\u003cbr\u003e\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#666666","width":1},"marker":{"size":3},"mode":"lines+markers","name":"Net Change","x":["2025-04-14","2025-04-17","2025-04-18","2025-04-20","2025-04-21","2025-04-22","2025-04-23","2025-04-24","2025-04-25","2025-04-26","2025-04-27","2025-04-28","2025-04-29","2025-04-30","2025-05-01","2025-05-02","2025-05-03","2025-05-04","2025-05-05","2025-05-06","2025-05-07","2025-05-08","2025-05-09","2025-05-10","2025-05-11","2025-05-13","2025-05-14","2025-05-15","2025-05-16","2025-05-18","2025-05-20","2025-05-22","2025-05-23","2025-05-24","2025-05-26","2025-05-28","2025-05-29","2025-05-30","2025-05-31","2025-06-01","2025-06-02","2025-06-03","2025-06-04","2025-06-05","2025-06-06","2025-06-07","2025-06-08","2025-06-09","2025-06-10","2025-06-11","2025-06-12","2025-06-13","2025-06-14","2025-06-15","2025-06-16","2025-06-17","2025-06-18","2025-06-19","2025-06-20","2025-06-21","2025-06-22","2025-06-23","2025-06-24","2025-06-25","2025-06-26","2025-06-27","2025-06-28","2025-06-29","2025-06-30","2025-07-01","2025-07-02","2025-07-03","2025-07-04","2025-07-05","2025-07-06","2025-07-07","2025-07-08","2025-07-09","2025-07-10","2025-07-12","2025-07-13","2025-07-14","2025-07-15","2025-07-16","2025-07-17","2025-07-20","2025-07-21","2025-07-22","2025-07-23","2025-07-24","2025-07-25","2025-07-26","2025-07-27","2025-07-29","2025-07-30","2025-07-31","2025-08-01","2025-08-02","2025-08-03","2025-08-04","2025-08-05","2025-08-06","2025-08-07","2025-08-08","2025-08-09","2025-08-10","2025-08-12","2025-08-13","2025-08-14","2025-08-16","2025-08-17","2025-08-18","2025-08-19","2025-08-20","2025-08-21","2025-08-22","2025-08-23","2025-08-24","2025-08-25","2025-08-26"],"y":{"dtype":"f8","bdata":"AAAAAAAA8D8AAAAAAAAAAMUwzJdoI8BA+Wt7R1YmJEA4kVQYgwe6QBxZczoOXclAp+q9NCiou0AZDTFey9\u002fXQEOMOfPcDeFAKVLqYee3zkC9MjodyWFBQAZF6kpQzQdADXbc1T\u002fz0EAukugqVK+rQNf9NkscQsxAqibsAQkTWkDUTLv2YmDdQMZgfhQlnORAAAAAAAAAAACIfcK2Gn0iQIcNULMXushAAAAAAAAAAAAAAAAAAAAAABDvD4x0J6xAAAAAAAAAAADIJhSxrhfRQDhl2QxlGkRAAAAAAAAAAABob9om4Nd4QNP4fIWTC9VASlZn\u002fLTpZ0Bq0TEdsgNkwKQpLGS\u002faTHAAAAAAAAAAACkaYQURrDXQMKjswuFrlZAAAAAAAAAAADIlhPjYfFXQAAAAAAAAAAAoCpWeHfRs0AAAAAAAAAAAHzQHeYnV+\u002fAxX2VbwmgZkCc7anwmla\u002fQGBd89TZ59RAvd2Np2d+qkAAAAAAAAAAAJeG3zsP5ltAfLtjrdjNcEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmfmzwAAAAAAAAAAAAAAAAAAAAAC1T4A2b3XWQAAAAAAAxKdAMzMzMzOLvcAkRO\u002fqGW\u002fUwBkR1fMZGNHAmJmZmZndpUAzMzMzs\u002fTwwPfMsYYMU63AsaP+vspx3EC7OYwRVTfUQFSTJNJrP97AmZmZmRn61kAAAAAAACDNwGdmZmbmldpAzszMzAxe0kCbmZmZmaXTQDkKVUU6u8BAiXk3YtV91ED+\u002f\u002f\u002f\u002f\u002f+7EQJqZmZmZd7TA1fYuRb88q8AAAAAAAAAAALqSWSnmh5RAua945sPt30CBx7uM8WhTQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEPXXxQoXVBAAAAAAAAAAAAAAAAAAAAAAIIgSBKjJP5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5Qd113lpVcDZzvdTQ9XxQJ\u002fNtePpvfvA7bkcvyP+cUAAAAAAAAAAAAAAAAAAAAAA9pUEYjLqcMANzHqdYO4vwAAAAAAAAAAA9UpZhjDT0EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\u002fNV66S57iQNZWOIMYXdVA31glmUda8ECRUcAplnTQwGU0HdnnsNLAXj+p6w5U2cAAAAAAAAAAAFbEb6UBOZrA2SgMfXNOY0DCFyZTBRLQQNA+XLk+WCVAAAAAAAAAAAAoRvTpDqiNQJNDXo59XdZA"},"type":"scatter","xaxis":"x","yaxis":"y"},{"hovertemplate":"\u003cb\u003e%{x}\u003c\u002fb\u003e\u003cbr\u003eCumulative Supply: %{y:,.2f}\u003cbr\u003e\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#2196F3","width":3},"name":"Supply","x":["2025-04-14","2025-04-17","2025-04-18","2025-04-20","2025-04-21","2025-04-22","2025-04-23","2025-04-24","2025-04-25","2025-04-26","2025-04-27","2025-04-28","2025-04-29","2025-04-30","2025-05-01","2025-05-02","2025-05-03","2025-05-04","2025-05-05","2025-05-06","2025-05-07","2025-05-08","2025-05-09","2025-05-10","2025-05-11","2025-05-13","2025-05-14","2025-05-15","2025-05-16","2025-05-18","2025-05-20","2025-05-22","2025-05-23","2025-05-24","2025-05-26","2025-05-28","2025-05-29","2025-05-30","2025-05-31","2025-06-01","2025-06-02","2025-06-03","2025-06-04","2025-06-05","2025-06-06","2025-06-07","2025-06-08","2025-06-09","2025-06-10","2025-06-11","2025-06-12","2025-06-13","2025-06-14","2025-06-15","2025-06-16","2025-06-17","2025-06-18","2025-06-19","2025-06-20","2025-06-21","2025-06-22","2025-06-23","2025-06-24","2025-06-25","2025-06-26","2025-06-27","2025-06-28","2025-06-29","2025-06-30","2025-07-01","2025-07-02","2025-07-03","2025-07-04","2025-07-05","2025-07-06","2025-07-07","2025-07-08","2025-07-09","2025-07-10","2025-07-12","2025-07-13","2025-07-14","2025-07-15","2025-07-16","2025-07-17","2025-07-20","2025-07-21","2025-07-22","2025-07-23","2025-07-24","2025-07-25","2025-07-26","2025-07-27","2025-07-29","2025-07-30","2025-07-31","2025-08-01","2025-08-02","2025-08-03","2025-08-04","2025-08-05","2025-08-06","2025-08-07","2025-08-08","2025-08-09","2025-08-10","2025-08-12","2025-08-13","2025-08-14","2025-08-16","2025-08-17","2025-08-18","2025-08-19","2025-08-20","2025-08-21","2025-08-22","2025-08-23","2025-08-24","2025-08-25","2025-08-26"],"y":{"dtype":"f8","bdata":"AAAAAAAA8D8AAAAAAADwP8UwzJfoI8BAoA9eLfIowEA8WIi5syzNQKzY\u002ffngRNtAqqmWg3UX4UA3MK8yWwftQD1e9BKcCvdAgqgx\u002f5jh+kDIT1U4xeP6QJ3l9dL04\u002fpAIANtyMQg\u002f0CyR8RpP\u002f7\u002fQLaTlXlBwwFBO9G12oPGAUHVOo05kHIFQQbTrH6ZmQpBBtOsfpmZCkEQrhdz45kKQeiuTO6EJQxB6K5M7oQlDEHorkzuhCUMQaTufMAilgxBpO58wCKWDEF8c5+WGLkOQRJB8Dxaug5BEkHwPFq6DkFKrgMtxsYOQbKm2U4ctBBBnTN5hRm3EEFjjTUPmbQQQbL8N2hTtBBBsvw3aFO0EEFMQ4DJVy8SQYb+0LHCMBJBhv7QscIwEkG\u002fL+\u002fHQTISQb8v78dBMhJBaYjQpYeBEkFpiNClh4ESQbScGVJFLQ1BFIJ1VO0yDUGA0foroi0OQZaeTLNOZRBBUbqbgkuaEEFRupuCS5oQQUl4j+MJnBBBONG6WT2gEEE40bpZPaAQQTjRulk9oBBBONG6WT2gEEHSalTzVlAQQdJqVPNWUBBB0mpU81ZQEEHNb7zmrbcRQc1vvOY15xFBAKPvGQlxEUG+rkB7FyoQQVe7BrgrMQ5BvSFtHqKIDkEkiNOESA4GQfDAuFL8mAVBZpWYqjUnCUGeHMpMIK4LQTSKhdIy5gdBaL24BXbFCkFovbgFdvMIQTSKhdIyRgxBziMfbPSRDkGBK6nPU4MQQdPT06EtCRFBa0v39wpREkFrS\u002ff3gvgSQQXlkJGkphJBGIcGEytwEkEYhwYTK3ASQargL\u002fmyhBJBpmuXN4+DFEFiN7DGxYQUQWI3sMbFhBRBYjewxsWEFEFiN7DGxYQUQWI3sMbFhBRBYjewxsWEFEFiN7DGxYQUQWB9MZnLhRRBYH0xmcuFFEFgfTGZy4UUQYCFw130DhxBgIXDXfQOHEGAhcNd9A4cQYCFw130DhxBMA4mxp0NHEHzAJJNd0EgQX6ONiJ0kxlBrFUmq\u002fOXGUGsVSar85cZQaxVJqvzlxlBh9SNHrmTGUGRmcxBeZMZQZGZzEF5kxlBQS4ySqygGkFBLjJKrKAaQUEuMkqsoBpBQS4ySqygGkHo9H3BdfQcQVZ6sUlHSh5BR2j9l2wwIUG6Za\u002fmx6wgQRh85qdAFyBBOWQSYUCZHkE5ZBJhQJkeQXX0bF8Hfx5B+5XcLXGBHkF39w6DkYIfQS9qjDO8gh9BL2qMM7yCH0FTZAE7kJEfQUak8wm0eyBB"},"type":"scatter","xaxis":"x2","yaxis":"y2"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"matches":"x2","showticklabels":false},"yaxis":{"anchor":"x","domain":[0.4600000000000001,1.0],"title":{"text":"Daily Mint\u002fBurn & Net Change"},"side":"left"},"xaxis2":{"anchor":"y2","domain":[0.0,1.0],"title":{"text":"Date"},"tickformat":"%Y-%m-%d","tickangle":45},"yaxis2":{"anchor":"x2","domain":[0.0,0.36000000000000004],"title":{"text":"Token Supply"},"side":"left"},"shapes":[{"line":{"color":"gray","dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":0,"y1":0,"yref":"y"}],"title":{"font":{"size":18},"text":"$OPEN","x":0.5},"legend":{"orientation":"h","yanchor":"bottom","y":1.02,"xanchor":"right","x":1,"bgcolor":"rgba(255,255,255,0.8)"},"height":700,"showlegend":true,"hovermode":"x unified","barmode":"overlay"},                        {"responsive": true}                    ).then(function(){
-                            
-var gd = document.getElementById('b72f5fe5-8ae5-4982-a954-e5ea6e192193');
-var x = new MutationObserver(function (mutations, observer) {{
-        var display = window.getComputedStyle(gd).display;
-        if (!display || display === 'none') {{
-            console.log([gd, 'removed!']);
-            Plotly.purge(gd);
-            observer.disconnect();
-        }}
-}});
-
-// Listen for the removal of the full notebook cells
-var notebookContainer = gd.closest('#notebook-container');
-if (notebookContainer) {{
-    x.observe(notebookContainer, {childList: true});
-}}
-
-// Listen for the clearing of the current output cell
-var outputEl = gd.closest('.output');
-if (outputEl) {{
-    x.observe(outputEl, {childList: true});
-}}
-
-                        })                };            </script>        </div>
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Taming the data</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#tvl" id="toc-tvl" class="nav-link active" data-scroll-target="#tvl">TVL</a>
+  <ul class="collapse">
+  <li><a href="#tvl-by-stablecoins" id="toc-tvl-by-stablecoins" class="nav-link" data-scroll-target="#tvl-by-stablecoins">TVL by stablecoins</a></li>
+  <li><a href="#tvl-by-chains" id="toc-tvl-by-chains" class="nav-link" data-scroll-target="#tvl-by-chains">TVL by chains</a></li>
+  </ul></li>
+  <li><a href="#usde" id="toc-usde" class="nav-link" data-scroll-target="#usde">USDe</a>
+  <ul class="collapse">
+  <li><a href="#tvl-1" id="toc-tvl-1" class="nav-link" data-scroll-target="#tvl-1">TVL</a></li>
+  <li><a href="#primary-market" id="toc-primary-market" class="nav-link" data-scroll-target="#primary-market">Primary market</a></li>
+  <li><a href="#usde-staking" id="toc-usde-staking" class="nav-link" data-scroll-target="#usde-staking">USDe staking</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Ethena</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">analysis</div>
+    <div class="quarto-category">stablecoins</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A dashboard for Ethena protocol
+  </div>
 </div>
-</section>
-<section id="dex" class="level2">
-<h2 class="anchored" data-anchor-id="dex">DEX</h2>
 
 
-</section>
+<div class="quarto-title-meta">
 
- ]]></description>
-  <category>analysis</category>
-  <category>stablecoins</category>
-  <guid>https://newgnart.github.io/notebooks/open.html</guid>
-  <pubDate>Mon, 25 Aug 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://newgnart.github.io/notebooks/images/boss.png" medium="image" type="image/png" height="144" width="144"/>
-</item>
-<item>
-  <title>Ethena</title>
-  <link>https://newgnart.github.io/notebooks/ethena.html</link>
-  <description><![CDATA[ 
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 3, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
 
 
-
+</header>
 
 
 <section id="tvl" class="level2">
@@ -251,809 +507,449 @@ if (outputEl) {{
 </section>
 </section>
 
- ]]></description>
-  <category>analysis</category>
-  <category>stablecoins</category>
-  <guid>https://newgnart.github.io/notebooks/ethena.html</guid>
-  <pubDate>Sun, 03 Aug 2025 00:00:00 GMT</pubDate>
-</item>
-<item>
-  <title>CRVUSD Market Health</title>
-  <link>https://newgnart.github.io/notebooks/crvusd_health.html</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<section id="curve-market-health-scores-methodology" class="level1">
-<h1>Curve Market Health Scores Methodology</h1>
-<p>The work is based on the Curve Market Health Scores methodology research by <a href="https://www.llamarisk.com/research/curve-market-health-methodology">LlamaRisk</a>.</p>
-<ul>
-<li><p>Data are loaded from Etherscan, CoinGecko, transformed to postgres database, using <a href="https://dlt.readthedocs.io/en/latest/">dlt</a> and <a href="https://www.getdbt.com/">dbt</a></p>
-<ul>
-<li>data destinations: data can be saved to other destinations, e.g.&nbsp;Amazon Redshift, Google BigQuery, etc.</li>
-</ul></li>
-<li><p>Score methodology:</p>
-<ul>
-<li><ol type="1">
-<li>Asset price momentum &amp; volatility</li>
-</ol></li>
-<li><ol start="2" type="1">
-<li>Borrower concentration</li>
-</ol></li>
-<li><ol start="3" type="1">
-<li>Bad debt</li>
-</ol></li>
-<li><ol start="4" type="1">
-<li>Debt ceiling</li>
-</ol></li>
-<li><ol start="5" type="1">
-<li>Collateral ratio</li>
-</ol></li>
-<li><ol start="6" type="1">
-<li>Collateral under soft liquidation</li>
-</ol></li>
-<li><ol start="7" type="1">
-<li>Soft liquidation efficiency</li>
-</ol></li>
-</ul></li>
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/newgnart\.github\.io");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Built with <a href="https://quarto.org">Quarto</a></p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/newgnart">
+      <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://t.me/newgnart">
+      <i class="bi bi-telegram" role="img" aria-label="Telegram">
+</i> 
+    </a>
+  </li>  
 </ul>
-<section id="asset-price-momentum-volatility" class="level2">
-<h2 class="anchored" data-anchor-id="asset-price-momentum-volatility">Asset price momentum &amp; volatility</h2>
-<div id="cell-4" class="cell" data-execution_count="19">
-<div class="cell-output cell-output-display">
-<div>
+    </div>
+  </div>
+</footer>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">table_catalog</th>
-<th data-quarto-table-cell-role="th">table_schema</th>
-<th data-quarto-table-cell-role="th">table_name</th>
-<th data-quarto-table-cell-role="th">table_type</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>prices</td>
-<td>weth_coingecko</td>
-<td>market_chart</td>
-<td>BASE TABLE</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>prices</td>
-<td>weth_coingecko</td>
-<td>ohlc</td>
-<td>BASE TABLE</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="cell-5" class="cell" data-execution_count="20">
-<div class="cell-output cell-output-display" data-execution_count="20">
-<div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">timestamp</th>
-<th data-quarto-table-cell-role="th">open</th>
-<th data-quarto-table-cell-role="th">high</th>
-<th data-quarto-table-cell-role="th">low</th>
-<th data-quarto-table-cell-role="th">close</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>2025-05-28 18:00:00+07:00</td>
-<td>2661.24</td>
-<td>2661.24</td>
-<td>2624.30</td>
-<td>2649.09</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>2025-05-28 22:00:00+07:00</td>
-<td>2648.27</td>
-<td>2650.04</td>
-<td>2629.71</td>
-<td>2635.29</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>2025-05-29 02:00:00+07:00</td>
-<td>2633.74</td>
-<td>2651.83</td>
-<td>2621.08</td>
-<td>2651.83</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>2025-05-29 06:00:00+07:00</td>
-<td>2656.16</td>
-<td>2684.72</td>
-<td>2622.05</td>
-<td>2634.73</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>2025-05-29 10:00:00+07:00</td>
-<td>2631.45</td>
-<td>2659.64</td>
-<td>2618.59</td>
-<td>2618.59</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">...</th>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">175</th>
-<td>2025-06-26 22:00:00+07:00</td>
-<td>2489.06</td>
-<td>2496.80</td>
-<td>2472.21</td>
-<td>2495.86</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">176</th>
-<td>2025-06-27 02:00:00+07:00</td>
-<td>2493.97</td>
-<td>2499.03</td>
-<td>2443.04</td>
-<td>2452.12</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">177</th>
-<td>2025-06-27 06:00:00+07:00</td>
-<td>2451.09</td>
-<td>2454.56</td>
-<td>2414.48</td>
-<td>2433.20</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">178</th>
-<td>2025-06-27 10:00:00+07:00</td>
-<td>2433.44</td>
-<td>2439.31</td>
-<td>2422.08</td>
-<td>2439.13</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">179</th>
-<td>2025-06-27 14:00:00+07:00</td>
-<td>2441.91</td>
-<td>2454.23</td>
-<td>2408.58</td>
-<td>2413.87</td>
-</tr>
-</tbody>
-</table>
-
-<p>180 rows × 5 columns</p>
-</div>
-</div>
-</div>
-<div id="cell-6" class="cell" data-execution_count="21">
-<div class="cell-output cell-output-stdout">
-<pre><code>Asset Volatility</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="21">
-<pre><code>{'Volatility ratio score': {'45 day volatility': 0.23,
-  '180 day volatility': 0.19,
-  'Volatility ratio': 1.23,
-  'Volatility score': 0.36},
- 'Beta score': {'Asset volatility': 0.23,
-  'Reference volatility': 0.23,
-  'Correlation': 1.0,
-  'Beta': 1.0,
-  'Beta score': 0.4},
- 'VaR score': {'99% VaR': -0.05, 'VaR score': 0.5},
- 'Final score': 0.43}</code></pre>
-</div>
-</div>
-</section>
-<section id="borrower-concentration" class="level2">
-<h2 class="anchored" data-anchor-id="borrower-concentration">Borrower concentration</h2>
-<div id="cell-8" class="cell" data-execution_count="22">
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">table_catalog</th>
-<th data-quarto-table-cell-role="th">table_schema</th>
-<th data-quarto-table-cell-role="th">table_name</th>
-<th data-quarto-table-cell-role="th">table_type</th>
-<th data-quarto-table-cell-role="th">self_referencing_column_name</th>
-<th data-quarto-table-cell-role="th">reference_generation</th>
-<th data-quarto-table-cell-role="th">user_defined_type_catalog</th>
-<th data-quarto-table-cell-role="th">user_defined_type_schema</th>
-<th data-quarto-table-cell-role="th">user_defined_type_name</th>
-<th data-quarto-table-cell-role="th">is_insertable_into</th>
-<th data-quarto-table-cell-role="th">is_typed</th>
-<th data-quarto-table-cell-role="th">commit_action</th>
-<th data-quarto-table-cell-role="th">TABLE_COMMENT</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>curve</td>
-<td>controllers</td>
-<td>logs</td>
-<td>BASE TABLE</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>YES</td>
-<td>NO</td>
-<td>None</td>
-<td>None</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>curve</td>
-<td>controllers</td>
-<td>_dlt_loads</td>
-<td>BASE TABLE</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>YES</td>
-<td>NO</td>
-<td>None</td>
-<td>None</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>curve</td>
-<td>controllers</td>
-<td>_dlt_pipeline_state</td>
-<td>BASE TABLE</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>YES</td>
-<td>NO</td>
-<td>None</td>
-<td>None</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>curve</td>
-<td>controllers</td>
-<td>_dlt_version</td>
-<td>BASE TABLE</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>YES</td>
-<td>NO</td>
-<td>None</td>
-<td>None</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<section id="data-transformations" class="level3">
-<h3 class="anchored" data-anchor-id="data-transformations">Data Transformations</h3>
-<section id="extract-borrower-state-data" class="level4">
-<h4 class="anchored" data-anchor-id="extract-borrower-state-data">Extract borrower state data</h4>
-<div id="cell-11" class="cell" data-execution_count="23">
-<div class="cell-output cell-output-display" data-execution_count="23">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">topics</th>
-<th data-quarto-table-cell-role="th">address</th>
-<th data-quarto-table-cell-role="th">data</th>
-<th data-quarto-table-cell-role="th">block_number</th>
-<th data-quarto-table-cell-role="th">block_hash</th>
-<th data-quarto-table-cell-role="th">time_stamp</th>
-<th data-quarto-table-cell-role="th">gas_price</th>
-<th data-quarto-table-cell-role="th">gas_used</th>
-<th data-quarto-table-cell-role="th">log_index</th>
-<th data-quarto-table-cell-role="th">transaction_hash</th>
-<th data-quarto-table-cell-role="th">transaction_index</th>
-<th data-quarto-table-cell-role="th">_dlt_load_id</th>
-<th data-quarto-table-cell-role="th">_dlt_id</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>["0xeec6b7095a637e006c79c1819d696e353a8f703db2...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075dc7</td>
-<td>0x6f971a452a974a94c9d59bf20c1c6ed66bb5c0ff2782...</td>
-<td>0x64612d33</td>
-<td>0x9c2847d19</td>
-<td>0x1287b2</td>
-<td>0xa6</td>
-<td>0xcac35a9c033ea94fa885060c2fcce68ac17574250cc6...</td>
-<td>0x3f</td>
-<td>1750953848.3246627</td>
-<td>IGPaA++ijLN4tQ</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>["0xe1979fe4c35e0cef342fef5668e2c8e7a7e9f5d5d1...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075dc7</td>
-<td>0x6f971a452a974a94c9d59bf20c1c6ed66bb5c0ff2782...</td>
-<td>0x64612d33</td>
-<td>0x9c2847d19</td>
-<td>0x1287b2</td>
-<td>0xa7</td>
-<td>0xcac35a9c033ea94fa885060c2fcce68ac17574250cc6...</td>
-<td>0x3f</td>
-<td>1750953848.3246627</td>
-<td>yK0KInKh8Z2nhw</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>["0xeec6b7095a637e006c79c1819d696e353a8f703db2...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075f25</td>
-<td>0x0c72e1aa14e2607d062d6acc56e088d299cb9aedea2a...</td>
-<td>0x64613def</td>
-<td>0xc0ff737d8</td>
-<td>0x141d07</td>
-<td>0x62</td>
-<td>0xf5cc3b8d70eb97313916d62acdb7936b4996d8c8d430...</td>
-<td>0x3e</td>
-<td>1750953848.3246627</td>
-<td>gU+qZfLPkrmyew</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="cell-13" class="cell" data-execution_count="25">
-<div class="cell-output cell-output-display" data-execution_count="25">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">topics</th>
-<th data-quarto-table-cell-role="th">address</th>
-<th data-quarto-table-cell-role="th">data</th>
-<th data-quarto-table-cell-role="th">block_number</th>
-<th data-quarto-table-cell-role="th">block_hash</th>
-<th data-quarto-table-cell-role="th">time_stamp</th>
-<th data-quarto-table-cell-role="th">gas_price</th>
-<th data-quarto-table-cell-role="th">gas_used</th>
-<th data-quarto-table-cell-role="th">log_index</th>
-<th data-quarto-table-cell-role="th">transaction_hash</th>
-<th data-quarto-table-cell-role="th">transaction_index</th>
-<th data-quarto-table-cell-role="th">_dlt_load_id</th>
-<th data-quarto-table-cell-role="th">_dlt_id</th>
-<th data-quarto-table-cell-role="th">user</th>
-<th data-quarto-table-cell-role="th">collateral</th>
-<th data-quarto-table-cell-role="th">debt</th>
-<th data-quarto-table-cell-role="th">n1</th>
-<th data-quarto-table-cell-role="th">n2</th>
-<th data-quarto-table-cell-role="th">liquidation_discount</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>[0xeec6b7095a637e006c79c1819d696e353a8f703db2c...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075dc7</td>
-<td>0x6f971a452a974a94c9d59bf20c1c6ed66bb5c0ff2782...</td>
-<td>2023-05-14 18:49:23</td>
-<td>0x9c2847d19</td>
-<td>0x1287b2</td>
-<td>0xa6</td>
-<td>0xcac35a9c033ea94fa885060c2fcce68ac17574250cc6...</td>
-<td>0x3f</td>
-<td>1750953848.3246627</td>
-<td>IGPaA++ijLN4tQ</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>929933909709140155529</td>
-<td>1000000000000000000000000</td>
-<td>40</td>
-<td>49</td>
-<td>60000000000000000</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>[0xeec6b7095a637e006c79c1819d696e353a8f703db2c...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075f25</td>
-<td>0x0c72e1aa14e2607d062d6acc56e088d299cb9aedea2a...</td>
-<td>2023-05-14 20:00:47</td>
-<td>0xc0ff737d8</td>
-<td>0x141d07</td>
-<td>0x62</td>
-<td>0xf5cc3b8d70eb97313916d62acdb7936b4996d8c8d430...</td>
-<td>0x3e</td>
-<td>1750953848.3246627</td>
-<td>gU+qZfLPkrmyew</td>
-<td>0xd0c096ac82eba8d7a26f96ffc34b4e3bba3a1122</td>
-<td>4950000000000000000</td>
-<td>5000000000000000000000</td>
-<td>44</td>
-<td>58</td>
-<td>60000000000000000</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>[0xeec6b7095a637e006c79c1819d696e353a8f703db2c...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1076eb1</td>
-<td>0xc553074b5408478e26f408da8820402f6a01b9072097...</td>
-<td>2023-05-15 09:30:47</td>
-<td>0xbd28e4657</td>
-<td>0x11201d</td>
-<td>0x158</td>
-<td>0x364382c084cfb2c557809367a123de63cf794f144fd5...</td>
-<td>0x73</td>
-<td>1750953848.3246627</td>
-<td>s1uyLeQx3zYHCA</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>929933909709140155529</td>
-<td>1522177275477716067202304</td>
-<td>-1</td>
-<td>8</td>
-<td>60000000000000000</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="cell-14" class="cell" data-execution_count="26">
-<div class="cell-output cell-output-display" data-execution_count="26">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">address</th>
-<th data-quarto-table-cell-role="th">time_stamp</th>
-<th data-quarto-table-cell-role="th">user</th>
-<th data-quarto-table-cell-role="th">debt</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>2023-05-14 18:49:23</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>1.000000e+06</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>2023-05-14 20:00:47</td>
-<td>0xd0c096ac82eba8d7a26f96ffc34b4e3bba3a1122</td>
-<td>5.000000e+03</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>2023-05-15 09:30:47</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>1.522177e+06</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-</section>
-<section id="transform-borrower-state-data" class="level4">
-<h4 class="anchored" data-anchor-id="transform-borrower-state-data">Transform borrower state data</h4>
-<div id="cell-16" class="cell" data-execution_count="28">
-<div class="cell-output cell-output-display" data-execution_count="28">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">address</th>
-<th data-quarto-table-cell-role="th">user</th>
-<th data-quarto-table-cell-role="th">debt</th>
-<th data-quarto-table-cell-role="th">date</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>1.000000e+06</td>
-<td>2023-05-14</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0xd0c096ac82eba8d7a26f96ffc34b4e3bba3a1122</td>
-<td>5.000000e+03</td>
-<td>2023-05-14</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x5180db0237291a6449dda9ed33ad90a38787621c</td>
-<td>2.000000e+03</td>
-<td>2023-05-15</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>1.537712e+06</td>
-<td>2023-05-15</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0xd0c096ac82eba8d7a26f96ffc34b4e3bba3a1122</td>
-<td>5.000000e+03</td>
-<td>2023-05-15</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">5</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x425d16b0e08a28a3ff9e4404ae99d78c0a076c5a</td>
-<td>5.000000e+04</td>
-<td>2023-05-16</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="borrower-concentration-1" class="level3">
-<h3 class="anchored" data-anchor-id="borrower-concentration-1">Borrower concentration</h3>
-<div id="cell-18" class="cell" data-execution_count="29">
-<div class="cell-output cell-output-display" data-execution_count="29">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">date</th>
-<th data-quarto-table-cell-role="th">hhi</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>2023-05-14</td>
-<td>(1000025000000.0, 505012500000.0)</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>2023-05-15</td>
-<td>(2364586884905.9204, 795378283831.5199)</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>2023-05-16</td>
-<td>(2367086884905.9204, 635776510353.3525)</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>2023-05-17</td>
-<td>(2374192047016.515, 404290718232.55194)</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>2023-05-18</td>
-<td>(2100357311667.3918, 204031800103.62622)</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">...</th>
-<td>...</td>
-<td>...</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">183</th>
-<td>2024-09-09</td>
-<td>(15857063565.231691, 2526968534.1705546)</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">184</th>
-<td>2025-03-10</td>
-<td>(15598812051.008957, 2269635037.8243403)</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">185</th>
-<td>2025-04-04</td>
-<td>(15598812049.848175, 2521780639.2592626)</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">186</th>
-<td>2025-04-06</td>
-<td>(15598806424.848175, 2834179197.2512627)</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">187</th>
-<td>2025-04-07</td>
-<td>(16040780574.127316, 2902080723.4643254)</td>
-</tr>
-</tbody>
-</table>
-
-<p>188 rows × 2 columns</p>
-</div>
-</div>
-</div>
-<div id="cell-19" class="cell" data-execution_count="30">
-<div class="cell-output cell-output-display" data-execution_count="30">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">date</th>
-<th data-quarto-table-cell-role="th">hhi</th>
-<th data-quarto-table-cell-role="th">hhi_ideal</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>2023-05-14</td>
-<td>1.000025e+12</td>
-<td>5.050125e+11</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>2023-05-15</td>
-<td>2.364587e+12</td>
-<td>7.953783e+11</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>2023-05-16</td>
-<td>2.367087e+12</td>
-<td>6.357765e+11</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>2023-05-17</td>
-<td>2.374192e+12</td>
-<td>4.042907e+11</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>2023-05-18</td>
-<td>2.100357e+12</td>
-<td>2.040318e+11</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">...</th>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">690</th>
-<td>2025-04-03</td>
-<td>1.559881e+10</td>
-<td>2.269635e+09</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">691</th>
-<td>2025-04-04</td>
-<td>1.559881e+10</td>
-<td>2.521781e+09</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">692</th>
-<td>2025-04-05</td>
-<td>1.559881e+10</td>
-<td>2.521781e+09</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">693</th>
-<td>2025-04-06</td>
-<td>1.559881e+10</td>
-<td>2.834179e+09</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">694</th>
-<td>2025-04-07</td>
-<td>1.604078e+10</td>
-<td>2.902081e+09</td>
-</tr>
-</tbody>
-</table>
-
-<p>695 rows × 3 columns</p>
-</div>
-</div>
-</div>
-<div id="cell-20" class="cell" data-execution_count="33">
-<div class="cell-output cell-output-display">
-<pre><code>{'7 day HHI': '1.57e+10',
- '30 day HHI': '1.56e+10',
- 'Ratio': 1.0025,
- 'Relative score': 0.51}</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre><code>{'Current HHI': '1.60e+10',
- 'HHI ideal': '2.90e+09',
- 'Ratio': 5.5273,
- 'Benchmark score': 1.0}</code></pre>
-</div>
-</div>
-
-
-</section>
-</section>
-</section>
-
- ]]></description>
-  <category>analysis</category>
-  <category>stablecoins</category>
-  <guid>https://newgnart.github.io/notebooks/crvusd_health.html</guid>
-  <pubDate>Thu, 03 Jul 2025 00:00:00 GMT</pubDate>
-</item>
-</channel>
-</rss>
+</body></html>
