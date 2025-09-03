@@ -9,7 +9,7 @@ from data_sleuth import (
     PostgresClient,
     settings,
 )
-from ..helpers.dataloader import load_chunks, get_chainid
+from scripts.helpers.dataloader import load_chunks, get_chainid
 
 logger = logging.getLogger(__name__)
 setup_logging(log_filename=None, level="INFO")
@@ -47,7 +47,7 @@ def load_and_save_abi(address, chain="ethereum"):
 
 
 if __name__ == "__main__":
-    with open("examples/OPEN/contract_addresses.json", "r") as f:
+    with open("scripts/open/contract_addresses.json", "r") as f:
         contract_addresses = json.load(f)
     for address in contract_addresses.values():
         # load_raw_data_from_etherscan_to_postgres(address=address, chain="ethereum")
