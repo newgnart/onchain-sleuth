@@ -1,4 +1,4 @@
-# data-sleuth
+# onchain-sleuth
 An Ethereum blockchain data engineering toolkit designed for extracting, transforming, and loading EVM blockchain data to PostgreSQL from various sources into analytics-ready formats.
 
 The toolkit focuses on:
@@ -9,8 +9,8 @@ The toolkit focuses on:
 - PostgreSQL-based data warehousing with staging transformations
 
 ```
-data-sleuth/
-├── src/data_sleuth/          # Core Python package
+onchain-sleuth/
+├── src/onchain_sleuth/          # Core Python package
 │   ├── config/              # Settings and configuration
 │   ├── core/                # Base classes and utilities
 │   ├── datasource/          # API client implementations
@@ -125,8 +125,8 @@ staging/
 **Quick Start:**
 ```bash
 # Clone repository
-git clone https://github.com/newgnart/data-sleuth.git
-cd data-sleuth
+git clone https://github.com/newgnart/onchain-sleuth.git
+cd onchain-sleuth
 
 # Install dependencies
 uv sync

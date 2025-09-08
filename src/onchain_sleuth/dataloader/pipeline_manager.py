@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 import dlt
 
-from data_sleuth.core.exceptions import PipelineError
+from onchain_sleuth.core.exceptions import PipelineError
 
 
 @dataclass

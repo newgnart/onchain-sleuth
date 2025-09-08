@@ -1,4 +1,4 @@
-"""Utility modules for data_sleuth package."""
+"""Utility modules for onchain_sleuth package."""
 
 from .data_transformers import DataTransformer
 from .logging import *

@@ -1,5 +1,4 @@
 ---
-# title: "Taming the blockchain data"
 listing:
   contents: notebooks
   feed: true

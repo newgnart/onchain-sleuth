@@ -5,7 +5,7 @@ import logging
 import psycopg2
 from sqlalchemy import create_engine
 
-from data_sleuth.config.settings import PostgresSettings
+from onchain_sleuth.config.settings import PostgresSettings
 
 logger = logging.getLogger(__name__)
 

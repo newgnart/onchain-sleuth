@@ -1,8 +1,8 @@
-"""Custom exceptions for data_sleuth package."""
+"""Custom exceptions for onchain_sleuth package."""
 
 
 class EVMSleuthError(Exception):
-    """Base exception for data_sleuth package."""
+    """Base exception for onchain_sleuth package."""
 
     pass
 

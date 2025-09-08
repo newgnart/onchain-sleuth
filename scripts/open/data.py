@@ -1,9 +1,9 @@
 import logging
 import json
 
-from data_sleuth.utils.logging import setup_logging
-from data_sleuth.utils import events_list
-from data_sleuth import (
+from onchain_sleuth.utils.logging import setup_logging
+from onchain_sleuth.utils import events_list
+from onchain_sleuth import (
     EtherscanClient,
     EtherscanSource,
     PostgresClient,

@@ -6,9 +6,9 @@ import datetime
 from typing import Any, Dict, List, Optional, Iterator, Literal
 from dlt.common.typing import TDataItems
 
-from data_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
-from data_sleuth.config.settings import settings
-from data_sleuth.utils.data_transformers import DataTransformer
+from onchain_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
+from onchain_sleuth.config.settings import settings
+from onchain_sleuth.utils.data_transformers import DataTransformer
 
 
 class DeFiLlamaClient(BaseAPIClient):
