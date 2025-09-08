@@ -5,11 +5,11 @@
       xmlns:dc="http://purl.org/dc/elements/1.1/" 
       version="2.0">
 <channel>
-<title>Taming the data</title>
+<title>Taming onchain data</title>
 <link>https://newgnart.github.io/</link>
 <atom:link href="https://newgnart.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.8.23</generator>
+<generator>quarto-1.8.24</generator>
 <lastBuildDate>Mon, 25 Aug 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>$OPEN</title>
