@@ -1,5 +1,3 @@
 {
-  "open_contract": "0x323c03c48660fE31186fa82c289b0766d331Ce21",
-  "uniswap_open_eth_pool": "0xaBaebcc9EEe363CeA2150eE03ac96db110F0e745",
-  "curve_open_weth_pool": "0xcBcD4d46FF017B90C0d1cDA1CbD20086b0901738"
+  "open_contract": "0x323c03c48660fE31186fa82c289b0766d331Ce21"
 }

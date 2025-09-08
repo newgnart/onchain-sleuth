@@ -1,10 +1,8 @@
 """Configuration management for onchain_sleuth package."""
 
-from .settings import Settings, settings, APISettings, ColumnSchemas
+from .settings import APIs, ColumnSchemas
 
 __all__ = [
-    "Settings",
-    "settings",
-    "APISettings",
+    "APIs",
     "ColumnSchemas",
 ]

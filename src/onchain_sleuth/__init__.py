@@ -1,6 +1,6 @@
 """EVM Sleuth - Ethereum blockchain data engineering toolkit."""
 
-from .config import settings, Settings
+# from .config import settings, Settings
 
 # from .decoder import EventDecoder, DecodingStrategy
 from .datasource import (
@@ -10,14 +10,15 @@ from .datasource import (
     EtherscanSource,
 )
 from .dataloader import PipelineManager, TableConfig
-from .utils.postgres import PostgresClient
+
+# from .utils.postgres import PostgresDestination, DuckdbDestination
 
 __version__ = "0.0.1"
 
 __all__ = [
     # Configuration
-    "settings",
-    "Settings",
+    # "settings",
+    # "Settings",
     # Decoder
     # "EventDecoder",
     # "DecodingStrategy",
@@ -30,5 +31,6 @@ __all__ = [
     "PipelineManager",
     "TableConfig",
     # Database
-    "PostgresClient",
+    # "PostgresDestination",
+    # "DuckdbDestination",
 ]

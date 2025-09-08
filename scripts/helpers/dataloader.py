@@ -15,8 +15,8 @@ import os
 from typing import Optional, Any, List
 
 import dlt
-from onchain_sleuth import settings, EtherscanClient, PipelineManager, EtherscanSource
-from onchain_sleuth.utils.postgres import PostgresClient
+from onchain_sleuth import EtherscanClient, PipelineManager, EtherscanSource
+from onchain_sleuth.utils.postgres import Destination
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def load_chunks(
     table_name: str,
     contract_address: str,
     etherscan_client: EtherscanClient,
-    postgres_client: PostgresClient,
+    destination: Destination,
     source_factory: Any,  # Callable that creates source (logs or txns or)
     from_block: Optional[int] = None,
     to_block: Optional[int] = None,
@@ -39,24 +39,24 @@ def load_chunks(
     contract_address = contract_address.lower()
     chainid = etherscan_client.chainid
     block_column_name = "block_number"
-    if source_factory.__name__ == "logs":
-        address_column_name = "address"
-    elif source_factory.__name__ == "transactions":
-        address_column_name = '"to"'
-    else:
-        raise ValueError(f"Unknown source factory: {source_factory}")
+    # if source_factory.__name__ == "logs":
+    #     address_column_name = "address"
+    # elif source_factory.__name__ == "transactions":
+    #     address_column_name = '"to"'
+    # else:
+    #     raise ValueError(f"Unknown source factory: {source_factory}")
 
     # Get end block from Etherscan client
     if to_block is None:
         to_block = etherscan_client.get_latest_block()
-    # Determine start block using PostgresClient
+    # Determine start block using PostgresDestination
     if from_block is None:
-        max_loaded_block = postgres_client.get_max_loaded_block(
+        max_loaded_block = destination.get_max_loaded_block(
             table_schema=dataset_name,
             table_name=table_name,
             chainid=chainid,
             address=contract_address,
-            address_column_name=address_column_name,
+            # address_column_name=address_column_name,
             block_column_name=block_column_name,
         )
         contract_creation_block = etherscan_client.get_contract_creation_block_number(
@@ -85,20 +85,19 @@ def load_chunks(
             )
 
             # Run pipeline with resource
-            postgres_connection_url = settings.postgres.get_connection_url()
             pipeline_manager.run(
                 sources={table_name: source},
                 pipeline_name=f"{dataset_name}-{table_name}-{chainid}-{contract_address}",
                 dataset_name=dataset_name,  # schema
-                destination=dlt.destinations.postgres(postgres_connection_url),
+                destination=destination.get_dlt_destination(),
                 write_disposition=write_disposition,
                 primary_key=primary_key,
             )
 
             # Get row count after loading
             query = f"SELECT COUNT(*) FROM {dataset_name}.{table_name} WHERE chainid = {chainid} AND {address_column_name} = '{contract_address}'"
-            result = postgres_client.fetch_one(query)
-            n_loaded = result[0] or 0
+            result = destination.fetch_one(query)
+            n_loaded = result[0] if result and result[0] is not None else 0
 
             # Only log progress 5% of the time to avoid excessive logging
             # This provides periodic status updates while keeping the log file manageable
@@ -131,104 +130,104 @@ def load_chunks(
     )
 
 
-def _to_snake(name):
-    """Convert camelCase to snake_case and handle spaces."""
-    # First convert camelCase to snake_case
-    name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
-    name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
+# def _to_snake(name):
+#     """Convert camelCase to snake_case and handle spaces."""
+#     # First convert camelCase to snake_case
+#     name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+#     name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
 
-    # Convert to lowercase
-    name = name.lower()
+#     # Convert to lowercase
+#     name = name.lower()
 
-    # Replace spaces with underscores and clean up multiple underscores
-    name = re.sub(r"\s+", "_", name)
-    name = re.sub(r"_+", "_", name)
+#     # Replace spaces with underscores and clean up multiple underscores
+#     name = re.sub(r"\s+", "_", name)
+#     name = re.sub(r"_+", "_", name)
 
-    # Remove leading/trailing underscores
-    name = name.strip("_")
+#     # Remove leading/trailing underscores
+#     name = name.strip("_")
 
-    return name
-
-
-def _recursive_snakify(obj):
-    """Recursively convert all string values and keys in a nested structure to lowercase and camelCase to snake_case."""
-    if isinstance(obj, dict):
-        return {_to_snake(key): _recursive_snakify(value) for key, value in obj.items()}
-    elif isinstance(obj, list):
-        return [_recursive_snakify(item) for item in obj]
-    elif isinstance(obj, str):
-        return obj.lower()
-    else:
-        return obj
+#     return name
 
 
-def rewrite_json_snakecase(input_file: str, output_file: str = None):
-    """
-    Read a JSON file, convert all string values to lowercase recursively,
-    and write the result back to a file.
-
-    Args:
-        input_file: Path to the input JSON file
-        output_file: Path to the output JSON file. If None, overwrites the input file
-    """
-    with open(input_file, "r") as f:
-        data = json.load(f)
-
-    # Convert all string values to lowercase recursively
-    snakecase_data = _recursive_snakify(data)
-
-    # Determine output file path
-    if output_file is None:
-        output_file = input_file
-
-    # Write the lowercase data back to file
-    with open(output_file, "w") as f:
-        json.dump(snakecase_data, f, indent=2)
-
-    pass  # Successfully converted to snakecase
+# def _recursive_snakify(obj):
+#     """Recursively convert all string values and keys in a nested structure to lowercase and camelCase to snake_case."""
+#     if isinstance(obj, dict):
+#         return {_to_snake(key): _recursive_snakify(value) for key, value in obj.items()}
+#     elif isinstance(obj, list):
+#         return [_recursive_snakify(item) for item in obj]
+#     elif isinstance(obj, str):
+#         return obj.lower()
+#     else:
+#         return obj
 
 
-def get_all_addresses(data: dict) -> dict[str, str]:
-    """Extract all address strings from the JSON data recursively with flattened keys."""
-    address_map = {}
+# def rewrite_json_snakecase(input_file: str, output_file: str = None):
+#     """
+#     Read a JSON file, convert all string values to lowercase recursively,
+#     and write the result back to a file.
 
-    def _check_address(obj):  # TODO: verify this is correct
-        if isinstance(obj, str):
-            if (
-                obj.startswith("0x")
-                and len(obj) == 42
-                and all(c in "0123456789abcdefABCDEF" for c in obj[2:])
-            ):
-                return True
-        return False
+#     Args:
+#         input_file: Path to the input JSON file
+#         output_file: Path to the output JSON file. If None, overwrites the input file
+#     """
+#     with open(input_file, "r") as f:
+#         data = json.load(f)
 
-    def _extract_addresses(obj, path=""):
-        """Recursively extract all string values that look like addresses with their paths."""
-        if isinstance(obj, dict):
-            for key, value in obj.items():
-                current_path = f"{path}.{key}" if path else key
-                _extract_addresses(value, current_path)
-        elif isinstance(obj, list):
-            for i, item in enumerate(obj):
-                current_path = f"{path}[{i}]" if path else f"[{i}]"
-                _extract_addresses(item, current_path)
-        elif isinstance(obj, str):
-            # Check if string looks like an Ethereum address (0x followed by 40 hex chars)
-            if _check_address(obj):
-                address_map[path] = obj.lower()
+#     # Convert all string values to lowercase recursively
+#     snakecase_data = _recursive_snakify(data)
 
-    _extract_addresses(data)
-    return address_map
+#     # Determine output file path
+#     if output_file is None:
+#         output_file = input_file
+
+#     # Write the lowercase data back to file
+#     with open(output_file, "w") as f:
+#         json.dump(snakecase_data, f, indent=2)
+
+#     pass  # Successfully converted to snakecase
 
 
-def get_chainid(chain: str, chainid_data: Optional[dict] = None) -> int:
-    """Get the chainid for a given chain name."""
-    if chainid_data is None:
-        with open("resource/chainid.json", "r") as f:
-            chainid_data = json.load(f)
-            pass  # Loaded chainid.json
-    try:
-        chainid = chainid_data[chain]
-        return chainid
-    except KeyError:
-        raise ValueError(f"Chain {chain} not found in chainid.json")
+# def get_all_addresses(data: dict) -> dict[str, str]:
+#     """Extract all address strings from the JSON data recursively with flattened keys."""
+#     address_map = {}
+
+#     def _check_address(obj):  # TODO: verify this is correct
+#         if isinstance(obj, str):
+#             if (
+#                 obj.startswith("0x")
+#                 and len(obj) == 42
+#                 and all(c in "0123456789abcdefABCDEF" for c in obj[2:])
+#             ):
+#                 return True
+#         return False
+
+#     def _extract_addresses(obj, path=""):
+#         """Recursively extract all string values that look like addresses with their paths."""
+#         if isinstance(obj, dict):
+#             for key, value in obj.items():
+#                 current_path = f"{path}.{key}" if path else key
+#                 _extract_addresses(value, current_path)
+#         elif isinstance(obj, list):
+#             for i, item in enumerate(obj):
+#                 current_path = f"{path}[{i}]" if path else f"[{i}]"
+#                 _extract_addresses(item, current_path)
+#         elif isinstance(obj, str):
+#             # Check if string looks like an Ethereum address (0x followed by 40 hex chars)
+#             if _check_address(obj):
+#                 address_map[path] = obj.lower()
+
+#     _extract_addresses(data)
+#     return address_map
+
+
+# def get_chainid(chain: str, chainid_data: Optional[dict] = None) -> int:
+#     """Get the chainid for a given chain name."""
+#     if chainid_data is None:
+#         with open("resource/chainid.json", "r") as f:
+#             chainid_data = json.load(f)
+#             pass  # Loaded chainid.json
+#     try:
+#         chainid = chainid_data[chain]
+#         return chainid
+#     except KeyError:
+#         raise ValueError(f"Chain {chain} not found in chainid.json")

@@ -6,7 +6,7 @@ from web3 import Web3
 logger = logging.getLogger(__name__)
 
 
-def events_list(address, save_dir="data/events", abi_dir="data/abi"):
+def get_events_list(address, save_dir="data/events", abi_dir="data/abi"):
     """
     Get all events and its signature for a contract using web3 library, totally off-chain decoding process.
     """
@@ -43,7 +43,7 @@ def events_list(address, save_dir="data/events", abi_dir="data/abi"):
                 # This ensures proxy events are available while adding implementation events
                 combined_abi = main_abi + implementation_abi
                 logger.info(
-                    f"Combined proxy ABI ({len(main_abi)} entries) with implementation ABI ({len(implementation_abi)} entries)"
+                    f"Combined ABI: implementation {implementation_address} with proxy {address} "
                 )
             else:
                 logger.info(f"Implementation ABI file not found for {address}")

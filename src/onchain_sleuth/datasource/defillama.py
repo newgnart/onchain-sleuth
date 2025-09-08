@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Iterator, Literal
 from dlt.common.typing import TDataItems
 
 from onchain_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
-from onchain_sleuth.config.settings import settings
+from onchain_sleuth.config.settings import APIs, APIUrls
 from onchain_sleuth.utils.data_transformers import DataTransformer
 
 
@@ -17,9 +17,7 @@ class DeFiLlamaClient(BaseAPIClient):
     def __init__(
         self, calls_per_second: float = 10.0
     ):  # DeFiLlama usually has higher limits
-        config = APIConfig(
-            base_url=settings.api_urls.DEFILLAMA_API, rate_limit=calls_per_second
-        )
+        config = APIConfig(base_url=APIUrls.DEFILLAMA_API, rate_limit=calls_per_second)
         super().__init__(config)
 
     def _build_request_params(self, **kwargs) -> Dict[str, Any]:
@@ -34,7 +32,7 @@ class DeFiLlamaClient(BaseAPIClient):
     def get_stablecoins_metadata(self) -> Dict[str, Any]:
         """Fetch stablecoins metadata from DeFiLlama API."""
         original_base_url = self.config.base_url
-        self.config.base_url = settings.api_urls.DEFILLAMA_STABLECOINS
+        self.config.base_url = APIUrls.DEFILLAMA_STABLECOINS
 
         try:
             endpoint = "stablecoins"
@@ -46,7 +44,7 @@ class DeFiLlamaClient(BaseAPIClient):
     def get_stablecoin_data(self, coin_id: int) -> Dict[str, Any]:
         """Get stablecoin data by ID."""
         original_base_url = self.config.base_url
-        self.config.base_url = settings.api_urls.DEFILLAMA_STABLECOINS
+        self.config.base_url = APIUrls.DEFILLAMA_STABLECOINS
 
         try:
             endpoint = f"stablecoin/{coin_id}"
@@ -60,7 +58,7 @@ class DeFiLlamaClient(BaseAPIClient):
     ) -> Dict[str, Any]:
         """Get token price data."""
         original_base_url = self.config.base_url
-        self.config.base_url = settings.api_urls.DEFILLAMA_COINS
+        self.config.base_url = APIUrls.DEFILLAMA_COINS
 
         try:
             endpoint = f"chart/{network}:{contract_address}"
@@ -72,7 +70,7 @@ class DeFiLlamaClient(BaseAPIClient):
     def get_all_yield_pools(self) -> Dict[str, Any]:
         """Get all yield pools data."""
         original_base_url = self.config.base_url
-        self.config.base_url = settings.api_urls.DEFILLAMA_YIELDS
+        self.config.base_url = APIUrls.DEFILLAMA_YIELDS
 
         try:
             endpoint = "pools"
@@ -84,7 +82,7 @@ class DeFiLlamaClient(BaseAPIClient):
     def get_yield_pool(self, pool_id: str) -> Dict[str, Any]:
         """Get historical data for a yield pool."""
         original_base_url = self.config.base_url
-        self.config.base_url = settings.api_urls.DEFILLAMA_YIELDS
+        self.config.base_url = APIUrls.DEFILLAMA_YIELDS
 
         try:
             endpoint = f"chart/{pool_id}"

@@ -10,7 +10,7 @@ load_dotenv()
 
 
 @dataclass
-class APISettings:
+class APIs:
     """API-specific settings."""
 
     etherscan_api_key: Optional[str] = None
@@ -30,7 +30,7 @@ class APISettings:
 
 
 @dataclass
-class PostgresSettings:
+class Postgres:
     """Database configuration."""
 
     host: str
@@ -40,7 +40,7 @@ class PostgresSettings:
     password: str
 
     @classmethod
-    def from_env(cls) -> "PostgresSettings":
+    def from_env(cls) -> "Postgres":
         """Create from environment variables with prefix."""
         return cls(
             host=os.getenv(f"POSTGRES_HOST"),
@@ -49,20 +49,6 @@ class PostgresSettings:
             user=os.getenv(f"POSTGRES_USER"),
             password=os.getenv(f"POSTGRES_PASSWORD"),
         )
-
-    def get_connection_params(self) -> Dict[str, Any]:
-        """Return connection parameters for database clients."""
-        return {
-            "host": self.host,
-            "port": self.port,
-            "database": self.database,
-            "user": self.user,
-            "password": self.password,
-        }
-
-    def get_connection_url(self) -> str:
-        """Return connection URL for database clients."""
-        return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
 
 
 @dataclass
@@ -111,15 +97,15 @@ class APIUrls:
     DEFILLAMA_COINS = "https://coins.llama.fi"
 
 
-class Settings:
-    """Main settings class."""
+# class Settings:
+#     """Main settings class."""
 
-    def __init__(self):
-        self.api = APISettings()
-        self.postgres = PostgresSettings.from_env()
-        self.columns = ColumnSchemas()
-        self.api_urls = APIUrls()
+#     def __init__(self):
+#         self.api = APISettings()
+#         self.postgres = PostgresSettings.from_env()
+#         self.columns = ColumnSchemas()
+#         self.api_urls = APIUrls()
 
 
-# Global settings instance
-settings = Settings()
+# # Global settings instance
+# settings = Settings()

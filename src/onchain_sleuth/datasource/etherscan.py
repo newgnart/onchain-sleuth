@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Iterator
 import pandas as pd
 from onchain_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
 from onchain_sleuth.core.exceptions import APIError
-from onchain_sleuth.config.settings import settings
+from onchain_sleuth.config.settings import APIs, APIUrls
 
 from dlt.sources.rest_api import rest_api_source
 from dlt.sources.helpers.rest_client import paginators
@@ -22,9 +22,11 @@ class EtherscanClient(BaseAPIClient):
     ):
         self.chainid = chainid
 
+        # Create APIs instance to load environment variables
+        apis = APIs()
         config = APIConfig(
-            base_url=settings.api_urls.ETHERSCAN,
-            api_key=api_key or settings.api.etherscan_api_key,
+            base_url=APIUrls.ETHERSCAN,
+            api_key=api_key or apis.etherscan_api_key,
             rate_limit=calls_per_second,
         )
         super().__init__(config)
