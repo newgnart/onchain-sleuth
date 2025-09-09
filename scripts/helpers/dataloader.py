@@ -14,20 +14,20 @@ import os
 
 from typing import Optional, Any, List
 
-import dlt
 from onchain_sleuth import EtherscanClient, PipelineManager, EtherscanSource
-from onchain_sleuth.utils.postgres import Destination
+from onchain_sleuth.utils.chain import get_chainid
+from onchain_sleuth.utils.database import PostgresClient
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 
-def load_chunks(
+def backfill_in_chunks_from_etherscan_to_postgres(
     dataset_name: str,  # schema
     table_name: str,
     contract_address: str,
     etherscan_client: EtherscanClient,
-    destination: Destination,
+    postgres_client: PostgresClient,
     source_factory: Any,  # Callable that creates source (logs or txns or)
     from_block: Optional[int] = None,
     to_block: Optional[int] = None,
@@ -35,28 +35,66 @@ def load_chunks(
     write_disposition: str = "append",
     primary_key: Optional[List[str]] = None,
 ):
+    """Backfill blockchain data from Etherscan to PostgreSQL in manageable chunks.
+
+    This function efficiently loads historical data, in configurable block ranges:
+    - logs, of a specific contract address
+    - transactions,to a specific contract address
+
+    It handles resumption from the last loaded block in the database if it exists
+
+    Args:
+        dataset_name: PostgreSQL schema name where data will be stored
+        table_name: Table name within the schema to store the data
+        contract_address: Ethereum contract address to fetch data for (case-insensitive)
+        etherscan_client: Configured Etherscan API client for data retrieval
+        postgres_client: PostgreSQL database client for data storage
+        source_factory: Callable that creates data source (logs or transactions)
+        from_block: Starting block number (auto-detected if None)
+        to_block: Ending block number (uses latest block if None)
+        block_chunk_size: Number of blocks to process per chunk (default: 50,000)
+        write_disposition: How to handle existing data ('append', 'replace', etc.)
+        primary_key: List of column names that form the primary key
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If source_factory is not recognized (not 'logs' or 'transactions')
+
+    Example:
+        >>> backfill_in_chunks_from_etherscan_to_postgres(
+        ...     dataset_name="ethereum",
+        ...     table_name="usdc_transfers",
+        ...     contract_address="0xA0b86a33E6441b8c4C8C0E4A0e8b8b8b8b8b8b8b",
+        ...     etherscan_client=client,
+        ...     postgres_client=pg_client,
+        ...     source_factory=logs
+        ... )
+    """
+
     pipeline_manager = PipelineManager()
     contract_address = contract_address.lower()
     chainid = etherscan_client.chainid
     block_column_name = "block_number"
-    # if source_factory.__name__ == "logs":
-    #     address_column_name = "address"
-    # elif source_factory.__name__ == "transactions":
-    #     address_column_name = '"to"'
-    # else:
-    #     raise ValueError(f"Unknown source factory: {source_factory}")
+
+    if source_factory.__name__ == "logs":
+        address_column_name = "address"  # get all logs for an address
+    elif source_factory.__name__ == "transactions":
+        address_column_name = '"to"'  # get all transactions to an address
+    else:
+        raise ValueError(f"Unknown source factory: {source_factory}")
 
     # Get end block from Etherscan client
     if to_block is None:
         to_block = etherscan_client.get_latest_block()
-    # Determine start block using PostgresDestination
     if from_block is None:
-        max_loaded_block = destination.get_max_loaded_block(
+        max_loaded_block = postgres_client.get_max_loaded_block(
             table_schema=dataset_name,
             table_name=table_name,
             chainid=chainid,
             address=contract_address,
-            # address_column_name=address_column_name,
+            address_column_name=address_column_name,
             block_column_name=block_column_name,
         )
         contract_creation_block = etherscan_client.get_contract_creation_block_number(
@@ -89,20 +127,20 @@ def load_chunks(
                 sources={table_name: source},
                 pipeline_name=f"{dataset_name}-{table_name}-{chainid}-{contract_address}",
                 dataset_name=dataset_name,  # schema
-                destination=destination.get_dlt_destination(),
+                destination=postgres_client.get_dlt_destination(),
                 write_disposition=write_disposition,
                 primary_key=primary_key,
             )
 
             # Get row count after loading
             query = f"SELECT COUNT(*) FROM {dataset_name}.{table_name} WHERE chainid = {chainid} AND {address_column_name} = '{contract_address}'"
-            result = destination.fetch_one(query)
+            result = postgres_client.fetch_one(query)
             n_loaded = result[0] if result and result[0] is not None else 0
 
             # Only log progress 5% of the time to avoid excessive logging
             # This provides periodic status updates while keeping the log file manageable
-            if random.random() < 0.05:
-                logger.info(
+            if random.random() < 0.1:
+                logger.debug(
                     f"Loaded {n_loaded} {source_factory.__name__}, up to {chunk_end}"
                 )
 
@@ -130,104 +168,27 @@ def load_chunks(
     )
 
 
-# def _to_snake(name):
-#     """Convert camelCase to snake_case and handle spaces."""
-#     # First convert camelCase to snake_case
-#     name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
-#     name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
+def backfill_from_etherscan_to_postgres(
+    address, chain, postgres_client: PostgresClient
+):
+    chainid = get_chainid(chain)
+    etherscan_client = EtherscanClient(chainid=chainid)
+    source = EtherscanSource(client=etherscan_client)
 
-#     # Convert to lowercase
-#     name = name.lower()
+    backfill_in_chunks_from_etherscan_to_postgres(
+        dataset_name="etherscan_raw",  # schema
+        table_name="txns",
+        contract_address=address,
+        etherscan_client=etherscan_client,
+        postgres_client=postgres_client,
+        source_factory=source.transactions,
+    )
 
-#     # Replace spaces with underscores and clean up multiple underscores
-#     name = re.sub(r"\s+", "_", name)
-#     name = re.sub(r"_+", "_", name)
-
-#     # Remove leading/trailing underscores
-#     name = name.strip("_")
-
-#     return name
-
-
-# def _recursive_snakify(obj):
-#     """Recursively convert all string values and keys in a nested structure to lowercase and camelCase to snake_case."""
-#     if isinstance(obj, dict):
-#         return {_to_snake(key): _recursive_snakify(value) for key, value in obj.items()}
-#     elif isinstance(obj, list):
-#         return [_recursive_snakify(item) for item in obj]
-#     elif isinstance(obj, str):
-#         return obj.lower()
-#     else:
-#         return obj
-
-
-# def rewrite_json_snakecase(input_file: str, output_file: str = None):
-#     """
-#     Read a JSON file, convert all string values to lowercase recursively,
-#     and write the result back to a file.
-
-#     Args:
-#         input_file: Path to the input JSON file
-#         output_file: Path to the output JSON file. If None, overwrites the input file
-#     """
-#     with open(input_file, "r") as f:
-#         data = json.load(f)
-
-#     # Convert all string values to lowercase recursively
-#     snakecase_data = _recursive_snakify(data)
-
-#     # Determine output file path
-#     if output_file is None:
-#         output_file = input_file
-
-#     # Write the lowercase data back to file
-#     with open(output_file, "w") as f:
-#         json.dump(snakecase_data, f, indent=2)
-
-#     pass  # Successfully converted to snakecase
-
-
-# def get_all_addresses(data: dict) -> dict[str, str]:
-#     """Extract all address strings from the JSON data recursively with flattened keys."""
-#     address_map = {}
-
-#     def _check_address(obj):  # TODO: verify this is correct
-#         if isinstance(obj, str):
-#             if (
-#                 obj.startswith("0x")
-#                 and len(obj) == 42
-#                 and all(c in "0123456789abcdefABCDEF" for c in obj[2:])
-#             ):
-#                 return True
-#         return False
-
-#     def _extract_addresses(obj, path=""):
-#         """Recursively extract all string values that look like addresses with their paths."""
-#         if isinstance(obj, dict):
-#             for key, value in obj.items():
-#                 current_path = f"{path}.{key}" if path else key
-#                 _extract_addresses(value, current_path)
-#         elif isinstance(obj, list):
-#             for i, item in enumerate(obj):
-#                 current_path = f"{path}[{i}]" if path else f"[{i}]"
-#                 _extract_addresses(item, current_path)
-#         elif isinstance(obj, str):
-#             # Check if string looks like an Ethereum address (0x followed by 40 hex chars)
-#             if _check_address(obj):
-#                 address_map[path] = obj.lower()
-
-#     _extract_addresses(data)
-#     return address_map
-
-
-# def get_chainid(chain: str, chainid_data: Optional[dict] = None) -> int:
-#     """Get the chainid for a given chain name."""
-#     if chainid_data is None:
-#         with open("resource/chainid.json", "r") as f:
-#             chainid_data = json.load(f)
-#             pass  # Loaded chainid.json
-#     try:
-#         chainid = chainid_data[chain]
-#         return chainid
-#     except KeyError:
-#         raise ValueError(f"Chain {chain} not found in chainid.json")
+    backfill_in_chunks_from_etherscan_to_postgres(
+        dataset_name="etherscan_raw",  # schema
+        table_name="logs",
+        contract_address=address,
+        etherscan_client=etherscan_client,
+        postgres_client=postgres_client,
+        source_factory=source.logs,
+    )

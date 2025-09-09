@@ -1,3 +1,6 @@
 {
-  "open_contract": "0x323c03c48660fE31186fa82c289b0766d331Ce21"
+  "open_contract": {
+    "address": "0x323c03c48660fE31186fa82c289b0766d331Ce21",
+    "chain": "ethereum"
+  }
 }

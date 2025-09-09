@@ -30,28 +30,6 @@ class APIs:
 
 
 @dataclass
-class Postgres:
-    """Database configuration."""
-
-    host: str
-    port: int
-    database: str
-    user: str
-    password: str
-
-    @classmethod
-    def from_env(cls) -> "Postgres":
-        """Create from environment variables with prefix."""
-        return cls(
-            host=os.getenv(f"POSTGRES_HOST"),
-            port=int(os.getenv(f"POSTGRES_PORT", "5432")),
-            database=os.getenv(f"POSTGRES_DB"),
-            user=os.getenv(f"POSTGRES_USER"),
-            password=os.getenv(f"POSTGRES_PASSWORD"),
-        )
-
-
-@dataclass
 class ColumnSchemas:
     """Standardized column schemas for DLT pipelines."""
 
@@ -95,17 +73,3 @@ class APIUrls:
     DEFILLAMA_YIELDS = "https://yields.llama.fi"
     DEFILLAMA_API = "https://api.llama.fi"
     DEFILLAMA_COINS = "https://coins.llama.fi"
-
-
-# class Settings:
-#     """Main settings class."""
-
-#     def __init__(self):
-#         self.api = APISettings()
-#         self.postgres = PostgresSettings.from_env()
-#         self.columns = ColumnSchemas()
-#         self.api_urls = APIUrls()
-
-
-# # Global settings instance
-# settings = Settings()

@@ -4,7 +4,8 @@ import os
 import json
 import dlt
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Iterator
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Iterator, Union
 import pandas as pd
 from onchain_sleuth.core.base import BaseAPIClient, BaseSource, APIConfig
 from onchain_sleuth.core.exceptions import APIError
@@ -17,9 +18,50 @@ from dlt.sources.helpers.rest_client import paginators
 class EtherscanClient(BaseAPIClient):
     """Etherscan API client implementation."""
 
+    @classmethod
+    def _load_chainid_mapping(cls) -> Dict[str, int]:
+        """Load chain name to chainid mapping from resource file."""
+        # Get the path to the chainid.json file relative to this module
+        current_file = Path(__file__)
+        chainid_path = (
+            current_file.parent.parent.parent.parent / "resource" / "chainid.json"
+        )
+
+        try:
+            with chainid_path.open("r") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"Chain ID mapping file not found at {chainid_path}"
+            )
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON in chain ID mapping file: {e}")
+
     def __init__(
-        self, chainid: int, api_key: Optional[str] = None, calls_per_second: float = 5.0
+        self,
+        chainid: Optional[int] = None,
+        chain: Optional[str] = None,
+        api_key: Optional[str] = None,
+        calls_per_second: float = 5.0,
     ):
+        # Validate that exactly one of chainid or chain is provided
+        if chainid is not None and chain is not None:
+            raise ValueError(
+                "Cannot specify both 'chainid' and 'chain' parameters. Use only one."
+            )
+        if chainid is None and chain is None:
+            raise ValueError("Must specify either 'chainid' or 'chain' parameter.")
+
+        # Resolve chainid from chain name if needed
+        if chain is not None:
+            chainid_mapping = self._load_chainid_mapping()
+            if chain not in chainid_mapping:
+                available_chains = ", ".join(sorted(chainid_mapping.keys()))
+                raise ValueError(
+                    f"Unknown chain '{chain}'. Available chains: {available_chains}"
+                )
+            chainid = chainid_mapping[chain]
+
         self.chainid = chainid
 
         # Create APIs instance to load environment variables
