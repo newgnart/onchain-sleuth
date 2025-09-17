@@ -9,7 +9,7 @@ from .datasource import (
     EtherscanClient,
     EtherscanSource,
 )
-from .dataloader import PipelineManager, TableConfig
+# from .dataloader import PipelineManager, TableConfig
 
 # from .utils.postgres import PostgresDestination, DuckdbDestination
 
@@ -28,8 +28,8 @@ __all__ = [
     "EtherscanClient",
     "EtherscanSource",
     # Data loading
-    "PipelineManager",
-    "TableConfig",
+    # "PipelineManager",
+    # "TableConfig",
     # Database
     # "PostgresDestination",
     # "DuckdbDestination",

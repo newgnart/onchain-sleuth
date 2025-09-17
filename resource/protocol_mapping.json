@@ -1,0 +1,18 @@
+{
+  "0xa0b86a33e6b6b8da5c7e8df2d0c8ec5cf7e2ffd7": "curve",
+  "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9": "aave",
+  "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984": "uniswap-v3",
+  "0x514910771af9ca656af840dff83e8264ecf986ca": "chainlink",
+  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": "weth",
+  "0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b": "cronos",
+  "0x6b175474e89094c44da98b954eedeac495271d0f": "makerdao",
+  "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": "wbtc",
+  "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce": "shiba",
+  "0xdac17f958d2ee523a2206206994597c13d831ec7": "tether",
+  "0x5d3a536e4d6dbd6114cc1ead35777bab948e3643": "compound",
+  "0x50d1c9771902476076ecfc8b2a83ad6b9355a4c9": "ftx",
+  "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0": "matic",
+  "0xe41d2489571d322189246dafa5ebde1f4699f498": "zrx",
+  "0x0d8775f648430679a709e98d2b0cb6250d2887ef": "bat",
+  "0xf5d669627376ebd411e34b98f19c868c8aba5ada": "axie"
+}
