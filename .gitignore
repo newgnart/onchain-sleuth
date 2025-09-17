@@ -12,8 +12,6 @@ wheels/
 .env
 
 /data
-.claude
-CLAUDE.md
 
 /temp
 *.log
