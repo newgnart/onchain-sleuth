@@ -1,6 +1,5 @@
 """Historical data extraction to Parquet files."""
 
-import os
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -16,9 +15,15 @@ from onchain_sleuth.core.exceptions import APIError
 class HistoricalDataExtractor:
     """Extracts historical blockchain data and saves to protocol-grouped Parquet files."""
 
-    def __init__(self, client: EtherscanClient, output_dir: str = "data"):
+    def __init__(
+        self,
+        client: EtherscanClient,
+        output_dir: str = "data",
+        logs_subdir: str = "etherscan_raw",
+    ):
         self.client = client
         self.output_dir = output_dir
+        self.logs_subdir = logs_subdir
         self.protocol_registry = ProtocolRegistry()
         self.logger = logging.getLogger(self.__class__.__name__)
 
@@ -27,7 +32,7 @@ class HistoricalDataExtractor:
         contracts: List[str],
         from_block: int = 0,
         to_block: str = "latest",
-        offset: int = 1000
+        offset: int = 1000,
     ) -> Dict[str, str]:
         """
         Extract logs for multiple contracts and save to protocol-grouped Parquet files.
@@ -46,7 +51,9 @@ class HistoricalDataExtractor:
 
         output_paths = {}
         for protocol, addresses in protocol_groups.items():
-            self.logger.info(f"Extracting data for protocol '{protocol}' ({len(addresses)} contracts)")
+            self.logger.info(
+                f"Extracting data for protocol '{protocol}' ({len(addresses)} contracts)"
+            )
             output_path = self._extract_protocol_data(
                 protocol, addresses, from_block, to_block, offset
             )
@@ -70,7 +77,7 @@ class HistoricalDataExtractor:
         addresses: List[str],
         from_block: int,
         to_block: str,
-        offset: int
+        offset: int,
     ) -> str:
         """Extract logs for all contracts in a protocol and save to Parquet."""
         all_logs = []
@@ -84,13 +91,13 @@ class HistoricalDataExtractor:
                     address=address,
                     from_block=from_block,
                     to_block=to_block,
-                    offset=offset
+                    offset=offset,
                 )
 
                 # Collect logs and add metadata
                 for log in logs_resource:
-                    log['contract_address'] = address
-                    log['protocol'] = protocol
+                    log["contract_address"] = address
+                    log["protocol"] = protocol
                     all_logs.append(log)
 
             except APIError as e:
@@ -110,7 +117,7 @@ class HistoricalDataExtractor:
     def _save_to_parquet(self, protocol: str, logs_data: List[Dict]) -> str:
         """Save logs data to protocol-specific Parquet file."""
         # Create output directory
-        output_dir = Path(self.output_dir) / "etherscan" / "logs" / f"protocol={protocol}"
+        output_dir = Path(self.output_dir) / self.logs_subdir / f"protocol={protocol}"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         output_path = output_dir / "logs.parquet"
@@ -124,31 +131,49 @@ class HistoricalDataExtractor:
                 schema_conversions = {}
 
                 # Convert timestamp and numeric fields
-                if 'timeStamp' in df.columns:
-                    schema_conversions['timeStamp'] = pl.Int64
-                if 'blockNumber' in df.columns:
-                    schema_conversions['blockNumber'] = pl.Int64
-                if 'logIndex' in df.columns:
-                    schema_conversions['logIndex'] = pl.Int64
-                if 'transactionIndex' in df.columns:
-                    schema_conversions['transactionIndex'] = pl.Int64
-                if 'gasPrice' in df.columns:
-                    schema_conversions['gasPrice'] = pl.Int64
-                if 'gasUsed' in df.columns:
-                    schema_conversions['gasUsed'] = pl.Int64
+                if "timeStamp" in df.columns:
+                    schema_conversions["timeStamp"] = pl.Int64
+                if "blockNumber" in df.columns:
+                    schema_conversions["blockNumber"] = pl.Int64
+                if "logIndex" in df.columns:
+                    schema_conversions["logIndex"] = pl.Int64
+                if "transactionIndex" in df.columns:
+                    schema_conversions["transactionIndex"] = pl.Int64
+                if "gasPrice" in df.columns:
+                    schema_conversions["gasPrice"] = pl.Int64
+                if "gasUsed" in df.columns:
+                    schema_conversions["gasUsed"] = pl.Int64
 
                 # Apply conversions if any
                 if schema_conversions:
-                    df = df.with_columns([
-                        pl.col(col).cast(dtype, strict=False)
-                        for col, dtype in schema_conversions.items()
-                        if col in df.columns
-                    ])
+                    df = df.with_columns(
+                        [
+                            pl.col(col).cast(dtype, strict=False)
+                            for col, dtype in schema_conversions.items()
+                            if col in df.columns
+                        ]
+                    )
 
-            # Save to Parquet
-            df.write_parquet(output_path)
+            # Save to Parquet (append if file exists)
+            if output_path.exists():
+                # Use scan_parquet for memory efficiency, then concatenate and collect
+                existing_lazy = pl.scan_parquet(output_path)
+                new_lazy = pl.LazyFrame(df)
+                combined_lazy = pl.concat([existing_lazy, new_lazy])
 
-            self.logger.info(f"Saved {len(df)} logs for protocol '{protocol}' to {output_path}")
+                # Get count before materializing for logging
+                existing_count = existing_lazy.select(pl.len()).collect().item()
+                new_count = len(df)
+                total_count = existing_count + new_count
+
+                # Materialize and write the combined data
+                combined_lazy.collect().write_parquet(output_path)
+                self.logger.info(f"Appended {new_count} logs to existing {existing_count} logs (total now: {total_count})")
+            else:
+                # Write new file
+                df.write_parquet(output_path)
+                self.logger.info(f"Created new file with {len(df)} logs")
+
             return str(output_path)
 
         except Exception as e:
@@ -158,28 +183,31 @@ class HistoricalDataExtractor:
     def get_protocol_stats(self, contracts: List[str]) -> Dict[str, int]:
         """Get statistics on how many contracts belong to each protocol."""
         protocol_groups = self._group_by_protocol(contracts)
-        return {protocol: len(addresses) for protocol, addresses in protocol_groups.items()}
+        return {
+            protocol: len(addresses) for protocol, addresses in protocol_groups.items()
+        }
 
     def extract_single_protocol(
         self,
         protocol: str,
         from_block: int = 0,
         to_block: str = "latest",
-        offset: int = 1000
+        offset: int = 1000,
     ) -> Optional[str]:
         """Extract data for all known contracts of a specific protocol."""
         # Get all contracts for this protocol
         known_contracts = self.protocol_registry.get_known_contracts()
         protocol_contracts = [
-            addr for addr, proto in known_contracts.items()
-            if proto == protocol
+            addr for addr, proto in known_contracts.items() if proto == protocol
         ]
 
         if not protocol_contracts:
             self.logger.warning(f"No known contracts found for protocol '{protocol}'")
             return None
 
-        self.logger.info(f"Found {len(protocol_contracts)} contracts for protocol '{protocol}'")
+        self.logger.info(
+            f"Found {len(protocol_contracts)} contracts for protocol '{protocol}'"
+        )
 
         return self._extract_protocol_data(
             protocol, protocol_contracts, from_block, to_block, offset

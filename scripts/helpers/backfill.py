@@ -31,6 +31,7 @@ def backfill_in_chunks_from_etherscan_to_parquet(
     to_block: Optional[int] = None,
     block_chunk_size: int = 50_000,
     data_dir: str = "data",
+    logs_subdir: str = "etherscan_raw",
     extract_logs: bool = True,
     extract_transactions: bool = False,
 ):
@@ -60,7 +61,7 @@ def backfill_in_chunks_from_etherscan_to_parquet(
         ... )
     """
 
-    extractor = HistoricalDataExtractor(etherscan_client, output_dir=data_dir)
+    extractor = HistoricalDataExtractor(etherscan_client, output_dir=data_dir, logs_subdir=logs_subdir)
     contract_address = contract_address.lower()
     chainid = etherscan_client.chainid
 
@@ -69,8 +70,12 @@ def backfill_in_chunks_from_etherscan_to_parquet(
         to_block = etherscan_client.get_latest_block()
 
     if from_block is None:
-        from_block = etherscan_client.get_contract_creation_block_number(contract_address)
-        logger.info(f"🚧🚧🚧 {contract_address}, chain {chainid}, starting from creation block {from_block}")
+        from_block = etherscan_client.get_contract_creation_block_number(
+            contract_address
+        )
+        logger.info(
+            f"🚧🚧🚧 {contract_address}, chain {chainid}, starting from creation block {from_block}"
+        )
 
     # Process in chunks
     end_block = to_block
@@ -89,32 +94,45 @@ def backfill_in_chunks_from_etherscan_to_parquet(
                     contracts=chunk_contracts,
                     from_block=chunk_start,
                     to_block=chunk_end,
-                    offset=1000
+                    offset=1000,
                 )
 
                 # Count extracted logs (approximate)
                 if result_paths:
                     import polars as pl
+
                     for protocol, path in result_paths.items():
                         if path and os.path.exists(path):
-                            df = pl.read_parquet(path)
-                            chunk_logs = len(df.filter(
-                                (pl.col("contract_address") == contract_address) &
-                                (pl.col("blockNumber") >= chunk_start) &
-                                (pl.col("blockNumber") <= chunk_end)
-                            ))
+                            # Use scan_parquet for memory efficiency
+                            chunk_logs = (
+                                pl.scan_parquet(path)
+                                .filter(
+                                    (pl.col("contract_address") == contract_address)
+                                    & (pl.col("blockNumber") >= chunk_start)
+                                    & (pl.col("blockNumber") <= chunk_end)
+                                )
+                                .select(pl.len())
+                                .collect()
+                                .item()
+                            )
                             total_logs_extracted += chunk_logs
 
                             # Only log progress 10% of the time to avoid excessive logging
                             if random.random() < 0.1:
-                                logger.debug(f"Extracted {chunk_logs} logs from blocks {chunk_start}-{chunk_end}")
+                                logger.debug(
+                                    f"Extracted {chunk_logs} logs from blocks {chunk_start}-{chunk_end}"
+                                )
 
             # Note: Transaction extraction would be similar but using different source
             if extract_transactions:
-                logger.warning("Transaction extraction to Parquet not yet implemented in chunked mode")
+                logger.warning(
+                    "Transaction extraction to Parquet not yet implemented in chunked mode"
+                )
 
         except Exception as e:
-            logger.error(f"Failed to extract data for blocks {chunk_start} to {chunk_end} with error {e}")
+            logger.error(
+                f"Failed to extract data for blocks {chunk_start} to {chunk_end} with error {e}"
+            )
             error_block_ranges.append([chunk_start, chunk_end])
 
     # Log errors if any
@@ -132,13 +150,13 @@ def backfill_in_chunks_from_etherscan_to_parquet(
         with open(error_file, "w") as f:
             json.dump(error_data, f, indent=4, ensure_ascii=False)
 
-    logger.info(f"✅✅✅ {contract_address}, chain {chainid}, extracted {total_logs_extracted} logs from blocks {from_block} to {to_block}")
+    logger.info(
+        f"✅✅✅ {contract_address}, chain {chainid}, extracted {total_logs_extracted} logs from blocks {from_block} to {to_block}"
+    )
 
 
 def backfill_from_etherscan_to_parquet(
-    address: str,
-    chain: str,
-    data_dir: str = "data"
+    address: str, chain: str, data_dir: str = "data", logs_subdir: str = "etherscan_raw"
 ) -> str:
     """Extract historical data for a contract and save to Parquet files.
 
@@ -158,23 +176,26 @@ def backfill_from_etherscan_to_parquet(
         contract_address=address,
         etherscan_client=etherscan_client,
         data_dir=data_dir,
+        logs_subdir=logs_subdir,
         extract_logs=True,
         extract_transactions=False,  # Can be enabled if needed
     )
 
     # Return the expected protocol directory path
     from onchain_sleuth.config.protocol_registry import ProtocolRegistry
+
     registry = ProtocolRegistry()
     protocol = registry.get_protocol(address)
-    return f"{data_dir}/etherscan/logs/protocol={protocol}/logs.parquet"
+    return f"{data_dir}/{logs_subdir}/protocol={protocol}/logs.parquet"
 
 
 def load_parquet_to_postgres(
     protocol: str,
     postgres_client: PostgresClient,
     data_dir: str = "data",
+    logs_subdir: str = "etherscan_raw",
     dataset_name: str = "etherscan_raw",
-    write_disposition: str = "append"
+    write_disposition: str = "append",
 ) -> Any:
     """Load protocol data from Parquet files to PostgreSQL.
 
@@ -188,7 +209,7 @@ def load_parquet_to_postgres(
     Returns:
         DLT pipeline run result
     """
-    batch_loader = BatchLoader(data_dir=data_dir)
+    batch_loader = BatchLoader(data_dir=data_dir, logs_subdir=logs_subdir)
     destination = postgres_client.get_dlt_destination()
 
     return batch_loader.load_protocol_data(
@@ -197,15 +218,16 @@ def load_parquet_to_postgres(
         dataset_name=dataset_name,
         table_name=f"{protocol}_logs",
         write_disposition=write_disposition,
-        primary_key=["blockNumber", "logIndex", "transactionHash"]  # Common primary key for logs
+        primary_key=[
+            "blockNumber",
+            "logIndex",
+            "transactionHash",
+        ],  # Common primary key for logs
     )
 
 
 def backfill_from_etherscan_to_postgres(
-    address: str,
-    chain: str,
-    postgres_client: PostgresClient,
-    data_dir: str = "data"
+    address: str, chain: str, postgres_client: PostgresClient, data_dir: str = "data"
 ):
     """Complete workflow: Extract to Parquet, then load to PostgreSQL.
 
@@ -217,13 +239,12 @@ def backfill_from_etherscan_to_postgres(
     """
     # Step 1: Extract to Parquet
     parquet_path = backfill_from_etherscan_to_parquet(
-        address=address,
-        chain=chain,
-        data_dir=data_dir
+        address=address, chain=chain, data_dir=data_dir
     )
 
     # Step 2: Load to PostgreSQL
     from onchain_sleuth.config.protocol_registry import ProtocolRegistry
+
     registry = ProtocolRegistry()
     protocol = registry.get_protocol(address)
 
@@ -231,7 +252,7 @@ def backfill_from_etherscan_to_postgres(
         protocol=protocol,
         postgres_client=postgres_client,
         data_dir=data_dir,
-        dataset_name="etherscan_raw"
+        dataset_name="etherscan_raw",
     )
 
     logger.info(f"✅ Complete workflow finished for {address} (protocol: {protocol})")

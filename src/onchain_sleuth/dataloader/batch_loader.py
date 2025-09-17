@@ -22,8 +22,9 @@ class TableConfig:
 class BatchLoader:
     """Loads historical data from Parquet files to PostgreSQL using DLT."""
 
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: str = "data", logs_subdir: str = "etherscan_raw"):
         self.data_dir = Path(data_dir)
+        self.logs_subdir = logs_subdir
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def load_protocol_data(
@@ -33,7 +34,7 @@ class BatchLoader:
         dataset_name: str = "historical_data",
         table_name: Optional[str] = None,
         write_disposition: str = "append",
-        primary_key: Optional[List[str]] = None
+        primary_key: Optional[List[str]] = None,
     ) -> Any:
         """
         Load data for a specific protocol from Parquet to PostgreSQL.
@@ -49,7 +50,9 @@ class BatchLoader:
         Returns:
             DLT pipeline run result
         """
-        parquet_path = self.data_dir / "etherscan" / "logs" / f"protocol={protocol}" / "logs.parquet"
+        parquet_path = (
+            self.data_dir / self.logs_subdir / f"protocol={protocol}" / "logs.parquet"
+        )
 
         if not parquet_path.exists():
             raise FileNotFoundError(f"Parquet file not found: {parquet_path}")
@@ -58,15 +61,20 @@ class BatchLoader:
         if table_name is None:
             table_name = f"{protocol}_logs"
 
-        self.logger.info(f"Loading protocol '{protocol}' data from {parquet_path} to table '{table_name}'")
+        self.logger.info(
+            f"Loading protocol '{protocol}' data from {parquet_path} to table '{table_name}'"
+        )
 
         try:
-            # Read Parquet file with Polars
-            df = pl.read_parquet(parquet_path)
-            self.logger.info(f"Loaded {len(df)} rows from Parquet file")
+            # Use scan_parquet for memory efficiency, then collect only when needed
+            lazy_df = pl.scan_parquet(parquet_path)
 
-            # Convert to records for DLT
-            records = df.to_dicts()
+            # Get row count efficiently
+            row_count = lazy_df.select(pl.len()).collect().item()
+            self.logger.info(f"Loaded {row_count} rows from Parquet file")
+
+            # Convert to records for DLT (materialize the data)
+            records = lazy_df.collect().to_dicts()
 
             # Create and run pipeline
             pipeline = dlt.pipeline(
@@ -83,7 +91,9 @@ class BatchLoader:
                 run_kwargs["primary_key"] = primary_key
 
             result = pipeline.run(records, **run_kwargs)
-            self.logger.info(f"Successfully loaded {len(records)} rows to table '{table_name}'")
+            self.logger.info(
+                f"Successfully loaded {len(records)} rows to table '{table_name}'"
+            )
 
             return result
 
@@ -97,7 +107,7 @@ class BatchLoader:
         protocols: List[str],
         destination: Any,
         dataset_name: str = "historical_data",
-        table_configs: Optional[Dict[str, TableConfig]] = None
+        table_configs: Optional[Dict[str, TableConfig]] = None,
     ) -> Dict[str, Any]:
         """
         Load data for multiple protocols.
@@ -125,7 +135,7 @@ class BatchLoader:
                     dataset_name=dataset_name,
                     table_name=table_name,
                     write_disposition=config.write_disposition,
-                    primary_key=config.primary_key
+                    primary_key=config.primary_key,
                 )
                 results[protocol] = result
 
@@ -136,9 +146,7 @@ class BatchLoader:
         return results
 
     def load_all_available_protocols(
-        self,
-        destination: Any,
-        dataset_name: str = "historical_data"
+        self, destination: Any, dataset_name: str = "historical_data"
     ) -> Dict[str, Any]:
         """
         Load all available protocol data found in the data directory.
@@ -151,7 +159,7 @@ class BatchLoader:
             Dict mapping protocol names to their load results
         """
         # Find all protocol directories
-        logs_dir = self.data_dir / "etherscan" / "logs"
+        logs_dir = self.data_dir / self.logs_subdir
         if not logs_dir.exists():
             raise FileNotFoundError(f"Logs directory not found: {logs_dir}")
 
@@ -173,48 +181,64 @@ class BatchLoader:
 
     def get_protocol_stats(self, protocol: str) -> Dict[str, Any]:
         """Get statistics about a protocol's Parquet data."""
-        parquet_path = self.data_dir / "etherscan" / "logs" / f"protocol={protocol}" / "logs.parquet"
+        parquet_path = (
+            self.data_dir / self.logs_subdir / f"protocol={protocol}" / "logs.parquet"
+        )
 
         if not parquet_path.exists():
             return {"exists": False, "path": str(parquet_path)}
 
         try:
-            df = pl.read_parquet(parquet_path)
+            # Use scan_parquet for memory efficiency
+            lazy_df = pl.scan_parquet(parquet_path)
+
+            # Get basic stats efficiently
+            row_count = lazy_df.select(pl.len()).collect().item()
+            columns = lazy_df.collect_schema().names()
 
             stats = {
                 "exists": True,
                 "path": str(parquet_path),
-                "row_count": len(df),
-                "columns": df.columns,
+                "row_count": row_count,
+                "columns": columns,
                 "file_size_mb": round(parquet_path.stat().st_size / (1024 * 1024), 2),
             }
 
             # Add date range if timestamp column exists
-            timestamp_cols = [col for col in df.columns if 'timestamp' in col.lower() or 'time' in col.lower()]
-            if timestamp_cols:
+            timestamp_cols = [
+                col
+                for col in columns
+                if "timestamp" in col.lower() or "time" in col.lower()
+            ]
+            if timestamp_cols and row_count > 0:
                 timestamp_col = timestamp_cols[0]
-                if len(df) > 0:
-                    stats["date_range"] = {
-                        "min": df[timestamp_col].min(),
-                        "max": df[timestamp_col].max()
-                    }
+                date_stats = (
+                    lazy_df.select([
+                        pl.col(timestamp_col).min().alias("min"),
+                        pl.col(timestamp_col).max().alias("max")
+                    ])
+                    .collect()
+                    .to_dicts()[0]
+                )
+                stats["date_range"] = date_stats
 
             # Add contract count if available
-            if "contract_address" in df.columns:
-                stats["unique_contracts"] = df["contract_address"].n_unique()
+            if "contract_address" in columns:
+                unique_contracts = (
+                    lazy_df.select(pl.col("contract_address").n_unique())
+                    .collect()
+                    .item()
+                )
+                stats["unique_contracts"] = unique_contracts
 
             return stats
 
         except Exception as e:
-            return {
-                "exists": True,
-                "path": str(parquet_path),
-                "error": str(e)
-            }
+            return {"exists": True, "path": str(parquet_path), "error": str(e)}
 
     def list_available_protocols(self) -> List[str]:
         """List all protocols that have Parquet data available."""
-        logs_dir = self.data_dir / "etherscan" / "logs"
+        logs_dir = self.data_dir / self.logs_subdir
         if not logs_dir.exists():
             return []
 
