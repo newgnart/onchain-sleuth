@@ -5,6 +5,7 @@ import argparse
 from pathlib import Path
 import polars as pl
 
+
 def analyze_parquet_stats(parquet_path: Path) -> dict:
     """Analyze basic statistics from a Parquet file using lazy evaluation.
 
@@ -21,15 +22,17 @@ def analyze_parquet_stats(parquet_path: Path) -> dict:
     lazy_df = pl.scan_parquet(parquet_path)
 
     # Get basic stats with a single query
-    stats = lazy_df.select([
-        pl.len().alias("total_logs"),
-        pl.col("timeStamp").cast(pl.Int64).max().alias("max_timestamp"),
-        pl.col("timeStamp").cast(pl.Int64).min().alias("min_timestamp"),
-        pl.col("blockNumber").cast(pl.Int64).max().alias("max_block"),
-        pl.col("blockNumber").cast(pl.Int64).min().alias("min_block"),
-        pl.col("contract_address").n_unique().alias("unique_contracts"),
-        pl.col("protocol").first().alias("protocol")
-    ]).collect()
+    stats = lazy_df.select(
+        [
+            pl.len().alias("total_logs"),
+            pl.col("timeStamp").cast(pl.Int64).max().alias("max_timestamp"),
+            pl.col("timeStamp").cast(pl.Int64).min().alias("min_timestamp"),
+            pl.col("block_number").cast(pl.Int64).max().alias("max_block"),
+            pl.col("block_number").cast(pl.Int64).min().alias("min_block"),
+            pl.col("contract_address").n_unique().alias("unique_contracts"),
+            pl.col("protocol").first().alias("protocol"),
+        ]
+    ).collect()
 
     # Convert to dict for easier access
     result = stats.to_dicts()[0]
@@ -41,12 +44,15 @@ def analyze_parquet_stats(parquet_path: Path) -> dict:
 
     return result
 
+
 def format_timestamp(timestamp) -> str:
     """Convert Unix timestamp to readable format."""
     if timestamp is None:
         return "N/A"
     from datetime import datetime
+
     return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+
 
 def print_stats(stats: dict):
     """Print formatted statistics."""
@@ -60,12 +66,16 @@ def print_stats(stats: dict):
     print(f"🏠 Unique Contracts: {stats['unique_contracts']}")
     print()
     print("🕐 Time Range:")
-    print(f"   Min: {format_timestamp(stats['min_timestamp'])} (timestamp: {stats['min_timestamp'] or 'N/A'})")
-    print(f"   Max: {format_timestamp(stats['max_timestamp'])} (timestamp: {stats['max_timestamp'] or 'N/A'})")
+    print(
+        f"   Min: {format_timestamp(stats['min_timestamp'])} (timestamp: {stats['min_timestamp'] or 'N/A'})"
+    )
+    print(
+        f"   Max: {format_timestamp(stats['max_timestamp'])} (timestamp: {stats['max_timestamp'] or 'N/A'})"
+    )
     print()
     print("📦 Block Range:")
-    min_block = stats['min_block']
-    max_block = stats['max_block']
+    min_block = stats["min_block"]
+    max_block = stats["max_block"]
 
     if min_block is not None and max_block is not None:
         print(f"   Min Block: {min_block:,}")
@@ -77,12 +87,17 @@ def print_stats(stats: dict):
         print("   Block Span: N/A")
     print("=" * 60)
 
+
 def main():
     parser = argparse.ArgumentParser(description="Analyze Parquet file statistics")
-    parser.add_argument("file_path", nargs="?",
-                       help="Path to Parquet file (default: data/etherscan_raw/protocol=misc/logs.parquet)")
-    parser.add_argument("--json", action="store_true",
-                       help="Output as JSON instead of formatted text")
+    parser.add_argument(
+        "file_path",
+        nargs="?",
+        help="Path to Parquet file (default: data/etherscan_raw/protocol=misc/logs.parquet)",
+    )
+    parser.add_argument(
+        "--json", action="store_true", help="Output as JSON instead of formatted text"
+    )
 
     args = parser.parse_args()
 
@@ -98,6 +113,7 @@ def main():
 
         if args.json:
             import json
+
             print(json.dumps(stats, indent=2))
         else:
             print_stats(stats)
@@ -107,6 +123,7 @@ def main():
         return 1
 
     return 0
+
 
 if __name__ == "__main__":
     exit(main())

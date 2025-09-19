@@ -1,6 +1,7 @@
 import logging
 import json
 import argparse
+from pathlib import Path
 
 from onchain_sleuth import EtherscanClient
 from onchain_sleuth.utils.logging import setup_logging
@@ -10,7 +11,7 @@ from onchain_sleuth.dataloader.batch_loader import BatchLoader
 from scripts.helpers.backfill import (
     backfill_from_etherscan_to_parquet,
     load_parquet_to_postgres,
-    backfill_from_etherscan_to_postgres
+    backfill_from_etherscan_to_postgres,
 )
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,9 @@ def extract_only_workflow(contract_addresses: dict, data_dir: str = "data"):
     logger.info("🔄 Starting EXTRACTION-ONLY workflow")
 
     for name, config in contract_addresses.items():
-        logger.info(f"📥 Extracting data for {name} ({config['protocol']}): {config['address']}")
+        logger.info(
+            f"📥 Extracting data for {name} ({config['protocol']}): {config['address']}"
+        )
 
         try:
             # Get ABI first
@@ -33,7 +36,8 @@ def extract_only_workflow(contract_addresses: dict, data_dir: str = "data"):
             parquet_path = backfill_from_etherscan_to_parquet(
                 address=config["address"],
                 chain=config["chain"],
-                data_dir=data_dir
+                # logs_output_path=Path("logs.parquet"),
+                # transactions_output_path=Path("transactions.parquet"),
             )
             logger.info(f"✅ Extracted to: {parquet_path}")
 
@@ -57,9 +61,7 @@ def load_only_workflow(data_dir: str = "data"):
             logger.info(f"📤 Loading {protocol} to PostgreSQL...")
 
             result = load_parquet_to_postgres(
-                protocol=protocol,
-                postgres_client=postgres_client,
-                data_dir=data_dir
+                protocol=protocol, postgres_client=postgres_client, data_dir=data_dir
             )
             logger.info(f"✅ Loaded {protocol} successfully")
 
@@ -86,7 +88,7 @@ def full_workflow(contract_addresses: dict, data_dir: str = "data"):
                 address=config["address"],
                 chain=config["chain"],
                 postgres_client=postgres_client,
-                data_dir=data_dir
+                data_dir=data_dir,
             )
 
         except Exception as e:
@@ -95,9 +97,15 @@ def full_workflow(contract_addresses: dict, data_dir: str = "data"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process blockchain contract data")
-    parser.add_argument("--mode", choices=["extract", "load", "full"], default="full",
-                       help="Processing mode: extract (API->Parquet), load (Parquet->PostgreSQL), or full (both)")
-    parser.add_argument("--data-dir", default="data", help="Data directory for Parquet files")
+    parser.add_argument(
+        "--mode",
+        choices=["extract", "load", "full"],
+        default="full",
+        help="Processing mode: extract (API->Parquet), load (Parquet->PostgreSQL), or full (both)",
+    )
+    parser.add_argument(
+        "--data-dir", default="data", help="Data directory for Parquet files"
+    )
 
     args = parser.parse_args()
 

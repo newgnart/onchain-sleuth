@@ -53,8 +53,8 @@ class EtherscanClient(BaseAPIClient):
             raise ValueError("Must specify either 'chainid' or 'chain' parameter.")
 
         # Resolve chainid from chain name if needed
+        chainid_mapping = self._load_chainid_mapping()
         if chain is not None:
-            chainid_mapping = self._load_chainid_mapping()
             if chain not in chainid_mapping:
                 available_chains = ", ".join(sorted(chainid_mapping.keys()))
                 raise ValueError(
@@ -63,6 +63,8 @@ class EtherscanClient(BaseAPIClient):
             chainid = chainid_mapping[chain]
 
         self.chainid = chainid
+        chain_name_mapping = {v: k for k, v in chainid_mapping.items()}
+        self.chain = chain_name_mapping.get(chainid, "unknown")
 
         # Create APIs instance to load environment variables
         apis = APIs()

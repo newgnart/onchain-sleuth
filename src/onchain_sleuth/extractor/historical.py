@@ -2,163 +2,180 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional
-from collections import defaultdict
+from typing import Dict, List, Optional, Literal, Any
 
 import polars as pl
 
 from onchain_sleuth.datasource.etherscan import EtherscanClient, EtherscanSource
-from onchain_sleuth.config.protocol_registry import ProtocolRegistry
 from onchain_sleuth.core.exceptions import APIError
 
 
 class HistoricalDataExtractor:
-    """Extracts historical blockchain data and saves to protocol-grouped Parquet files."""
+    """Extracts historical blockchain data and saves to Parquet files.
+
+    Example:
+        extractor = HistoricalDataExtractor(etherscan_client)
+
+        # Extract logs for single address
+        path = extractor.extract_to_parquet("0x123...", "ethereum", "logs")
+
+    """
 
     def __init__(
         self,
         client: EtherscanClient,
-        output_dir: str = "data",
-        logs_subdir: str = "etherscan_raw",
+        save_dir: str = "data/etherscan_raw",
     ):
         self.client = client
-        self.output_dir = output_dir
-        self.logs_subdir = logs_subdir
-        self.protocol_registry = ProtocolRegistry()
+        self.save_dir = save_dir
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def extract_to_parquet(
         self,
-        contracts: List[str],
+        address: str,
+        chain: str = "ethereum",
+        table: Literal["logs", "transactions"] = "logs",
         from_block: int = 0,
         to_block: str = "latest",
         offset: int = 1000,
-    ) -> Dict[str, str]:
+        output_path: Optional[str] = None,
+    ) -> Optional[str]:
         """
-        Extract logs for multiple contracts and save to protocol-grouped Parquet files.
+        Core building block function to extract blockchain data to Parquet files.
 
         Args:
-            contracts: List of contract addresses
+            address: Contract address to extract data for
+            chain: Blockchain network (default: "ethereum")
+            table: Type of data to extract ("logs" or "transactions")
             from_block: Starting block number
             to_block: Ending block number or "latest"
-            offset: Number of logs per API call
+            offset: Number of records per API call
 
         Returns:
-            Dict mapping protocol names to output file paths
+            Path to the created Parquet file, or None if no data extracted
         """
-        # Group contracts by protocol
-        protocol_groups = self._group_by_protocol(contracts)
+        self.logger.info(
+            f"Extracting {table} for address {address} on {chain} from block {from_block} to {to_block}"
+        )
 
-        output_paths = {}
-        for protocol, addresses in protocol_groups.items():
-            self.logger.info(
-                f"Extracting data for protocol '{protocol}' ({len(addresses)} contracts)"
-            )
-            output_path = self._extract_protocol_data(
-                protocol, addresses, from_block, to_block, offset
-            )
-            output_paths[protocol] = output_path
-
-        return output_paths
-
-    def _group_by_protocol(self, contracts: List[str]) -> Dict[str, List[str]]:
-        """Group contract addresses by protocol."""
-        protocol_groups = defaultdict(list)
-
-        for contract in contracts:
-            protocol = self.protocol_registry.get_protocol(contract)
-            protocol_groups[protocol].append(contract)
-
-        return dict(protocol_groups)
-
-    def _extract_protocol_data(
-        self,
-        protocol: str,
-        addresses: List[str],
-        from_block: int,
-        to_block: str,
-        offset: int,
-    ) -> str:
-        """Extract logs for all contracts in a protocol and save to Parquet."""
-        all_logs = []
         source = EtherscanSource(self.client)
+        data = []
 
-        for address in addresses:
-            self.logger.info(f"Fetching logs for {address} (protocol: {protocol})")
-
-            try:
-                logs_resource = source.logs(
+        try:
+            if table == "logs":
+                resource = source.logs(
                     address=address,
                     from_block=from_block,
                     to_block=to_block,
                     offset=offset,
                 )
 
-                # Collect logs and add metadata
-                for log in logs_resource:
-                    log["contract_address"] = address
-                    log["protocol"] = protocol
-                    all_logs.append(log)
+                for record in resource:
+                    # Convert hex strings to integers for numeric fields
+                    record = self._process_hex_fields(record)
+                    record["contract_address"] = address
+                    record["chain"] = chain
+                    data.append(record)
 
-            except APIError as e:
-                self.logger.error(f"Failed to fetch logs for {address}: {e}")
-                continue
-            except Exception as e:
-                self.logger.error(f"Unexpected error fetching logs for {address}: {e}")
-                continue
+            elif table == "transactions":
+                resource = source.transactions(
+                    address=address,
+                    from_block=from_block,
+                    to_block=to_block,
+                    offset=offset,
+                )
 
-        if not all_logs:
-            self.logger.warning(f"No logs extracted for protocol '{protocol}'")
+                for record in resource:
+                    # Convert hex strings to integers for numeric fields
+                    record = self._process_hex_fields(record)
+                    record["address"] = address
+                    record["chain"] = chain
+                    data.append(record)
+
+            if not data:
+                self.logger.warning(f"No {table} extracted for address {address}")
+                return None
+
+            return self._save_to_parquet(address, chain, table, data, output_path)
+
+        except APIError as e:
+            self.logger.error(f"Failed to fetch {table} for {address}: {e}")
+            return None
+        except Exception as e:
+            self.logger.error(f"Unexpected error fetching {table} for {address}: {e}")
             return None
 
-        # Convert to Polars DataFrame and save
-        return self._save_to_parquet(protocol, all_logs)
+    def _process_hex_fields(self, record: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert numeric string fields to integers (handles both hex and decimal formats)."""
+        numeric_fields = {
+            "blockNumber",
+            "timeStamp",
+            "logIndex",
+            "transactionIndex",
+            "gasPrice",
+            "gasUsed",
+            "nonce",
+            "value",
+            "gas",
+            "cumulativeGasUsed",
+            "confirmations",
+        }
 
-    def _save_to_parquet(self, protocol: str, logs_data: List[Dict]) -> str:
-        """Save logs data to protocol-specific Parquet file."""
-        # Create output directory
-        output_dir = Path(self.output_dir) / self.logs_subdir / f"protocol={protocol}"
-        output_dir.mkdir(parents=True, exist_ok=True)
+        for field in numeric_fields:
+            if field in record and isinstance(record[field], str):
+                str_value = record[field].strip()
+                if str_value and str_value != "0x":
+                    try:
+                        # Auto-detect format based on prefix
+                        if str_value.startswith("0x"):
+                            # Hex format (logs API)
+                            record[field] = int(str_value, 16)
+                        else:
+                            # Decimal format (transactions API)
+                            record[field] = int(str_value, 10)
+                    except ValueError:
+                        self.logger.warning(
+                            f"Could not convert {field} value '{str_value}' to int"
+                        )
+                        record[field] = None
+                else:
+                    record[field] = None
 
-        output_path = output_dir / "logs.parquet"
+        return record
+
+    def _save_to_parquet(
+        self,
+        address: str,
+        chain: str,
+        table: str,
+        data: List[Dict[str, Any]],
+        output_path: Optional[str] = None,
+    ) -> str:
+        """Save data to Parquet file organized by chain/table/address."""
+        # Create output directory structure: chain=ethereum/table=logs/address=0x123...
+        if output_path is None:
+            output_dir = Path(self.save_dir) / f"{chain}_{address}"
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+            output_path = output_dir / f"{table}.parquet"
+        else:
+            # Ensure output_path is a Path object
+            output_path = Path(output_path)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
             # Create Polars DataFrame
-            df = pl.DataFrame(logs_data)
-
-            # Ensure consistent schema - convert common fields to proper types
-            if len(df) > 0:
-                schema_conversions = {}
-
-                # Convert timestamp and numeric fields
-                if "timeStamp" in df.columns:
-                    schema_conversions["timeStamp"] = pl.Int64
-                if "blockNumber" in df.columns:
-                    schema_conversions["blockNumber"] = pl.Int64
-                if "logIndex" in df.columns:
-                    schema_conversions["logIndex"] = pl.Int64
-                if "transactionIndex" in df.columns:
-                    schema_conversions["transactionIndex"] = pl.Int64
-                if "gasPrice" in df.columns:
-                    schema_conversions["gasPrice"] = pl.Int64
-                if "gasUsed" in df.columns:
-                    schema_conversions["gasUsed"] = pl.Int64
-
-                # Apply conversions if any
-                if schema_conversions:
-                    df = df.with_columns(
-                        [
-                            pl.col(col).cast(dtype, strict=False)
-                            for col, dtype in schema_conversions.items()
-                            if col in df.columns
-                        ]
-                    )
+            df = pl.DataFrame(data)
 
             # Save to Parquet (append if file exists)
             if output_path.exists():
                 # Use scan_parquet for memory efficiency, then concatenate and collect
                 existing_lazy = pl.scan_parquet(output_path)
-                new_lazy = pl.LazyFrame(df)
+
+                # Ensure column order matches between existing and new data
+                existing_columns = existing_lazy.collect_schema().names()
+                new_lazy = pl.LazyFrame(df).select(existing_columns)
+
                 combined_lazy = pl.concat([existing_lazy, new_lazy])
 
                 # Get count before materializing for logging
@@ -168,47 +185,16 @@ class HistoricalDataExtractor:
 
                 # Materialize and write the combined data
                 combined_lazy.collect().write_parquet(output_path)
-                self.logger.info(f"Appended {new_count} logs to existing {existing_count} logs (total now: {total_count})")
+                self.logger.info(
+                    f"Appended {new_count} {table} to existing {existing_count} records (total now: {total_count})"
+                )
             else:
                 # Write new file
                 df.write_parquet(output_path)
-                self.logger.info(f"Created new file with {len(df)} logs")
+                self.logger.info(f"Created new file with {len(df)} {table}")
 
             return str(output_path)
 
         except Exception as e:
-            self.logger.error(f"Failed to save data for protocol '{protocol}': {e}")
+            self.logger.error(f"Failed to save {table} data for address {address}: {e}")
             raise
-
-    def get_protocol_stats(self, contracts: List[str]) -> Dict[str, int]:
-        """Get statistics on how many contracts belong to each protocol."""
-        protocol_groups = self._group_by_protocol(contracts)
-        return {
-            protocol: len(addresses) for protocol, addresses in protocol_groups.items()
-        }
-
-    def extract_single_protocol(
-        self,
-        protocol: str,
-        from_block: int = 0,
-        to_block: str = "latest",
-        offset: int = 1000,
-    ) -> Optional[str]:
-        """Extract data for all known contracts of a specific protocol."""
-        # Get all contracts for this protocol
-        known_contracts = self.protocol_registry.get_known_contracts()
-        protocol_contracts = [
-            addr for addr, proto in known_contracts.items() if proto == protocol
-        ]
-
-        if not protocol_contracts:
-            self.logger.warning(f"No known contracts found for protocol '{protocol}'")
-            return None
-
-        self.logger.info(
-            f"Found {len(protocol_contracts)} contracts for protocol '{protocol}'"
-        )
-
-        return self._extract_protocol_data(
-            protocol, protocol_contracts, from_block, to_block, offset
-        )
