@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://newgnart.github.io/notebooks/ethena.html</loc>
-    <lastmod>2025-09-19T13:26:47.780Z</lastmod>
-  </url>
-  <url>
-    <loc>https://newgnart.github.io/notebooks/crvusd_health.html</loc>
-    <lastmod>2025-09-19T13:26:47.776Z</lastmod>
-  </url>
-  <url>
-    <loc>https://newgnart.github.io/index.html</loc>
-    <lastmod>2025-09-19T13:26:47.776Z</lastmod>
+    <loc>https://newgnart.github.io/notebooks/stablecoins/e.html</loc>
+    <lastmod>2025-09-24T16:10:08.188Z</lastmod>
   </url>
   <url>
     <loc>https://newgnart.github.io/notebooks/open.html</loc>
-    <lastmod>2025-09-19T13:26:47.782Z</lastmod>
+    <lastmod>2025-09-24T16:10:08.187Z</lastmod>
+  </url>
+  <url>
+    <loc>https://newgnart.github.io/index.html</loc>
+    <lastmod>2025-09-24T16:10:08.182Z</lastmod>
+  </url>
+  <url>
+    <loc>https://newgnart.github.io/notebooks/crvusd_health.html</loc>
+    <lastmod>2025-09-24T16:10:08.182Z</lastmod>
+  </url>
+  <url>
+    <loc>https://newgnart.github.io/notebooks/ethena.html</loc>
+    <lastmod>2025-09-24T16:10:08.185Z</lastmod>
   </url>
 </urlset>

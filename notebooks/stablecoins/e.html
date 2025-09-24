@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Taming onchain data</title>
+<title>e – Taming onchain data</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,33 +20,66 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-f7df4974d5b21996c06f986f85337c2c.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-63ce2102fd7d5affb82745c1042ead81.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-f7df4974d5b21996c06f986f85337c2c.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-560f13b44e2651115056ac0a45d394c8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-bc0864b678276c956c737b4ddb2ad097.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-560f13b44e2651115056ac0a45d394c8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-f7df4974d5b21996c06f986f85337c2c.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-63ce2102fd7d5affb82745c1042ead81.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-f7df4974d5b21996c06f986f85337c2c.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-560f13b44e2651115056ac0a45d394c8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-bc0864b678276c956c737b4ddb2ad097.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-560f13b44e2651115056ac0a45d394c8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -74,68 +107,13 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
-    const options = {
-      valueNames: ['listing-image','listing-title','listing-description','listing-date','listing-reading-time',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
 
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="Taming onchain data" href="index.xml" data-external="1"></head>
+<link rel="stylesheet" href="../../styles.css">
+</head>
 
 <body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
@@ -306,9 +284,9 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Taming onchain data</span>
     </a>
   </div>
@@ -320,141 +298,253 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="YW5hbHlzaXM=">analysis <span class="quarto-category-count">(3)</span></div><div class="category" data-category="c3RhYmxlY29pbnM=">stablecoins <span class="quarto-category-count">(3)</span></div></div></div>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
 <!-- main -->
-<main class="content column-page-left" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
 
 
-<p>Like my blog? Contact me on <a href="https://t.me/newgnart">Telegram</a> or <a href="https://x.com/newgnart">X</a></p>
-
-
-
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="listing-actions-group">
-   <div class="input-group input-group-sm quarto-listing-sort">
-    <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
-    <select id="listing-listing-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-listing'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
-      <option value="" disabled="" selected="" hidden="">Order By</option>
-      <option value="index" data-direction="asc">Default</option>
-      <option value="listing-title" data-direction="asc">
-        Title
-      </option>
-      <option value="listing-date-sort" data-direction="asc">
-        Date - Oldest
-      </option>
-      <option value="listing-date-sort" data-direction="desc">
-        Date - Newest
-      </option>
-    </select>
-  </div>
+<div id="d2f4fe4c" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, json</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>rootdir <span class="op">=</span> Path.cwd().parent.parent</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>sys.path.append(<span class="bu">str</span>(rootdir))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-listing-file-modified-sort="1758730208188">
-<div class="thumbnail"><a href="./notebooks/stablecoins/e.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./notebooks/stablecoins/e.html" class="no-external"></a>
-</h3>
-<div class="delink listing-description"><a href="./notebooks/stablecoins/e.html" class="no-external">
-
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im">import</span> os, json</span>
-<span id="cb1-2"><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
-<span id="cb1-3"><span class="im">import</span> sys</span>
-<span id="cb1-4"><span class="im">import</span> polars <span class="im">as</span> pl</span>
-<span id="cb1-5">rootdir <span class="op">=</span> Path.cwd().parent.parent</span>
-<span id="cb1-6">sys.path.append(<span class="bu">str</span>(rootdir))</span></code></pre></div></div>
-
-</a></div>
-</div>
-<div class="metadata">
-<a href="./notebooks/stablecoins/e.html" class="no-external">
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="YW5hbHlzaXMlMkNzdGFibGVjb2lucw==" data-listing-date-sort="1756080000000" data-listing-file-modified-sort="1758730208187" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="2">
-<div class="thumbnail"><a href="./notebooks/open.html" class="no-external">
-
-<img loading="lazy" src="./notebooks/images/boss.png" class="thumbnail-image" style="height: 150px;">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./notebooks/open.html" class="no-external">$OPEN</a>
-</h3>
-<div class="delink listing-description"><a href="./notebooks/open.html" class="no-external">
-<p>An analysis of $OPEN token</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./notebooks/open.html" class="no-external">
-<div class="listing-date">
-2025-08-25
-</div>
-<div class="listing-reading-time">1 min</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="YW5hbHlzaXMlMkNzdGFibGVjb2lucw==" data-listing-date-sort="1754179200000" data-listing-file-modified-sort="1758730208185" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="16">
-<div class="thumbnail"><a href="./notebooks/ethena.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./notebooks/ethena.html" class="no-external">Ethena</a>
-</h3>
-<div class="delink listing-description"><a href="./notebooks/ethena.html" class="no-external">
-<p>A dashboard for Ethena protocol</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./notebooks/ethena.html" class="no-external">
-<div class="listing-date">
-2025-08-03
-</div>
-<div class="listing-reading-time">1 min</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="YW5hbHlzaXMlMkNzdGFibGVjb2lucw==" data-listing-date-sort="1751500800000" data-listing-file-modified-sort="1758730208182" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="108">
-<div class="thumbnail"><a href="./notebooks/crvusd_health.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./notebooks/crvusd_health.html" class="no-external">CRVUSD Market Health</a>
-</h3>
-<div class="delink listing-description"><a href="./notebooks/crvusd_health.html" class="no-external">
-<p>Curve Market Health Scores</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./notebooks/crvusd_health.html" class="no-external">
-<div class="listing-date">
-2025-07-03
-</div>
-<div class="listing-reading-time">1 min</div>
-</a>
+<div id="5ba7bf5f" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>contracts <span class="op">=</span> json.load(<span class="bu">open</span>(rootdir <span class="op">/</span> <span class="st">"scripts/stablecoins/contracts.json"</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>table_name <span class="op">=</span> <span class="st">"logs"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, detail <span class="kw">in</span> contracts.items(): </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    address <span class="op">=</span> detail[<span class="st">"address"</span>].lower()</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(address)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> table_name <span class="kw">in</span> [<span class="st">"logs"</span>, <span class="st">"transactions"</span>]:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        file_path <span class="op">=</span> rootdir <span class="op">/</span> <span class="st">"data"</span> <span class="op">/</span> <span class="st">"etherscan_raw"</span> <span class="op">/</span> <span class="ss">f"</span><span class="sc">{</span>detail[<span class="st">'chain'</span>]<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>address<span class="sc">}</span><span class="ss">"</span> <span class="op">/</span> <span class="ss">f"</span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">.parquet"</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        df <span class="op">=</span> pl.scan_parquet(file_path)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        n_rows <span class="op">=</span> df.unique().collect().shape[<span class="dv">0</span>]</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        max_block <span class="op">=</span> df.select(pl.col(<span class="st">"blockNumber"</span>).<span class="bu">max</span>()).collect().item()</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        min_block <span class="op">=</span> df.select(pl.col(<span class="st">"blockNumber"</span>).<span class="bu">min</span>()).collect().item()</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\t</span><span class="st">"</span>,table_name, n_rows, min_block, max_block)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> table_name <span class="op">==</span> <span class="st">"logs"</span>:</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>            primary_key <span class="op">=</span> [<span class="st">"logIndex"</span>, <span class="st">"transactionHash"</span>]</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> table_name <span class="op">==</span> <span class="st">"transactions"</span>:</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            primary_key <span class="op">=</span> [<span class="st">"transactionIndex"</span>, <span class="st">"hash"</span>]</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        n_rows_primary_key <span class="op">=</span> df.unique(subset<span class="op">=</span>primary_key).collect().shape[<span class="dv">0</span>]</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\t</span><span class="st">"</span>,table_name, n_rows_primary_key)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> n_rows_primary_key <span class="op">==</span> n_rows</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0xf939e0a03fb07f59a73314e73794be0e57ac1b4e
+     logs 1774710 17257952 23433008
+     logs 1774710
+     transactions 59407 17257952 23432857
+     transactions 59407
+0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f
+     logs 641533 17698470 23433018
+     logs 641533
+     transactions 41339 17699326 23433001
+     transactions 41339
+0xbc6da0fe9ad5f3b0d58160288917aa56653660e9
+     logs 141214 11937214 23432535
+     logs 141214
+     transactions 19385 11937214 23432488
+     transactions 19385
+0x085780639cc2cacd35e474e71f4d000e2405d8f6
+     logs 126368 19287523 23432896
+     logs 126368
+     transactions 4085 19287523 23432251
+     transactions 4085
+0xcacd6fd266af91b8aed52accc382b4e165586e29
+     logs 50406 21543360 23432924
+     logs 50406
+     transactions 4474 21632793 23432726
+     transactions 4474
+0x865377367054516e17014ccded1e7d814edc9ce4
+     logs 398340 11915914 23433011
+     logs 398340
+     transactions 11646 11915875 23433001
+     transactions 11646
+0x6440f144b7e50d6a8439336510312d2f54beb01d
+     logs 71958 22483043 23432921
+     logs 71958
+     transactions 2379 22516087 23432521
+     transactions 2379
+0x5f98805a4e8be255a32880fdec7f6728c6568ba0
+     logs 794529 12178594 23432979
+     logs 794529
+     transactions 55744 12178594 23432977
+     transactions 55744
+0x2a8e1e676ec238d8a992307b495b45b3feaa5e86
+     logs 69206 10884563 23432815
+     logs 69206
+     transactions 10812 10884563 23432327
+     transactions 10812
+0x0d86883faf4ffd7aeb116390af37746f45b6f378
+     logs 13626 19577960 23430088
+     logs 13626
+     transactions 910 19578052 23421956
+     transactions 910
+0xa0d69e286b938e21cbf7e51d71f6a4c8918f482f
+     logs 186956 16687620 23433022
+     logs 186956
+     transactions 2334 16688671 23431019
+     transactions 2334
+0xdc035d45d973e3ec169d2276ddab16f1e407384f
+     logs 945875 20663730 23433027
+     logs 945875
+     transactions 65198 20663730 23432998
+     transactions 65198</code></pre>
 </div>
 </div>
+<div id="88f77392" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df.collect().head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (5, 14)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">address</th>
+<th data-quarto-table-cell-role="th">topics</th>
+<th data-quarto-table-cell-role="th">data</th>
+<th data-quarto-table-cell-role="th">blockNumber</th>
+<th data-quarto-table-cell-role="th">blockHash</th>
+<th data-quarto-table-cell-role="th">timeStamp</th>
+<th data-quarto-table-cell-role="th">gasPrice</th>
+<th data-quarto-table-cell-role="th">gasUsed</th>
+<th data-quarto-table-cell-role="th">logIndex</th>
+<th data-quarto-table-cell-role="th">transactionHash</th>
+<th data-quarto-table-cell-role="th">transactionIndex</th>
+<th data-quarto-table-cell-role="th">chainid</th>
+<th data-quarto-table-cell-role="th">contract_address</th>
+<th data-quarto-table-cell-role="th">chain</th>
+</tr>
+<tr class="even">
+<td>str</td>
+<td>list[str]</td>
+<td>str</td>
+<td>i64</td>
+<td>str</td>
+<td>i64</td>
+<td>i64</td>
+<td>i64</td>
+<td>i64</td>
+<td>str</td>
+<td>i64</td>
+<td>i64</td>
+<td>str</td>
+<td>str</td>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef", "0x00000000000000000000000074de5d4fcbf63e00296fd95d33236b9794016631", "0x0000000000000000000000008cbf64cf5c7fdf2a9bde1c82d9e491aee2ca4bb7"]</td>
+<td>"0x0000000000000000000000000000…</td>
+<td>12707741</td>
+<td>"0x71584ac3ea076d21f8676de00542…</td>
+<td>1624684699</td>
+<td>13000000000</td>
+<td>171598</td>
+<td>78</td>
+<td>"0xc274fceaba165b988597db5e784e…</td>
+<td>64</td>
+<td>1</td>
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>"ethereum"</td>
+</tr>
+<tr class="even">
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef", "0x0000000000000000000000005d3a536e4d6dbd6114cc1ead35777bab948e3643", "0x0000000000000000000000000000000000000000000000000000000000000000"]</td>
+<td>"0x0000000000000000000000000000…</td>
+<td>10369332</td>
+<td>"0xf9a95be051b210dcb2762e3ea9da…</td>
+<td>1593549247</td>
+<td>24999310950</td>
+<td>1547277</td>
+<td>151</td>
+<td>"0x8119049649d97ef3b192b4fd65aa…</td>
+<td>27</td>
+<td>1</td>
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>"ethereum"</td>
+</tr>
+<tr class="odd">
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef", "0x0000000000000000000000000000006daea1723962647b7e189d311d757fb793", "0x00000000000000000000000060594a405d53811d3bc4766596efd80fd545a270"]</td>
+<td>"0x0000000000000000000000000000…</td>
+<td>13474528</td>
+<td>"0xf14de195a8598edc0d6b1c3e2388…</td>
+<td>1635002276</td>
+<td>88183846236</td>
+<td>121986</td>
+<td>111</td>
+<td>"0x1d0560f04e8b484c8a3d65820717…</td>
+<td>84</td>
+<td>1</td>
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>"ethereum"</td>
+</tr>
+<tr class="even">
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef", "0x000000000000000000000000e3f277382419535245a345e923898c2d43f7cbe5", "0x000000000000000000000000bba4c8eb57df16c4cfabe4e9a3ab697a3e0c65d8"]</td>
+<td>"0x0000000000000000000000000000…</td>
+<td>13185012</td>
+<td>"0x9f7cfe6f2901b34aee9a4fccee66…</td>
+<td>1631103040</td>
+<td>98872000000</td>
+<td>34730</td>
+<td>39</td>
+<td>"0x7161f52167ffa2a3b0eadfbf2911…</td>
+<td>48</td>
+<td>1</td>
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>"ethereum"</td>
+</tr>
+<tr class="odd">
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef", "0x00000000000000000000000056178a0d5f301baf6cf3e1cd53d9863437345bf9", "0x000000000000000000000000a478c2975ab1ea89e8196811f51a7b7ade33eb11"]</td>
+<td>"0x0000000000000000000000000000…</td>
+<td>11225693</td>
+<td>"0x28218199dfdcf90b509b0dfa5902…</td>
+<td>1604956843</td>
+<td>29000000001</td>
+<td>114489</td>
+<td>41</td>
+<td>"0x59c87595de60841ec16da1c4e16c…</td>
+<td>22</td>
+<td>1</td>
+<td>"0x6b175474e89094c44da98b954eed…</td>
+<td>"ethereum"</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right

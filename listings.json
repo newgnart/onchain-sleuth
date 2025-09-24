@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/notebooks/stablecoins/e.html",
       "/notebooks/open.html",
       "/notebooks/ethena.html",
       "/notebooks/crvusd_health.html"
