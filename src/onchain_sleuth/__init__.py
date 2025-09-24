@@ -3,12 +3,13 @@
 # from .config import settings, Settings
 
 # from .decoder import EventDecoder, DecodingStrategy
-from .datasource import (
+from .source import (
     DeFiLlamaClient,
     DeFiLlamaSource,
     EtherscanClient,
     EtherscanSource,
 )
+
 # from .dataloader import PipelineManager, TableConfig
 
 # from .utils.postgres import PostgresDestination, DuckdbDestination

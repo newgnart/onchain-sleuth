@@ -2,28 +2,74 @@
 Helper functions for loading data from Etherscan.
 """
 
-import argparse
-import json
 import logging
-import sys
-import time
-from functools import partial
-import re
 import random
 import os
+import csv
+from datetime import datetime
 
-from typing import Optional, Any, List, Dict
-from collections import defaultdict
+from typing import Optional, Any, List, Dict, Literal
 import polars as pl
+import pandas as pd
 
 from onchain_sleuth import EtherscanClient
-from onchain_sleuth.extractor.historical import HistoricalDataExtractor
-from onchain_sleuth.dataloader.batch_loader import BatchLoader
+from onchain_sleuth.extractor.etherscan import EtherscanExtractor
 from onchain_sleuth.utils.chain import get_chainid
 from onchain_sleuth.utils.database import PostgresClient
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+
+def _log_error_to_csv(
+    contract_address: str,
+    chainid: int,
+    table_name: str,
+    from_block: int,
+    to_block: int,
+    block_chunk_size: int,
+):
+    """Immediately log an error to CSV file."""
+    error_file = f"logs/extract_error_{table_name}.csv"
+    os.makedirs("logs", exist_ok=True)
+
+    # CSV headers
+    csv_headers = [
+        "timestamp",
+        "contract_address",
+        "chainid",
+        "from_block",
+        "to_block",
+        "block_chunk_size",
+    ]
+
+    # Check if file exists to determine if we need to write headers
+    file_exists = os.path.exists(error_file)
+
+    # Append error to CSV file immediately
+    with open(error_file, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+
+        # Write headers if this is a new file
+        if not file_exists:
+            writer.writerow(csv_headers)
+
+        timestamp = datetime.now().isoformat()
+
+        writer.writerow(
+            [
+                timestamp,
+                contract_address,
+                chainid,
+                from_block,
+                to_block,
+                block_chunk_size,
+            ]
+        )
+
+    logger.warning(
+        f"💥 Error {contract_address} - {chainid} - {table_name} - {from_block}-{to_block}"
+    )
 
 
 def _get_resume_block(output_path: str, address: str) -> Optional[int]:
@@ -51,7 +97,7 @@ def _get_resume_block(output_path: str, address: str) -> Optional[int]:
             # This is a transactions file
             address_col = "address"
         else:
-            logger.warning(f"No appropriate address column found in {output_path}")
+            logger.error(f"No appropriate address column found in {output_path}")
             return None
 
         # Use scan_parquet for memory efficiency
@@ -68,7 +114,7 @@ def _get_resume_block(output_path: str, address: str) -> Optional[int]:
         return None
 
 
-def _backfill_in_chunks_from_etherscan_to_parquet(
+def _etherscan_to_parquet_in_chunks(
     contract_address: str,
     etherscan_client: EtherscanClient,
     from_block: Optional[int] = None,
@@ -108,7 +154,7 @@ def _backfill_in_chunks_from_etherscan_to_parquet(
         ... )
     """
 
-    extractor = HistoricalDataExtractor(etherscan_client)
+    extractor = EtherscanExtractor(etherscan_client)
     contract_address = contract_address.lower()
     chainid = etherscan_client.chainid
     chain = etherscan_client.chain
@@ -122,9 +168,6 @@ def _backfill_in_chunks_from_etherscan_to_parquet(
         from_block = etherscan_client.get_contract_creation_block_number(
             contract_address
         )
-        logger.info(
-            f"🚧 Starting from creation block {from_block} for {contract_address}"
-        )
 
     # Handle resume logic independently for each table
     logs_from_block = from_block
@@ -136,29 +179,30 @@ def _backfill_in_chunks_from_etherscan_to_parquet(
             resume_from_logs = _get_resume_block(logs_output_path, contract_address)
             if resume_from_logs and resume_from_logs > logs_from_block:
                 logs_from_block = resume_from_logs
-                logger.info(
-                    f"📈 Resuming logs from block {logs_from_block} for {contract_address}"
+                logger.debug(
+                    f"{contract_address} - {chainid} - logs - {logs_from_block}, fetching data"
                 )
 
         # Check transactions resume independently
         if extract_transactions and transactions_output_path:
-            resume_from_txns = _get_resume_block(transactions_output_path, contract_address)
+            resume_from_txns = _get_resume_block(
+                transactions_output_path, contract_address
+            )
             if resume_from_txns and resume_from_txns > txns_from_block:
                 txns_from_block = resume_from_txns
-                logger.info(
-                    f"📈 Resuming transactions from block {txns_from_block} for {contract_address}"
+                logger.debug(
+                    f"{contract_address} - {chainid} - transactions - {txns_from_block}, fetching data"
                 )
 
     # Skip if both tables are already up to date
-    if (not extract_logs or logs_from_block > to_block) and (not extract_transactions or txns_from_block > to_block):
-        logger.info(
-            f"✅ {contract_address} already up to date"
-        )
+    if (not extract_logs or logs_from_block > to_block) and (
+        not extract_transactions or txns_from_block > to_block
+    ):
+        logger.info(f"✅ {contract_address} - {chainid} - already up to date")
         return
 
     # Process each table independently with their own block ranges
     end_block = to_block
-    error_block_ranges = []
     total_logs_extracted = 0
     total_transactions_extracted = 0
 
@@ -168,7 +212,7 @@ def _backfill_in_chunks_from_etherscan_to_parquet(
             chunk_end = min(chunk_start + block_chunk_size - 1, end_block)
 
             try:
-                result_path = extractor.extract_to_parquet(
+                result_path = extractor.to_parquet(
                     address=contract_address,
                     chain=chain,
                     table="logs",
@@ -177,6 +221,18 @@ def _backfill_in_chunks_from_etherscan_to_parquet(
                     offset=1000,
                     output_path=logs_output_path,
                 )
+
+                # Check if extraction failed and log to CSV
+                if result_path is None:
+                    _log_error_to_csv(
+                        contract_address=contract_address,
+                        chainid=chainid,
+                        table_name="logs",
+                        from_block=chunk_start,
+                        to_block=chunk_end,
+                        block_chunk_size=block_chunk_size,
+                    )
+                    continue
 
                 # Count extracted logs (approximate)
                 if result_path and os.path.exists(result_path):
@@ -193,17 +249,19 @@ def _backfill_in_chunks_from_etherscan_to_parquet(
                     )
                     total_logs_extracted += chunk_logs
 
-                    # Only log progress 10% of the time to avoid excessive logging
-                    if random.random() < 0.1:
-                        logger.debug(
-                            f"Extracted {chunk_logs} logs from blocks {chunk_start}-{chunk_end}"
-                        )
-
             except Exception as e:
                 logger.error(
                     f"Failed to extract logs for blocks {chunk_start} to {chunk_end} with error {e}"
                 )
-                error_block_ranges.append(["logs", chunk_start, chunk_end])
+                # Immediately log error to CSV
+                _log_error_to_csv(
+                    contract_address=contract_address,
+                    chainid=chainid,
+                    table_name="logs",
+                    from_block=chunk_start,
+                    to_block=chunk_end,
+                    block_chunk_size=block_chunk_size,
+                )
 
     # Process transactions chunks
     if extract_transactions and txns_from_block <= end_block:
@@ -211,7 +269,7 @@ def _backfill_in_chunks_from_etherscan_to_parquet(
             chunk_end = min(chunk_start + block_chunk_size - 1, end_block)
 
             try:
-                result_path = extractor.extract_to_parquet(
+                result_path = extractor.to_parquet(
                     address=contract_address,
                     chain=chain,
                     table="transactions",
@@ -220,6 +278,18 @@ def _backfill_in_chunks_from_etherscan_to_parquet(
                     offset=1000,
                     output_path=transactions_output_path,
                 )
+
+                # Check if extraction failed and log to CSV
+                if result_path is None:
+                    _log_error_to_csv(
+                        contract_address=contract_address,
+                        chainid=chainid,
+                        table_name="transactions",
+                        from_block=chunk_start,
+                        to_block=chunk_end,
+                        block_chunk_size=block_chunk_size,
+                    )
+                    continue
 
                 # Count extracted transactions (approximate)
                 if result_path and os.path.exists(result_path):
@@ -236,46 +306,35 @@ def _backfill_in_chunks_from_etherscan_to_parquet(
                     )
                     total_transactions_extracted += chunk_transactions
 
-                    # Only log progress 10% of the time to avoid excessive logging
-                    if random.random() < 0.1:
-                        logger.debug(
-                            f"Extracted {chunk_transactions} transactions from blocks {chunk_start}-{chunk_end}"
-                        )
-
             except Exception as e:
                 logger.error(
                     f"Failed to extract transactions for blocks {chunk_start} to {chunk_end} with error {e}"
                 )
-                error_block_ranges.append(["transactions", chunk_start, chunk_end])
-
-    # Log errors if any
-    if error_block_ranges:
-        error_file = f"logs/extract_error.json"
-        os.makedirs("logs", exist_ok=True)
-        error_data = {f"{contract_address}-{chainid}": error_block_ranges}
-
-        if os.path.exists(error_file):
-            with open(error_file, "r") as f:
-                existing_errors = json.load(f)
-            existing_errors.update(error_data)
-            error_data = existing_errors
-
-        with open(error_file, "w") as f:
-            json.dump(error_data, f, indent=4, ensure_ascii=False)
+                # Immediately log error to CSV
+                _log_error_to_csv(
+                    contract_address=contract_address,
+                    chainid=chainid,
+                    table_name="transactions",
+                    from_block=chunk_start,
+                    to_block=chunk_end,
+                    block_chunk_size=block_chunk_size,
+                )
 
     # Build summary message with independent block ranges
     summary_parts = []
     if extract_logs:
-        summary_parts.append(f"{total_logs_extracted} logs from blocks {logs_from_block} to {to_block}")
+        summary_parts.append(
+            f"{total_logs_extracted} logs - {logs_from_block}-{to_block}"
+        )
     if extract_transactions:
-        summary_parts.append(f"{total_transactions_extracted} transactions from blocks {txns_from_block} to {to_block}")
+        summary_parts.append(
+            f"{total_transactions_extracted} transactions - {txns_from_block}-{to_block}"
+        )
 
-    logger.info(
-        f"✅✅✅ {contract_address}, chain {chainid}, extracted {' and '.join(summary_parts)}"
-    )
+    logger.info(f"✅ {contract_address} - {chainid} - {summary_parts}")
 
 
-def backfill_from_etherscan_to_parquet(
+def etherscan_to_parquet(
     address: str,
     chain: str,
     logs_output_path: str = None,
@@ -284,6 +343,7 @@ def backfill_from_etherscan_to_parquet(
     data_dir: str = "data/etherscan_raw",
     extract_logs: bool = True,
     extract_transactions: bool = True,
+    block_chunk_size: int = 50_000,
 ) -> str:
     """Extract historical data for a contract and save to Parquet files.
 
@@ -296,7 +356,7 @@ def backfill_from_etherscan_to_parquet(
         data_dir: Base directory for parquet files (default: "data/etherscan_raw")
         extract_logs: Whether to extract event logs (default: True)
         extract_transactions: Whether to extract transactions (default: True)
-
+        block_chunk_size: Number of blocks to process per chunk (default: 50,000)
     Returns:
         None
     """
@@ -308,10 +368,12 @@ def backfill_from_etherscan_to_parquet(
         logs_output_path = f"{data_dir}/{chain}_{address.lower()}/logs.parquet"
 
     if extract_transactions and transactions_output_path is None:
-        transactions_output_path = f"{data_dir}/{chain}_{address.lower()}/transactions.parquet"
+        transactions_output_path = (
+            f"{data_dir}/{chain}_{address.lower()}/transactions.parquet"
+        )
 
     # Extract to Parquet files
-    _backfill_in_chunks_from_etherscan_to_parquet(
+    _etherscan_to_parquet_in_chunks(
         contract_address=address,
         etherscan_client=etherscan_client,
         extract_logs=extract_logs,
@@ -319,6 +381,7 @@ def backfill_from_etherscan_to_parquet(
         logs_output_path=logs_output_path,
         transactions_output_path=transactions_output_path,
         resume=resume,
+        block_chunk_size=block_chunk_size,
     )
 
     # Return the expected file path using new directory structure
@@ -326,57 +389,146 @@ def backfill_from_etherscan_to_parquet(
 
 
 def load_parquet_to_postgres(
-    address: str,
-    chain: str,
+    parquet_file_path: str,
+    table_name: str,
     postgres_client: PostgresClient,
-    data_dir: str = "data",
-    logs_subdir: str = "etherscan_raw",
     dataset_name: str = "etherscan_raw",
     write_disposition: str = "append",
-    protocol: Optional[str] = None,
+    primary_key: Optional[List[str]] = None,
 ) -> Any:
-    """Load address data from Parquet files to PostgreSQL.
+    """Load data from a Parquet file to PostgreSQL using DLT.
 
     Args:
-        address: Contract address
-        chain: Chain name
+        parquet_file_path: Full path to the parquet file
+        table_name: Target table name in PostgreSQL
         postgres_client: PostgreSQL client
-        data_dir: Directory containing Parquet files
         dataset_name: Target dataset/schema name
-        write_disposition: How to handle existing data
-        protocol: Optional protocol name for table naming (auto-detected if None)
+        write_disposition: How to handle existing data ("append", "replace", "merge")
+        primary_key: Optional primary key columns for the table
 
     Returns:
         DLT pipeline run result
     """
-    # Auto-detect protocol if not provided
-    # if protocol is None:
-    #     from onchain_sleuth.config.protocol_registry import ProtocolRegistry
+    import dlt
+    from pathlib import Path
 
-    #     registry = ProtocolRegistry()
-    #     protocol = registry.get_protocol(address)
+    parquet_path = Path(parquet_file_path)
 
-    batch_loader = BatchLoader(data_dir=data_dir, logs_subdir=logs_subdir)
-    destination = postgres_client.get_dlt_destination()
+    if not parquet_path.exists():
+        raise FileNotFoundError(f"Parquet file not found: {parquet_file_path}")
 
-    # Load from new directory structure: chain=ethereum/table=logs/address=0x123.../
-    parquet_path = f"{data_dir}/{logs_subdir}/chain={chain}/table=logs/address={address}/logs.parquet"
+    # Set default primary keys based on file type (using snake_case column names)
+    if primary_key is None:
+        if "logs" in parquet_file_path.lower():
+            primary_key = [
+                "transaction_hash",
+                "log_index",
+            ]
+        elif "transactions" in parquet_file_path.lower():
+            primary_key = ["hash", "transaction_index"]
+        else:
+            primary_key = []
 
-    return batch_loader.load_single_file(
-        file_path=parquet_path,
-        destination=destination,
-        dataset_name=dataset_name,
-        table_name=f"{protocol}_logs",
-        write_disposition=write_disposition,
-        primary_key=[
-            "block_number",
-            "log_index",
-            "transaction_hash",
-        ],  # Common primary key for logs
-    )
+    logger.debug(f"Loading {parquet_file_path} to table {table_name}")
+
+    try:
+        # Use scan_parquet for memory efficiency
+        lazy_df = pl.scan_parquet(parquet_path).unique()
+
+        # Transform column names from camelCase to snake_case and handle NULL values
+        df = lazy_df.collect()
+
+        # Column name mapping for logs
+        if "logs" in parquet_file_path.lower():
+            # Handle NULL logIndex values by filtering them out or setting to 0
+            if "logIndex" in df.columns:
+                df = df.filter(pl.col("logIndex").is_not_null())
+                df = df.rename({"logIndex": "log_index"})
 
 
-def backfill_from_etherscan_to_postgres(
+            # Rename other camelCase columns to snake_case
+            column_mapping = {
+                "blockNumber": "block_number",
+                "blockHash": "block_hash",
+                "timeStamp": "time_stamp",
+                "gasPrice": "gas_price",
+                "gasUsed": "gas_used",
+                "transactionHash": "transaction_hash",
+                "transactionIndex": "transaction_index"
+            }
+
+            for old_name, new_name in column_mapping.items():
+                if old_name in df.columns:
+                    df = df.rename({old_name: new_name})
+
+        # Column name mapping for transactions
+        elif "transactions" in parquet_file_path.lower():
+            column_mapping = {
+                "blockNumber": "block_number",
+                "blockHash": "block_hash",
+                "timeStamp": "time_stamp",
+                "transactionIndex": "transaction_index"
+            }
+
+            for old_name, new_name in column_mapping.items():
+                if old_name in df.columns:
+                    df = df.rename({old_name: new_name})
+
+        # Get row count efficiently
+        row_count = len(df)
+        logger.debug(f"Loaded {row_count} rows from Parquet file")
+
+        # Convert to records for DLT
+        records = df.to_dicts()
+
+        # Convert numpy arrays in topics to Python lists for JSON serialization
+        if "logs" in parquet_file_path.lower():
+            for record in records:
+                if "topics" in record and record["topics"] is not None:
+                    if hasattr(record["topics"], 'tolist'):
+                        record["topics"] = record["topics"].tolist()
+
+        # Get destination from postgres client
+        destination = postgres_client.get_dlt_destination()
+
+        # Create and run pipeline
+        pipeline = dlt.pipeline(
+            pipeline_name="backfill_to_postgres",
+            destination=destination,
+            dataset_name=dataset_name,
+        )
+
+        # Define column hints for logs table to properly handle topics array
+        columns = None
+        if "logs" in parquet_file_path.lower() and "topics" in df.columns:
+            columns = {
+                "topics": {"data_type": "json", "nullable": True}
+            }
+
+        run_kwargs = {
+            "table_name": table_name,
+            "write_disposition": write_disposition,
+        }
+        if primary_key:
+            run_kwargs["primary_key"] = primary_key
+        if columns:
+            run_kwargs["columns"] = columns
+
+        result = pipeline.run(records, **run_kwargs)
+        logger.debug(
+            f"✅ Successfully loaded {len(records)} rows to table '{table_name}'"
+        )
+
+        return result
+
+    except Exception as e:
+        logger.error(
+            f"❌ Failed to load {parquet_file_path} to table '{table_name}': {e}"
+        )
+        raise
+
+
+def etherscan_to_postgres(
     address: str,
     chain: str,
     postgres_client: PostgresClient,
@@ -410,5 +562,64 @@ def backfill_from_etherscan_to_postgres(
         protocol=protocol,
     )
 
-    logger.info(f"✅ Complete workflow finished for {address} (protocol: {protocol})")
+    logger.debug(f"✅ Complete workflow finished for {address} (protocol: {protocol})")
     return result
+
+
+def find_error_file(table_name: str) -> str:
+    """Find the CSV error file for given address and chainid."""
+    error_file = f"logs/extract_error_{table_name}.csv"
+    if not os.path.exists(error_file):
+        raise FileNotFoundError(f"No error file found for {table_name}")
+    return error_file
+
+
+def retry_failed_blocks(
+    table_name: Literal["logs", "transactions"],
+    data_dir: str = "data/etherscan_raw",
+) -> bool:
+    """Retry failed block ranges with smaller chunk size."""
+    error_file = find_error_file(table_name)
+
+    df = pd.read_csv(error_file)
+    resolved_error_file = error_file.replace(".csv", "_resolved.csv")
+    df.to_csv(resolved_error_file, index=False)
+    os.remove(error_file)
+    resume = False
+
+    for _, row in df.iterrows():
+        chainid = row.chainid
+        etherscan_client = EtherscanClient(chainid=chainid)
+        address = row.contract_address
+
+        if table_name == "logs":
+            extract_logs = True
+            extract_transactions = False
+            logs_output_path = (
+                f"{data_dir}/{etherscan_client.chain}_{address}/logs.parquet"
+            )
+            transactions_output_path = None
+        elif table_name == "transactions":
+            extract_logs = False
+            extract_transactions = True
+            transactions_output_path = (
+                f"{data_dir}/{etherscan_client.chain}_{address}/transactions.parquet"
+            )
+            logs_output_path = None
+
+        from_block = row.from_block
+        to_block = row.to_block
+        block_chunk_size = max(int(row.block_chunk_size / 10), 1000)
+
+        _etherscan_to_parquet_in_chunks(
+            contract_address=address,
+            etherscan_client=etherscan_client,
+            extract_logs=extract_logs,
+            extract_transactions=extract_transactions,
+            from_block=from_block,
+            to_block=to_block,
+            block_chunk_size=block_chunk_size,
+            resume=resume,
+            logs_output_path=logs_output_path,
+            transactions_output_path=transactions_output_path,
+        )

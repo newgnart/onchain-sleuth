@@ -6,18 +6,18 @@ from typing import Dict, List, Optional, Literal, Any
 
 import polars as pl
 
-from onchain_sleuth.datasource.etherscan import EtherscanClient, EtherscanSource
+from onchain_sleuth.source.etherscan import EtherscanClient, EtherscanSource
 from onchain_sleuth.core.exceptions import APIError
 
 
-class HistoricalDataExtractor:
+class EtherscanExtractor:
     """Extracts historical blockchain data and saves to Parquet files.
 
     Example:
-        extractor = HistoricalDataExtractor(etherscan_client)
+        extractor = EtherscanExtractor(etherscan_client)
 
         # Extract logs for single address
-        path = extractor.extract_to_parquet("0x123...", "ethereum", "logs")
+        path = extractor.to_parquet("0x123...", "ethereum", "logs")
 
     """
 
@@ -30,7 +30,7 @@ class HistoricalDataExtractor:
         self.save_dir = save_dir
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def extract_to_parquet(
+    def to_parquet(
         self,
         address: str,
         chain: str = "ethereum",
@@ -54,7 +54,7 @@ class HistoricalDataExtractor:
         Returns:
             Path to the created Parquet file, or None if no data extracted
         """
-        self.logger.info(
+        self.logger.debug(
             f"Extracting {table} for address {address} on {chain} from block {from_block} to {to_block}"
         )
 
@@ -93,7 +93,7 @@ class HistoricalDataExtractor:
                     data.append(record)
 
             if not data:
-                self.logger.warning(f"No {table} extracted for address {address}")
+                self.logger.debug(f"No {table} extracted for address {address}")
                 return None
 
             return self._save_to_parquet(address, chain, table, data, output_path)
@@ -165,7 +165,7 @@ class HistoricalDataExtractor:
 
         try:
             # Create Polars DataFrame
-            df = pl.DataFrame(data)
+            new_lazy = pl.LazyFrame(data)
 
             # Save to Parquet (append if file exists)
             if output_path.exists():
@@ -174,24 +174,28 @@ class HistoricalDataExtractor:
 
                 # Ensure column order matches between existing and new data
                 existing_columns = existing_lazy.collect_schema().names()
-                new_lazy = pl.LazyFrame(df).select(existing_columns)
+                new_lazy = new_lazy.select(existing_columns)
 
-                combined_lazy = pl.concat([existing_lazy, new_lazy])
+                combined_lazy = pl.concat([existing_lazy, new_lazy]).unique()
+                # only keep unique records, sometime dup happens especially running retry_failed_blocks
 
-                # Get count before materializing for logging
+                # Get count
                 existing_count = existing_lazy.select(pl.len()).collect().item()
-                new_count = len(df)
-                total_count = existing_count + new_count
+                combined_count = combined_lazy.select(pl.len()).collect().item()
 
-                # Materialize and write the combined data
-                combined_lazy.collect().write_parquet(output_path)
-                self.logger.info(
-                    f"Appended {new_count} {table} to existing {existing_count} records (total now: {total_count})"
-                )
+                if existing_count != combined_count:
+                    # Materialize and write the combined data
+                    combined_lazy.collect().write_parquet(output_path)
+                    self.logger.debug(
+                        f"{output_path}: Existing count: {existing_count}, added: {combined_count - existing_count}"
+                    )
+                else:
+                    self.logger.debug(f"{output_path}: No new records to append")
+
             else:
                 # Write new file
-                df.write_parquet(output_path)
-                self.logger.info(f"Created new file with {len(df)} {table}")
+                new_lazy.collect().write_parquet(output_path)
+                self.logger.debug(f"{output_path}: Created new file")
 
             return str(output_path)
 
