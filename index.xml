@@ -298,7 +298,7 @@
   <category>stablecoins</category>
   <guid>https://newgnart.github.io/hunt/stablecoins.html</guid>
   <pubDate>Wed, 24 Sep 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://newgnart.github.io/hunt/images/boss.png" medium="image" type="image/png"/>
+  <media:content url="https://newgnart.github.io/hunt/images/boss.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 </channel>
 </rss>
