@@ -1,6 +1,6 @@
 ---
 listing:
-  contents: notebooks
+  contents: hunt
   feed: true
   sort-ui: true
   sort: 
