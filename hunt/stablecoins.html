@@ -6,10 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-07-03">
-<meta name="description" content="Curve Market Health Scores">
+<meta name="dcterms.date" content="2025-09-24">
+<meta name="description" content="An analysis of $OPEN token">
 
-<title>CRVUSD Market Health – Taming onchain data</title>
+<title>Stablecoins Usage – Taming onchain data</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -273,15 +273,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#curve-market-health-scores-methodology" id="toc-curve-market-health-scores-methodology" class="nav-link active" data-scroll-target="#curve-market-health-scores-methodology">Curve Market Health Scores Methodology</a>
-  <ul class="collapse">
-  <li><a href="#asset-price-momentum-volatility" id="toc-asset-price-momentum-volatility" class="nav-link" data-scroll-target="#asset-price-momentum-volatility">Asset price momentum &amp; volatility</a></li>
-  <li><a href="#borrower-concentration" id="toc-borrower-concentration" class="nav-link" data-scroll-target="#borrower-concentration">Borrower concentration</a>
-  <ul class="collapse">
-  <li><a href="#data-transformations" id="toc-data-transformations" class="nav-link" data-scroll-target="#data-transformations">Data Transformations</a></li>
-  <li><a href="#borrower-concentration-1" id="toc-borrower-concentration-1" class="nav-link" data-scroll-target="#borrower-concentration-1">Borrower concentration</a></li>
-  </ul></li>
-  </ul></li>
+  <li><a href="#some-intresting-transactions" id="toc-some-intresting-transactions" class="nav-link active" data-scroll-target="#some-intresting-transactions">Some intresting transactions</a></li>
+  <li><a href="#erc20-transfers-count" id="toc-erc20-transfers-count" class="nav-link" data-scroll-target="#erc20-transfers-count">ERC20 transfers count</a></li>
   </ul>
 </nav>
     </div>
@@ -291,7 +284,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">CRVUSD Market Health</h1>
+<h1 class="title">Stablecoins Usage</h1>
   <div class="quarto-categories">
     <div class="quarto-category">analysis</div>
     <div class="quarto-category">stablecoins</div>
@@ -300,7 +293,7 @@ ul.task-list li input[type="checkbox"] {
 
 <div>
   <div class="description">
-    Curve Market Health Scores
+    An analysis of $OPEN token
   </div>
 </div>
 
@@ -311,7 +304,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 3, 2025</p>
+      <p class="date">September 24, 2025</p>
     </div>
   </div>
   
@@ -323,43 +316,11 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="curve-market-health-scores-methodology" class="level1">
-<h1>Curve Market Health Scores Methodology</h1>
-<p>The work is based on the Curve Market Health Scores methodology research by <a href="https://www.llamarisk.com/research/curve-market-health-methodology">LlamaRisk</a>.</p>
-<ul>
-<li><p>Data are loaded from Etherscan, CoinGecko, transformed to postgres database, using <a href="https://dlt.readthedocs.io/en/latest/">dlt</a> and <a href="https://www.getdbt.com/">dbt</a></p>
-<ul>
-<li>data destinations: data can be saved to other destinations, e.g.&nbsp;Amazon Redshift, Google BigQuery, etc.</li>
-</ul></li>
-<li><p>Score methodology:</p>
-<ul>
-<li><ol type="1">
-<li>Asset price momentum &amp; volatility</li>
-</ol></li>
-<li><ol start="2" type="1">
-<li>Borrower concentration</li>
-</ol></li>
-<li><ol start="3" type="1">
-<li>Bad debt</li>
-</ol></li>
-<li><ol start="4" type="1">
-<li>Debt ceiling</li>
-</ol></li>
-<li><ol start="5" type="1">
-<li>Collateral ratio</li>
-</ol></li>
-<li><ol start="6" type="1">
-<li>Collateral under soft liquidation</li>
-</ol></li>
-<li><ol start="7" type="1">
-<li>Soft liquidation efficiency</li>
-</ol></li>
-</ul></li>
-</ul>
-<section id="asset-price-momentum-volatility" class="level2">
-<h2 class="anchored" data-anchor-id="asset-price-momentum-volatility">Asset price momentum &amp; volatility</h2>
-<div id="cell-4" class="cell" data-execution_count="19">
-<div class="cell-output cell-output-display">
+<section id="some-intresting-transactions" class="level2">
+<h2 class="anchored" data-anchor-id="some-intresting-transactions">Some intresting transactions</h2>
+<p>Big amounts</p>
+<div id="66aa7d7e" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
@@ -367,550 +328,173 @@ ul.task-list li input[type="checkbox"] {
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">table_catalog</th>
-<th data-quarto-table-cell-role="th">table_schema</th>
-<th data-quarto-table-cell-role="th">table_name</th>
-<th data-quarto-table-cell-role="th">table_type</th>
+<th data-quarto-table-cell-role="th">amount</th>
+<th data-quarto-table-cell-role="th">token_address</th>
+<th data-quarto-table-cell-role="th">from_address</th>
+<th data-quarto-table-cell-role="th">to_address</th>
+<th data-quarto-table-cell-role="th">transaction_hash</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>prices</td>
-<td>weth_coingecko</td>
-<td>market_chart</td>
-<td>BASE TABLE</td>
+<td>1.957882e+40</td>
+<td>0xbc6da0fe9ad5f3b0d58160288917aa56653660e9</td>
+<td>0x303241e2b3b4aed0bb0f8623e7442368fed8faf3</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0xb23aaecc086996f8059a0de67819b0e45d82e68c2581...</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>prices</td>
-<td>weth_coingecko</td>
-<td>ohlc</td>
-<td>BASE TABLE</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="cell-5" class="cell" data-execution_count="20">
-<div class="cell-output cell-output-display" data-execution_count="20">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">timestamp</th>
-<th data-quarto-table-cell-role="th">open</th>
-<th data-quarto-table-cell-role="th">high</th>
-<th data-quarto-table-cell-role="th">low</th>
-<th data-quarto-table-cell-role="th">close</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>2025-05-28 18:00:00+07:00</td>
-<td>2661.24</td>
-<td>2661.24</td>
-<td>2624.30</td>
-<td>2649.09</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>2025-05-28 22:00:00+07:00</td>
-<td>2648.27</td>
-<td>2650.04</td>
-<td>2629.71</td>
-<td>2635.29</td>
+<td>1.957882e+40</td>
+<td>0xbc6da0fe9ad5f3b0d58160288917aa56653660e9</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0x303241e2b3b4aed0bb0f8623e7442368fed8faf3</td>
+<td>0xb23aaecc086996f8059a0de67819b0e45d82e68c2581...</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
-<td>2025-05-29 02:00:00+07:00</td>
-<td>2633.74</td>
-<td>2651.83</td>
-<td>2621.08</td>
-<td>2651.83</td>
+<td>3.214218e+38</td>
+<td>0xbc6da0fe9ad5f3b0d58160288917aa56653660e9</td>
+<td>0xe1f27add45652812bad02e26eec588f0ef97e1d3</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0x06712214f077b5bfd9568ca0d32da8633e1ea12bf352...</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
-<td>2025-05-29 06:00:00+07:00</td>
-<td>2656.16</td>
-<td>2684.72</td>
-<td>2622.05</td>
-<td>2634.73</td>
+<td>3.214218e+38</td>
+<td>0xbc6da0fe9ad5f3b0d58160288917aa56653660e9</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0xe1f27add45652812bad02e26eec588f0ef97e1d3</td>
+<td>0x06712214f077b5bfd9568ca0d32da8633e1ea12bf352...</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
-<td>2025-05-29 10:00:00+07:00</td>
-<td>2631.45</td>
-<td>2659.64</td>
-<td>2618.59</td>
-<td>2618.59</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">...</th>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">175</th>
-<td>2025-06-26 22:00:00+07:00</td>
-<td>2489.06</td>
-<td>2496.80</td>
-<td>2472.21</td>
-<td>2495.86</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">176</th>
-<td>2025-06-27 02:00:00+07:00</td>
-<td>2493.97</td>
-<td>2499.03</td>
-<td>2443.04</td>
-<td>2452.12</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">177</th>
-<td>2025-06-27 06:00:00+07:00</td>
-<td>2451.09</td>
-<td>2454.56</td>
-<td>2414.48</td>
-<td>2433.20</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">178</th>
-<td>2025-06-27 10:00:00+07:00</td>
-<td>2433.44</td>
-<td>2439.31</td>
-<td>2422.08</td>
-<td>2439.13</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">179</th>
-<td>2025-06-27 14:00:00+07:00</td>
-<td>2441.91</td>
-<td>2454.23</td>
-<td>2408.58</td>
-<td>2413.87</td>
-</tr>
-</tbody>
-</table>
-
-<p>180 rows × 5 columns</p>
-</div>
-</div>
-</div>
-<div id="cell-6" class="cell" data-execution_count="21">
-<div class="cell-output cell-output-stdout">
-<pre><code>Asset Volatility</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="21">
-<pre><code>{'Volatility ratio score': {'45 day volatility': 0.23,
-  '180 day volatility': 0.19,
-  'Volatility ratio': 1.23,
-  'Volatility score': 0.36},
- 'Beta score': {'Asset volatility': 0.23,
-  'Reference volatility': 0.23,
-  'Correlation': 1.0,
-  'Beta': 1.0,
-  'Beta score': 0.4},
- 'VaR score': {'99% VaR': -0.05, 'VaR score': 0.5},
- 'Final score': 0.43}</code></pre>
-</div>
-</div>
-</section>
-<section id="borrower-concentration" class="level2">
-<h2 class="anchored" data-anchor-id="borrower-concentration">Borrower concentration</h2>
-<div id="cell-8" class="cell" data-execution_count="22">
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">table_catalog</th>
-<th data-quarto-table-cell-role="th">table_schema</th>
-<th data-quarto-table-cell-role="th">table_name</th>
-<th data-quarto-table-cell-role="th">table_type</th>
-<th data-quarto-table-cell-role="th">self_referencing_column_name</th>
-<th data-quarto-table-cell-role="th">reference_generation</th>
-<th data-quarto-table-cell-role="th">user_defined_type_catalog</th>
-<th data-quarto-table-cell-role="th">user_defined_type_schema</th>
-<th data-quarto-table-cell-role="th">user_defined_type_name</th>
-<th data-quarto-table-cell-role="th">is_insertable_into</th>
-<th data-quarto-table-cell-role="th">is_typed</th>
-<th data-quarto-table-cell-role="th">commit_action</th>
-<th data-quarto-table-cell-role="th">TABLE_COMMENT</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>curve</td>
-<td>controllers</td>
-<td>logs</td>
-<td>BASE TABLE</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>YES</td>
-<td>NO</td>
-<td>None</td>
-<td>None</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>curve</td>
-<td>controllers</td>
-<td>_dlt_loads</td>
-<td>BASE TABLE</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>YES</td>
-<td>NO</td>
-<td>None</td>
-<td>None</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>curve</td>
-<td>controllers</td>
-<td>_dlt_pipeline_state</td>
-<td>BASE TABLE</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>YES</td>
-<td>NO</td>
-<td>None</td>
-<td>None</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>curve</td>
-<td>controllers</td>
-<td>_dlt_version</td>
-<td>BASE TABLE</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>None</td>
-<td>YES</td>
-<td>NO</td>
-<td>None</td>
-<td>None</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<section id="data-transformations" class="level3">
-<h3 class="anchored" data-anchor-id="data-transformations">Data Transformations</h3>
-<section id="extract-borrower-state-data" class="level4">
-<h4 class="anchored" data-anchor-id="extract-borrower-state-data">Extract borrower state data</h4>
-<div id="cell-11" class="cell" data-execution_count="23">
-<div class="cell-output cell-output-display" data-execution_count="23">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">topics</th>
-<th data-quarto-table-cell-role="th">address</th>
-<th data-quarto-table-cell-role="th">data</th>
-<th data-quarto-table-cell-role="th">block_number</th>
-<th data-quarto-table-cell-role="th">block_hash</th>
-<th data-quarto-table-cell-role="th">time_stamp</th>
-<th data-quarto-table-cell-role="th">gas_price</th>
-<th data-quarto-table-cell-role="th">gas_used</th>
-<th data-quarto-table-cell-role="th">log_index</th>
-<th data-quarto-table-cell-role="th">transaction_hash</th>
-<th data-quarto-table-cell-role="th">transaction_index</th>
-<th data-quarto-table-cell-role="th">_dlt_load_id</th>
-<th data-quarto-table-cell-role="th">_dlt_id</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>["0xeec6b7095a637e006c79c1819d696e353a8f703db2...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075dc7</td>
-<td>0x6f971a452a974a94c9d59bf20c1c6ed66bb5c0ff2782...</td>
-<td>0x64612d33</td>
-<td>0x9c2847d19</td>
-<td>0x1287b2</td>
-<td>0xa6</td>
-<td>0xcac35a9c033ea94fa885060c2fcce68ac17574250cc6...</td>
-<td>0x3f</td>
-<td>1750953848.3246627</td>
-<td>IGPaA++ijLN4tQ</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>["0xe1979fe4c35e0cef342fef5668e2c8e7a7e9f5d5d1...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075dc7</td>
-<td>0x6f971a452a974a94c9d59bf20c1c6ed66bb5c0ff2782...</td>
-<td>0x64612d33</td>
-<td>0x9c2847d19</td>
-<td>0x1287b2</td>
-<td>0xa7</td>
-<td>0xcac35a9c033ea94fa885060c2fcce68ac17574250cc6...</td>
-<td>0x3f</td>
-<td>1750953848.3246627</td>
-<td>yK0KInKh8Z2nhw</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>["0xeec6b7095a637e006c79c1819d696e353a8f703db2...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075f25</td>
-<td>0x0c72e1aa14e2607d062d6acc56e088d299cb9aedea2a...</td>
-<td>0x64613def</td>
-<td>0xc0ff737d8</td>
-<td>0x141d07</td>
-<td>0x62</td>
-<td>0xf5cc3b8d70eb97313916d62acdb7936b4996d8c8d430...</td>
-<td>0x3e</td>
-<td>1750953848.3246627</td>
-<td>gU+qZfLPkrmyew</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="cell-13" class="cell" data-execution_count="25">
-<div class="cell-output cell-output-display" data-execution_count="25">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">topics</th>
-<th data-quarto-table-cell-role="th">address</th>
-<th data-quarto-table-cell-role="th">data</th>
-<th data-quarto-table-cell-role="th">block_number</th>
-<th data-quarto-table-cell-role="th">block_hash</th>
-<th data-quarto-table-cell-role="th">time_stamp</th>
-<th data-quarto-table-cell-role="th">gas_price</th>
-<th data-quarto-table-cell-role="th">gas_used</th>
-<th data-quarto-table-cell-role="th">log_index</th>
-<th data-quarto-table-cell-role="th">transaction_hash</th>
-<th data-quarto-table-cell-role="th">transaction_index</th>
-<th data-quarto-table-cell-role="th">_dlt_load_id</th>
-<th data-quarto-table-cell-role="th">_dlt_id</th>
-<th data-quarto-table-cell-role="th">user</th>
-<th data-quarto-table-cell-role="th">collateral</th>
-<th data-quarto-table-cell-role="th">debt</th>
-<th data-quarto-table-cell-role="th">n1</th>
-<th data-quarto-table-cell-role="th">n2</th>
-<th data-quarto-table-cell-role="th">liquidation_discount</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>[0xeec6b7095a637e006c79c1819d696e353a8f703db2c...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075dc7</td>
-<td>0x6f971a452a974a94c9d59bf20c1c6ed66bb5c0ff2782...</td>
-<td>2023-05-14 18:49:23</td>
-<td>0x9c2847d19</td>
-<td>0x1287b2</td>
-<td>0xa6</td>
-<td>0xcac35a9c033ea94fa885060c2fcce68ac17574250cc6...</td>
-<td>0x3f</td>
-<td>1750953848.3246627</td>
-<td>IGPaA++ijLN4tQ</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>929933909709140155529</td>
-<td>1000000000000000000000000</td>
-<td>40</td>
-<td>49</td>
-<td>60000000000000000</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>[0xeec6b7095a637e006c79c1819d696e353a8f703db2c...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1075f25</td>
-<td>0x0c72e1aa14e2607d062d6acc56e088d299cb9aedea2a...</td>
-<td>2023-05-14 20:00:47</td>
-<td>0xc0ff737d8</td>
-<td>0x141d07</td>
-<td>0x62</td>
-<td>0xf5cc3b8d70eb97313916d62acdb7936b4996d8c8d430...</td>
-<td>0x3e</td>
-<td>1750953848.3246627</td>
-<td>gU+qZfLPkrmyew</td>
-<td>0xd0c096ac82eba8d7a26f96ffc34b4e3bba3a1122</td>
-<td>4950000000000000000</td>
-<td>5000000000000000000000</td>
-<td>44</td>
-<td>58</td>
-<td>60000000000000000</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>[0xeec6b7095a637e006c79c1819d696e353a8f703db2c...</td>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x00000000000000000000000000000000000000000000...</td>
-<td>0x1076eb1</td>
-<td>0xc553074b5408478e26f408da8820402f6a01b9072097...</td>
-<td>2023-05-15 09:30:47</td>
-<td>0xbd28e4657</td>
-<td>0x11201d</td>
-<td>0x158</td>
-<td>0x364382c084cfb2c557809367a123de63cf794f144fd5...</td>
-<td>0x73</td>
-<td>1750953848.3246627</td>
-<td>s1uyLeQx3zYHCA</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>929933909709140155529</td>
-<td>1522177275477716067202304</td>
-<td>-1</td>
-<td>8</td>
-<td>60000000000000000</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="cell-14" class="cell" data-execution_count="26">
-<div class="cell-output cell-output-display" data-execution_count="26">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">address</th>
-<th data-quarto-table-cell-role="th">time_stamp</th>
-<th data-quarto-table-cell-role="th">user</th>
-<th data-quarto-table-cell-role="th">debt</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>2023-05-14 18:49:23</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>1.000000e+06</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>2023-05-14 20:00:47</td>
-<td>0xd0c096ac82eba8d7a26f96ffc34b4e3bba3a1122</td>
-<td>5.000000e+03</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>2023-05-15 09:30:47</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>1.522177e+06</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-</section>
-<section id="transform-borrower-state-data" class="level4">
-<h4 class="anchored" data-anchor-id="transform-borrower-state-data">Transform borrower state data</h4>
-<div id="cell-16" class="cell" data-execution_count="28">
-<div class="cell-output cell-output-display" data-execution_count="28">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">address</th>
-<th data-quarto-table-cell-role="th">user</th>
-<th data-quarto-table-cell-role="th">debt</th>
-<th data-quarto-table-cell-role="th">date</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>1.000000e+06</td>
-<td>2023-05-14</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0xd0c096ac82eba8d7a26f96ffc34b4e3bba3a1122</td>
-<td>5.000000e+03</td>
-<td>2023-05-14</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x5180db0237291a6449dda9ed33ad90a38787621c</td>
-<td>2.000000e+03</td>
-<td>2023-05-15</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x7a16ff8270133f063aab6c9977183d9e72835428</td>
-<td>1.537712e+06</td>
-<td>2023-05-15</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0xd0c096ac82eba8d7a26f96ffc34b4e3bba3a1122</td>
-<td>5.000000e+03</td>
-<td>2023-05-15</td>
+<td>1.012384e+27</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x691a6c29e9e96dd897718305427ad5d534db16ba</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0xf5afc2a2299e46c08954b51342257f17bfc02e40bfcd...</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">5</th>
-<td>0x8472a9a7632b173c8cf3a86d3afec50c35548e76</td>
-<td>0x425d16b0e08a28a3ff9e4404ae99d78c0a076c5a</td>
-<td>5.000000e+04</td>
-<td>2023-05-16</td>
+<td>1.012384e+27</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0x629ad4d779f46b8a1491d3f76f7e97cb04d8b1cd</td>
+<td>0xdd5bf338720c06dd098216e53a276a8bac00fddd80e9...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>1.012384e+27</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0xc395d150e71378b47a1b8e9de0c1a83b75a08324</td>
+<td>0x691a6c29e9e96dd897718305427ad5d534db16ba</td>
+<td>0xf5afc2a2299e46c08954b51342257f17bfc02e40bfcd...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>1.012384e+27</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x629ad4d779f46b8a1491d3f76f7e97cb04d8b1cd</td>
+<td>0x1601843c5e9bc251a3272907010afa41fa18347e</td>
+<td>0xdd5bf338720c06dd098216e53a276a8bac00fddd80e9...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>1.012384e+27</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x1601843c5e9bc251a3272907010afa41fa18347e</td>
+<td>0xc395d150e71378b47a1b8e9de0c1a83b75a08324</td>
+<td>0xf5afc2a2299e46c08954b51342257f17bfc02e40bfcd...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
+<td>4.477562e+26</td>
+<td>0x5f98805a4e8be255a32880fdec7f6728c6568ba0</td>
+<td>0x903d12bf2c57a29f32365917c706ce0e1a84cce3</td>
+<td>0x66017d22b0f8556afdd19fc67041899eb65a21bb</td>
+<td>0x167a205d0de566eaf0fa4a7bd1ee850125a4d03c2b0d...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">10</th>
+<td>4.477562e+26</td>
+<td>0x5f98805a4e8be255a32880fdec7f6728c6568ba0</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0x903d12bf2c57a29f32365917c706ce0e1a84cce3</td>
+<td>0x6acdc4e6b6fd224d004c76bb497648550f92e3e8b5f2...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">11</th>
+<td>4.163991e+26</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x691a6c29e9e96dd897718305427ad5d534db16ba</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0xd214a60bbebd28c045e36478adc3f15c65d2d017ffb0...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">12</th>
+<td>4.163991e+26</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x1601843c5e9bc251a3272907010afa41fa18347e</td>
+<td>0xc395d150e71378b47a1b8e9de0c1a83b75a08324</td>
+<td>0xd214a60bbebd28c045e36478adc3f15c65d2d017ffb0...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">13</th>
+<td>4.163991e+26</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0xc395d150e71378b47a1b8e9de0c1a83b75a08324</td>
+<td>0x691a6c29e9e96dd897718305427ad5d534db16ba</td>
+<td>0xd214a60bbebd28c045e36478adc3f15c65d2d017ffb0...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">14</th>
+<td>4.000000e+26</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0xc395d150e71378b47a1b8e9de0c1a83b75a08324</td>
+<td>0x3300f198988e4c9c63f75df86de36421f06af8c4</td>
+<td>0x4ddc25f122e8092d40a008e2a1807ed81beb514f0543...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">15</th>
+<td>4.000000e+26</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0xc395d150e71378b47a1b8e9de0c1a83b75a08324</td>
+<td>0x4ddc25f122e8092d40a008e2a1807ed81beb514f0543...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">16</th>
+<td>3.031114e+26</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0xc395d150e71378b47a1b8e9de0c1a83b75a08324</td>
+<td>0x691a6c29e9e96dd897718305427ad5d534db16ba</td>
+<td>0x25cc4ee2f2b5eb885ccf729964794c3257884f21987e...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">17</th>
+<td>3.031114e+26</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x691a6c29e9e96dd897718305427ad5d534db16ba</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0x25cc4ee2f2b5eb885ccf729964794c3257884f21987e...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">18</th>
+<td>3.031114e+26</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x0000000000000000000000000000000000000000</td>
+<td>0x1601843c5e9bc251a3272907010afa41fa18347e</td>
+<td>0x25cc4ee2f2b5eb885ccf729964794c3257884f21987e...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">19</th>
+<td>3.031114e+26</td>
+<td>0xdc035d45d973e3ec169d2276ddab16f1e407384f</td>
+<td>0x1601843c5e9bc251a3272907010afa41fa18347e</td>
+<td>0xc395d150e71378b47a1b8e9de0c1a83b75a08324</td>
+<td>0x25cc4ee2f2b5eb885ccf729964794c3257884f21987e...</td>
 </tr>
 </tbody>
 </table>
@@ -919,11 +503,10 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </section>
-</section>
-<section id="borrower-concentration-1" class="level3">
-<h3 class="anchored" data-anchor-id="borrower-concentration-1">Borrower concentration</h3>
-<div id="cell-18" class="cell" data-execution_count="29">
-<div class="cell-output cell-output-display" data-execution_count="29">
+<section id="erc20-transfers-count" class="level2">
+<h2 class="anchored" data-anchor-id="erc20-transfers-count">ERC20 transfers count</h2>
+<div id="d640ae7d" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
 
@@ -931,179 +514,79 @@ ul.task-list li input[type="checkbox"] {
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">date</th>
-<th data-quarto-table-cell-role="th">hhi</th>
+<th data-quarto-table-cell-role="th">stablecoin</th>
+<th data-quarto-table-cell-role="th">erc20_transfer_count</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>2023-05-14</td>
-<td>(1000025000000.0, 505012500000.0)</td>
+<td>crvusd</td>
+<td>1359555</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>2023-05-15</td>
-<td>(2364586884905.9204, 795378283831.5199)</td>
+<td>usds</td>
+<td>834159</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
-<td>2023-05-16</td>
-<td>(2367086884905.9204, 635776510353.3525)</td>
+<td>lusd</td>
+<td>550227</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
-<td>2023-05-17</td>
-<td>(2374192047016.515, 404290718232.55194)</td>
+<td>gho</td>
+<td>475397</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
-<td>2023-05-18</td>
-<td>(2100357311667.3918, 204031800103.62622)</td>
+<td>dola</td>
+<td>362099</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">...</th>
-<td>...</td>
-<td>...</td>
+<th data-quarto-table-cell-role="th">5</th>
+<td>eusd</td>
+<td>148279</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">183</th>
-<td>2024-09-09</td>
-<td>(15857063565.231691, 2526968534.1705546)</td>
+<th data-quarto-table-cell-role="th">6</th>
+<td>fxusd</td>
+<td>94206</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">184</th>
-<td>2025-03-10</td>
-<td>(15598812051.008957, 2269635037.8243403)</td>
+<th data-quarto-table-cell-role="th">7</th>
+<td>alusd</td>
+<td>80357</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">185</th>
-<td>2025-04-04</td>
-<td>(15598812049.848175, 2521780639.2592626)</td>
+<th data-quarto-table-cell-role="th">8</th>
+<td>bold</td>
+<td>58566</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">186</th>
-<td>2025-04-06</td>
-<td>(15598806424.848175, 2834179197.2512627)</td>
+<th data-quarto-table-cell-role="th">9</th>
+<td>ousd</td>
+<td>57283</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">187</th>
-<td>2025-04-07</td>
-<td>(16040780574.127316, 2902080723.4643254)</td>
+<th data-quarto-table-cell-role="th">10</th>
+<td>frxusd</td>
+<td>40915</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">11</th>
+<td>usd3</td>
+<td>8826</td>
 </tr>
 </tbody>
 </table>
 
-<p>188 rows × 2 columns</p>
 </div>
-</div>
-</div>
-<div id="cell-19" class="cell" data-execution_count="30">
-<div class="cell-output cell-output-display" data-execution_count="30">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">date</th>
-<th data-quarto-table-cell-role="th">hhi</th>
-<th data-quarto-table-cell-role="th">hhi_ideal</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>2023-05-14</td>
-<td>1.000025e+12</td>
-<td>5.050125e+11</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>2023-05-15</td>
-<td>2.364587e+12</td>
-<td>7.953783e+11</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>2023-05-16</td>
-<td>2.367087e+12</td>
-<td>6.357765e+11</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>2023-05-17</td>
-<td>2.374192e+12</td>
-<td>4.042907e+11</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>2023-05-18</td>
-<td>2.100357e+12</td>
-<td>2.040318e+11</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">...</th>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">690</th>
-<td>2025-04-03</td>
-<td>1.559881e+10</td>
-<td>2.269635e+09</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">691</th>
-<td>2025-04-04</td>
-<td>1.559881e+10</td>
-<td>2.521781e+09</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">692</th>
-<td>2025-04-05</td>
-<td>1.559881e+10</td>
-<td>2.521781e+09</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">693</th>
-<td>2025-04-06</td>
-<td>1.559881e+10</td>
-<td>2.834179e+09</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">694</th>
-<td>2025-04-07</td>
-<td>1.604078e+10</td>
-<td>2.902081e+09</td>
-</tr>
-</tbody>
-</table>
-
-<p>695 rows × 3 columns</p>
-</div>
-</div>
-</div>
-<div id="cell-20" class="cell" data-execution_count="33">
-<div class="cell-output cell-output-display">
-<pre><code>{'7 day HHI': '1.57e+10',
- '30 day HHI': '1.56e+10',
- 'Ratio': 1.0025,
- 'Relative score': 0.51}</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<pre><code>{'Current HHI': '1.60e+10',
- 'HHI ideal': '2.90e+09',
- 'Ratio': 5.5273,
- 'Benchmark score': 1.0}</code></pre>
 </div>
 </div>
 
 
-</section>
-</section>
 </section>
 
 </main> <!-- /main -->
