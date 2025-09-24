@@ -3,7 +3,7 @@ project:
   output-dir: _site
   render:
     - "*.qmd"
-    - "notebooks/"
+    - "hunt/"
 
 website:
   title: Taming onchain data
