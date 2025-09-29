@@ -1,5 +1,19 @@
 [
   {
+    "objectID": "hunt/yieldbasis.html#top-5-depositors-for-each-market",
+    "href": "hunt/yieldbasis.html#top-5-depositors-for-each-market",
+    "title": "yield basis",
+    "section": "Top 5 depositors for each market",
+    "text": "Top 5 depositors for each market\n\n\nTop 5 depositors for WBTC\n\n\n\n\n\n\n\n\n\ndeposit_amount\n\n\nfrom_address\n\n\n\n\n\n0x196a2a9a22c2fd8f5107e97df9ad14a23e81982b\n7.500000\n\n\n0xd009986bf640443e99be79b93da2fbefcea29d67\n0.592528\n\n\n0x53856c7e3d31416366d30d65e80640590fd789c6\n0.247547\n\n\n0x131e1353237e9989702372b17c0a80e3921a8239\n0.233926\n\n\n0x90eb355a85ea5324529224945bb55f1960da1b47\n0.150000\n\n\n\n\n\n\n\nTop 5 depositors for TBTC\n\n\n\n\n\n\n\n\n\ndeposit_amount\n\n\nfrom_address\n\n\n\n\n\n0x1eafa35d4e5d11fdb3921968379fddd2c0f9023f\n3.480000\n\n\n0x871ae2e1ef121d7c43d57d6318e227dd558d2e39\n3.000000\n\n\n0xbd73cf5baf12f120ee3f6c4ad82df9a12649e578\n1.801557\n\n\n0x6df859f39bcf663172e10ba69f57736d6101e09a\n1.500000\n\n\n0xf748879edbe8cca140940788163d7be4d2a2e46a\n1.010834\n\n\n\n\n\n\n\nTop 5 depositors for CBBTC\n\n\n\n\n\n\n\n\n\ndeposit_amount\n\n\nfrom_address\n\n\n\n\n\n0x96a98d05449672a06ff621b9af12f20f61c2330b\n3.000000\n\n\n0x6a8354f5a7ee5b7e6d170f1d116f5e2665baff61\n1.525000\n\n\n0x6f9bb7e454f5b3eb2310343f0e99269dc2bb8a1d\n1.200000\n\n\n0x196a2a9a22c2fd8f5107e97df9ad14a23e81982b\n1.000000\n\n\n0xff1882511a5673194b252c35f2530562f74f47e4\n0.999711"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Taming onchain data",
+    "section": "",
+    "text": "Like my blog? Contact me on Telegram or X\n\n\n\n\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n    \n  \n\n\n\n\n\n\n\n\n\n\nyield basis\n\n\nAn analysis of deposit transactions on yield basis\n\n\n\n\n\n2025-09-29\n\n1 min\n\n\n\n\n\n\n\n\n\n\n\nStablecoins Usage\n\n\nAn analysis of onchain stablecoins activity\n\n\n\n\n\n2025-09-24\n\n1 min\n\n\n\n\nNo matching items"
+  },
+  {
     "objectID": "hunt/stablecoins.html",
     "href": "hunt/stablecoins.html",
     "title": "Stablecoins Usage",
@@ -19,12 +33,5 @@
     "title": "Stablecoins Usage",
     "section": "ERC20 transfers count",
     "text": "ERC20 transfers count\n\n\n\n\n\n\n\n\n\nstablecoin\nerc20_transfer_count\n\n\n\n\n0\ncrvusd\n1359555\n\n\n1\nusds\n834159\n\n\n2\nlusd\n550227\n\n\n3\ngho\n475397\n\n\n4\ndola\n362099\n\n\n5\neusd\n148279\n\n\n6\nfxusd\n94206\n\n\n7\nalusd\n80357\n\n\n8\nbold\n58566\n\n\n9\nousd\n57283\n\n\n10\nfrxusd\n40915\n\n\n11\nusd3\n8826"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Taming onchain data",
-    "section": "",
-    "text": "Like my blog? Contact me on Telegram or X\n\n\n\n\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n    \n  \n\n\n\n\n\n\n\n\n\n\nStablecoins Usage\n\n\nAn analysis of onchain stablecoins activity\n\n\n\n\n\n2025-09-24\n\n1 min\n\n\n\n\nNo matching items"
   }
 ]
