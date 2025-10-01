@@ -191,9 +191,11 @@ def _etherscan_to_parquet_in_chunks(
 def etherscan_to_parquet(
     address: str,
     chain: str,
+    from_block: Optional[int] = None,
+    to_block: Optional[int] = None,
     data_dir: str = os.getenv("PARQUET_DATA_DIR"),
     table: Literal["logs", "transactions"] = "logs",
-    block_chunk_size: int = 50_000,
+    block_chunk_size: int = 20_000,
 ) -> Path:
     """Extract historical data for a contract and save to Parquet files.
 
@@ -214,10 +216,12 @@ def etherscan_to_parquet(
 
     output_path = Path(f"{data_dir}/{chain}_{address.lower()}/{table}.parquet")
 
-    from_block = etherscan_client.get_contract_creation_block_number(address)
+    from_block = from_block or etherscan_client.get_contract_creation_block_number(
+        address
+    )
     if output_path.exists():
         from_block = _get_resume_block(Path(output_path), address)
-    to_block = etherscan_client.get_latest_block()
+    to_block = to_block or etherscan_client.get_latest_block()
 
     # Extract to Parquet files
     _etherscan_to_parquet_in_chunks(
