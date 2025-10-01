@@ -1,4 +1,4 @@
-"""Configuration management for onchain_sleuth package."""
+"""Configuration management for onchaindata package."""
 
 from .settings import APIs, ColumnSchemas
 

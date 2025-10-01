@@ -48,7 +48,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Default materialization: `table` (configured in `dbt_project.yml`)
 
 ### Configuration Management
-- **Centralized Settings** (`src/onchain_sleuth/config/settings.py`):
+- **Centralized Settings** (`src/onchaindata/config/settings.py`):
   - API keys and rate limits
   - Standardized column schemas for different data types
   - API endpoint URLs

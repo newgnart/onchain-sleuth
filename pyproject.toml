@@ -1,5 +1,5 @@
 [project]
-name = "onchain-sleuth"
+name = "onchaindata"
 version = "0.1.0"
 description = ""
 readme = "README.md"
@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-onchain_sleuth = { path = "./src/onchain_sleuth" }
+onchaindata = { path = "./src/onchaindata" }
 
 [tool.uv]
 package = true

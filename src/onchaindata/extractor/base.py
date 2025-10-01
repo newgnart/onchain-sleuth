@@ -1,4 +1,4 @@
-"""Abstract base classes for onchain_sleuth package."""
+"""Abstract base classes for onchaindata package."""
 
 import time
 import logging
@@ -59,35 +59,6 @@ class AutoRegisterMeta(type(ABC)):
                     "type": "client" if is_api_client else "source",
                 }
             )
-
-    @classmethod
-    def register_pending_classes(cls):
-        """Register all pending classes with the factory."""
-        if not hasattr(cls, "_pending_registrations"):
-            return
-
-        try:
-            from ..factory import APIClientFactory, DLTSourceFactory
-
-            for registration in cls._pending_registrations:
-                if registration["type"] == "client":
-                    cls._register_api_client(
-                        registration["class"], registration["name"], APIClientFactory
-                    )
-                else:
-                    cls._register_dlt_source(
-                        registration["class"],
-                        registration["name"],
-                        APIClientFactory,
-                        DLTSourceFactory,
-                    )
-
-            # Clear pending registrations
-            cls._pending_registrations = []
-
-        except ImportError:
-            # Factory not available, keep pending
-            pass
 
     @staticmethod
     def _register_api_client(client_class: Type, name: str, factory_class):

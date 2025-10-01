@@ -1,4 +1,4 @@
-"""Centralized configuration management for onchain_sleuth."""
+"""Centralized configuration management for onchaindata."""
 
 import os
 import json

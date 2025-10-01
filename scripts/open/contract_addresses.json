@@ -1,8 +1,0 @@
-{
-  "open_contract": {
-    "address": "0x323c03c48660fE31186fa82c289b0766d331Ce21",
-    "chain": "ethereum",
-    "protocol": "misc",
-    "description": "Open contract for testing"
-  }
-}

@@ -22,3 +22,4 @@ eda.ipynb
 /dbt_subprojects/*/.user.yml
 /.quarto/
 _site/
+.data/

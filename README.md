@@ -10,7 +10,7 @@ The toolkit focuses on:
 
 ```
 onchain-sleuth/
-├── src/onchain_sleuth/          # Core Python package
+├── src/onchaindata/          # Core Python package
 │   ├── config/              # Settings and configuration
 │   ├── core/                # Base classes and utilities
 │   ├── datasource/          # API client implementations
