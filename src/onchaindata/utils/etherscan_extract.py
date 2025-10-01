@@ -73,23 +73,21 @@ def _log_error_to_csv(
     )
 
 
-def _get_resume_block(output_path: str, address: str) -> Optional[int]:
+def _get_resume_block(file_path: Path, address: str) -> Optional[int]:
     """Get the maximum block number from existing parquet file to resume from.
 
     Args:
-        output_path: Path to the parquet file
+        file_path: Path to the parquet file
         address: Contract address to filter by
 
     Returns:
         Next block number to resume from (max_block + 1), or None if no existing data
     """
-    if not output_path or not os.path.exists(output_path):
+    if not file_path.exists():
         return None
 
     try:
-        # Determine address column name based on file content
-        # Logs use 'contract_address', transactions use 'address'
-        schema = pl.scan_parquet(output_path).collect_schema()
+        schema = pl.scan_parquet(file_path).collect_schema()
 
         if "contract_address" in schema:
             # This is a logs file
@@ -98,20 +96,20 @@ def _get_resume_block(output_path: str, address: str) -> Optional[int]:
             # This is a transactions file
             address_col = "address"
         else:
-            logger.error(f"No appropriate address column found in {output_path}")
+            logger.error(f"No appropriate address column found in {file_path}")
             return None
 
         # Use scan_parquet for memory efficiency
         max_block = (
-            pl.scan_parquet(output_path)
+            pl.scan_parquet(file_path)
             .filter(pl.col(address_col) == address.lower())
             .select(pl.col("blockNumber").max())
             .collect()
             .item()
         )
-        return max_block if max_block is not None else None
+        return max_block or None
     except Exception as e:
-        logger.warning(f"Could not read existing file {output_path}: {e}")
+        logger.warning(f"Could not read existing file {file_path}: {e}")
         return None
 
 
@@ -147,34 +145,15 @@ def _etherscan_to_parquet_in_chunks(
     chainid = etherscan_client.chainid
     chain = etherscan_client.chain
 
-    # Get end block from Etherscan client
-    if to_block is None:
-        to_block = etherscan_client.get_latest_block()
-
-    # Determine starting blocks with independent resume logic for each table
-    if from_block is None:
-        from_block = etherscan_client.get_contract_creation_block_number(
-            contract_address
-        )
-
     output_path = f"{data_dir}/{chain}_{contract_address.lower()}/{table}.parquet"
-    if table == "logs":
-        address_col = "contract_address"
-    elif table == "transactions":
-        address_col = "address"
 
-    total_extracted = (
-        pl.scan_parquet(output_path).select(pl.len()).collect().item()
-        if os.path.exists(output_path)
-        else 0
-    )
     end_block = to_block
 
     for chunk_start in range(from_block, end_block + 1, block_chunk_size):
         chunk_end = min(chunk_start + block_chunk_size - 1, end_block)
 
         try:
-            result_path = extractor.to_parquet(
+            extractor.to_parquet(
                 address=contract_address,
                 chain=chain,
                 table=table,
@@ -184,22 +163,9 @@ def _etherscan_to_parquet_in_chunks(
                 output_path=output_path,
             )
 
-            chunk_extracted = (
-                pl.scan_parquet(result_path)
-                .filter(
-                    (pl.col(address_col) == contract_address)
-                    & (pl.col("blockNumber") >= chunk_start)
-                    & (pl.col("blockNumber") <= chunk_end)
-                )
-                .select(pl.len())
-                .collect()
-                .item()
-            )
-            total_extracted += chunk_extracted
-
         except Exception as e:
             logger.error(
-                f"Failed to extract logs for blocks {chunk_start} to {chunk_end} with error {e}"
+                f"Failed to extract {table} for blocks {chunk_start} to {chunk_end} with error {e}"
             )
             # Immediately log error to CSV
             _log_error_to_csv(
@@ -211,20 +177,24 @@ def _etherscan_to_parquet_in_chunks(
                 block_chunk_size=block_chunk_size,
             )
 
-    summary_parts = []
-    summary_parts.append(f"{total_extracted} {table} - {chunk_start}-{chunk_end}")
+    if os.path.exists(output_path):
+        total_extracted = pl.scan_parquet(output_path).select(pl.len()).collect().item()
+    else:
+        total_extracted = 0
 
-    logger.info(f"✅ {contract_address} - {chainid} - {summary_parts}")
+    logger.info(
+        f"✅ {contract_address} - {chainid} - {table} - {from_block}-{to_block}, {total_extracted}"
+    )
+    return output_path
 
 
 def etherscan_to_parquet(
     address: str,
     chain: str,
-    resume: bool = True,
     data_dir: str = os.getenv("PARQUET_DATA_DIR"),
     table: Literal["logs", "transactions"] = "logs",
     block_chunk_size: int = 50_000,
-) -> Tuple[str, str]:
+) -> Path:
     """Extract historical data for a contract and save to Parquet files.
 
     Args:
@@ -237,18 +207,25 @@ def etherscan_to_parquet(
         table: Whether to extract event logs or transactions (default: "logs")
         block_chunk_size: Number of blocks to process per chunk (default: 50,000)
     Returns:
-        Tuple[str, str]
+        Path to the parquet file
     """
     chainid = get_chainid(chain)
     etherscan_client = EtherscanClient(chainid=chainid)
 
-    output_path = f"{data_dir}/{chain}_{address.lower()}/{table}.parquet"
+    output_path = Path(f"{data_dir}/{chain}_{address.lower()}/{table}.parquet")
+
+    from_block = etherscan_client.get_contract_creation_block_number(address)
+    if output_path.exists():
+        from_block = _get_resume_block(Path(output_path), address)
+    to_block = etherscan_client.get_latest_block()
 
     # Extract to Parquet files
     _etherscan_to_parquet_in_chunks(
         contract_address=address,
         etherscan_client=etherscan_client,
         data_dir=data_dir,
+        from_block=from_block,
+        to_block=to_block,
         block_chunk_size=block_chunk_size,
         table=table,
     )
@@ -258,7 +235,7 @@ def etherscan_to_parquet(
 def find_error_file(table_name: str) -> str:
     """Find the CSV error file for given address and chainid."""
     error_file = f"logs/extract_error_{table_name}.csv"
-    if not os.path.exists(error_file):
+    if not Path(error_file).exists():
         raise FileNotFoundError(f"No error file found for {table_name}")
     return error_file
 
@@ -271,7 +248,6 @@ def retry_failed_blocks(table_name: Literal["logs", "transactions"]) -> Tuple[st
     resolved_error_file = error_file.replace(".csv", "_resolved.csv")
     df.to_csv(resolved_error_file, index=False)
     os.remove(error_file)
-    resume = False
 
     for _, row in df.iterrows():
         chainid = row.chainid
@@ -282,13 +258,12 @@ def retry_failed_blocks(table_name: Literal["logs", "transactions"]) -> Tuple[st
         to_block = row.to_block
         block_chunk_size = max(int(row.block_chunk_size / 10), 1000)
 
-        logs_output_path, transactions_output_path = _etherscan_to_parquet_in_chunks(
+        logs_output_path = _etherscan_to_parquet_in_chunks(
             contract_address=address,
             etherscan_client=etherscan_client,
             from_block=from_block,
             to_block=to_block,
             block_chunk_size=block_chunk_size,
-            resume=resume,
             table=table_name,
         )
-    return logs_output_path, transactions_output_path
+    return logs_output_path

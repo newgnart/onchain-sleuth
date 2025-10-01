@@ -1,14 +1,22 @@
 """Historical data extraction to Parquet files."""
 
 import logging
+import json
 import os
+
 from pathlib import Path
+from datetime import datetime
 from typing import Dict, List, Optional, Literal, Any
 
 import polars as pl
+import pandas as pd
+import dlt
+from dlt.sources.rest_api import rest_api_source
+from dlt.sources.helpers.rest_client import paginators
 
 from .exceptions import APIError
-from .base import BaseAPIClient, BaseSource
+from .base import BaseAPIClient, BaseSource, APIConfig
+from ..config import APIUrls, APIs
 
 
 class EtherscanClient(BaseAPIClient):
@@ -18,10 +26,7 @@ class EtherscanClient(BaseAPIClient):
     def _load_chainid_mapping(cls) -> Dict[str, int]:
         """Load chain name to chainid mapping from resource file."""
         # Get the path to the chainid.json file relative to this module
-        current_file = Path(__file__)
-        chainid_path = (
-            current_file.parent.parent.parent.parent / "resource" / "chainid.json"
-        )
+        chainid_path = Path(__file__).parent.parent / "config/chainid.json"
 
         try:
             with chainid_path.open("r") as f:
@@ -330,7 +335,9 @@ class EtherscanSource(BaseSource):
             pass  # Fetching logs for address
 
             source = self.create_dlt_source(**params)
-            for item in source:
+            # Extract the resource from the source
+            resource = list(source.resources.values())[0]
+            for item in resource:
                 item["chainid"] = self.client.chainid
                 yield item
 
@@ -373,7 +380,9 @@ class EtherscanSource(BaseSource):
             pass  # Fetching transactions for address
 
             source = self.create_dlt_source(**params)
-            for item in source:
+            # Extract the resource from the source
+            resource = list(source.resources.values())[0]
+            for item in resource:
                 item["chainid"] = self.client.chainid
                 yield item
 
@@ -467,10 +476,8 @@ class EtherscanExtractor:
                     record["chain"] = chain
                     data.append(record)
 
-            if not len(data) == 0:
+            if len(data) == 0:
                 self.logger.debug(f"No {table} extracted for address {address}")
-                return None
-
             return self._save_to_parquet(address, chain, table, data, output_path)
 
         except APIError as e:
@@ -537,6 +544,10 @@ class EtherscanExtractor:
             # Ensure output_path is a Path object
             output_path = Path(output_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        if len(data) == 0:
+            self.logger.debug(f"No {table} data to save for address {address}")
+            return str(output_path)
 
         try:
             # Create Polars DataFrame

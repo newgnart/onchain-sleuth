@@ -73,3 +73,15 @@ class APIUrls:
     DEFILLAMA_YIELDS = "https://yields.llama.fi"
     DEFILLAMA_API = "https://api.llama.fi"
     DEFILLAMA_COINS = "https://coins.llama.fi"
+
+
+@dataclass
+class APIConfig:
+    """Configuration for API clients."""
+
+    base_url: str
+    api_key: Optional[str] = None
+    rate_limit: float = 5.0  # requests per second
+    timeout: int = 30
+    retry_attempts: int = 3
+    retry_delay_base: float = 1.0  # base delay for exponential backoff

@@ -9,18 +9,7 @@ from typing import Any, Dict, List, Optional, Type, Callable
 
 from .rate_limiter import RateLimitedSession, RateLimitStrategy
 from .exceptions import APIError
-
-
-@dataclass
-class APIConfig:
-    """Configuration for API clients."""
-
-    base_url: str
-    api_key: Optional[str] = None
-    rate_limit: float = 5.0  # requests per second
-    timeout: int = 30
-    retry_attempts: int = 3
-    retry_delay_base: float = 1.0  # base delay for exponential backoff
+from ..config import APIConfig
 
 
 class AutoRegisterMeta(type(ABC)):
