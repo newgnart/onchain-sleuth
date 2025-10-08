@@ -116,7 +116,7 @@ def _get_resume_block(file_path: Path, address: str) -> Optional[int]:
 def _etherscan_to_parquet_in_chunks(
     contract_address: str,
     etherscan_client: EtherscanClient,
-    data_dir: str = os.getenv("PARQUET_DATA_DIR"),
+    output_path: Path,
     from_block: Optional[int] = None,
     to_block: Optional[int] = None,
     block_chunk_size: int = 50_000,
@@ -134,7 +134,7 @@ def _etherscan_to_parquet_in_chunks(
         from_block: Starting block number (uses contract creation block if None)
         to_block: Ending block number (uses latest block if None)
         block_chunk_size: Number of blocks to process per chunk (default: 50,000)
-        data_dir: Path for parquet file output
+        output_path: Path for parquet file output
         table: Whether to extract event logs or transactions (default: "logs")
     Returns:
         Path to the parquet file
@@ -144,8 +144,6 @@ def _etherscan_to_parquet_in_chunks(
     contract_address = contract_address.lower()
     chainid = etherscan_client.chainid
     chain = etherscan_client.chain
-
-    output_path = f"{data_dir}/{chain}_{contract_address.lower()}/{table}.parquet"
 
     end_block = to_block
 
@@ -191,9 +189,9 @@ def _etherscan_to_parquet_in_chunks(
 def etherscan_to_parquet(
     address: str,
     chain: str,
+    output_path: Path,
     from_block: Optional[int] = None,
     to_block: Optional[int] = None,
-    data_dir: str = os.getenv("PARQUET_DATA_DIR"),
     table: Literal["logs", "transactions"] = "logs",
     block_chunk_size: int = 20_000,
 ) -> Path:
@@ -202,10 +200,9 @@ def etherscan_to_parquet(
     Args:
         address: Contract address to extract data for
         chain: Chain name (e.g. "ethereum", "polygon")
-        logs_output_path: Path for logs parquet file output
-        transactions_output_path: Path for transactions parquet file output
-        resume: Whether to resume from existing data (default: True)
-        data_dir: Base directory for parquet files (default: "data/etherscan_raw")
+        output_path: Path for parquet file output
+        from_block: Starting block number
+        to_block: Ending block number
         table: Whether to extract event logs or transactions (default: "logs")
         block_chunk_size: Number of blocks to process per chunk (default: 50,000)
     Returns:
@@ -213,9 +210,6 @@ def etherscan_to_parquet(
     """
     chainid = get_chainid(chain)
     etherscan_client = EtherscanClient(chainid=chainid)
-
-    output_path = Path(f"{data_dir}/{chain}_{address.lower()}/{table}.parquet")
-
     from_block = from_block or etherscan_client.get_contract_creation_block_number(
         address
     )
@@ -227,7 +221,7 @@ def etherscan_to_parquet(
     _etherscan_to_parquet_in_chunks(
         contract_address=address,
         etherscan_client=etherscan_client,
-        data_dir=data_dir,
+        output_path=output_path,
         from_block=from_block,
         to_block=to_block,
         block_chunk_size=block_chunk_size,
