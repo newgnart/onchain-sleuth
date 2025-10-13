@@ -1,4 +1,5 @@
 # Onchain data
+This repo is archived and moved to https://github.com/newgnart/fa-dae2-gnart
 A data engineering toolkit for extracting, transforming, and loading EVM blockchains data.
 
 ## Usage
